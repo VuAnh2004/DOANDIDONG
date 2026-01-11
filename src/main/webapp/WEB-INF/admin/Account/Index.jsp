@@ -5,7 +5,7 @@
 <main id="main" class="main">
 	<!-- Tiêu đề trang -->
 	<div class="pagetitle mb-4">
-		<h2>📋 Danh Sách Người Dùng</h2>
+		<h2>📋 Danh sách người dùng</h2>
 	</div>
 
 	<section class="section dashboard">
@@ -36,12 +36,12 @@
 							class="table table-hover table-bordered align-middle datatable bg-white">
 							<thead class="table-light">
 								<tr class="text-center">
-									<th class="text-center">Stt</th>
+									<th class="text-center">STT</th>
 									<th class="text-center">Mã đăng nhập</th>
 									<th class="text-center">Email</th>
-									<th class="text-center">Ngày Sửa</th>
-									<th class="text-center">Trạng Thái</th>
-									<th class="text-center">Chức Năng</th>
+									<th class="text-center">Ngày sửa</th>
+									<th class="text-center">Trạng thái</th>
+									<th class="text-center">Chức năng</th>
 								</tr>
 							</thead>
 							<tbody>

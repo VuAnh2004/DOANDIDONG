@@ -2,5 +2,5 @@ eclipse.preferences.version=1
 encoding//src/main/java=UTF-8
 encoding//src/main/webapp/WEB-INF/admin/include/index.jsp=UTF-8
 encoding//src/main/webapp/WEB-INF/admin/include/sidebar.jsp=UTF-8
-encoding//src/main/webapp/index.jsp=UTF-8
+encoding//src/main/webapp/WEB-INF/include/sidebar.jsp=UTF-8
 encoding/<project>=UTF-8

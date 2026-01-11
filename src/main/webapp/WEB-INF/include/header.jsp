@@ -6,7 +6,7 @@
 	<div class="d-flex align-items-center justify-content-between">
 		<a href="index.jsp" class="logo d-flex align-items-center"> <img
 			src="assets/img/logo.jpg" alt=""> <span
-			class="d-none d-lg-block">TRƯỜNG THPT TÂY HIẾU</span>
+			class="d-none d-lg-block" style="font-size: 18px;">TRƯỜNG THPT TÂY HIẾU</span>
 		</a> <i class="bi bi-list toggle-sidebar-btn"></i>
 	</div>
 	<!-- End Logo -->
@@ -35,8 +35,7 @@
 			<li class="nav-item dropdown"><a class="nav-link nav-icon"
 				href="#" data-bs-toggle="dropdown"> <i class="bi bi-bell"></i> <span
 					class="badge bg-primary badge-number">4</span>
-			</a>
-			<!-- End Notification Icon -->
+			</a> <!-- End Notification Icon -->
 
 				<ul
 					class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
@@ -98,16 +97,14 @@
 					<li class="dropdown-footer"><a href="#">Show all
 							notifications</a></li>
 
-				</ul>
-				<!-- End Notification Dropdown Items --></li>
+				</ul> <!-- End Notification Dropdown Items --></li>
 			<!-- End Notification Nav -->
 
 			<li class="nav-item dropdown"><a class="nav-link nav-icon"
 				href="#" data-bs-toggle="dropdown"> <i
 					class="bi bi-chat-left-text"></i> <span
 					class="badge bg-success badge-number">3</span>
-			</a>
-			<!-- End Messages Icon -->
+			</a> <!-- End Messages Icon -->
 
 				<ul
 					class="dropdown-menu dropdown-menu-end dropdown-menu-arrow messages">
@@ -161,8 +158,7 @@
 					<li class="dropdown-footer"><a href="#">Show all messages</a>
 					</li>
 
-				</ul>
-				<!-- End Messages Dropdown Items --></li>
+				</ul> <!-- End Messages Dropdown Items --></li>
 			<!-- End Messages Nav -->
 
 			<li class="nav-item dropdown pe-3"><a
@@ -204,5 +200,6 @@
 </header>
 <style>
 .logo span {
-    font-size: 21px;
+	font-size: 21px;
+}
 </style>
