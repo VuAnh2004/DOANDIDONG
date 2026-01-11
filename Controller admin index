@@ -1,0 +1,114 @@
+@WebServlet("/dashboard")
+public class DashboardServlet extends HttpServlet {
+    
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+            throws ServletException, IOException {
+        
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        try {
+            // Kết nối database
+            conn = DatabaseConnection.getConnection();
+            
+            // 1. Tổng số học sinh
+            pstmt = conn.prepareStatement("SELECT COUNT(*) AS tongHocSinh FROM dbo.QLHocSinh");
+            rs = pstmt.executeQuery();
+            int tongHocSinh = 0;
+            if (rs.next()) {
+                tongHocSinh = rs.getInt("tongHocSinh");
+            }
+            
+            // 2. Tổng số giáo viên
+            pstmt = conn.prepareStatement("SELECT COUNT(*) AS tongGiaoVien FROM dbo.QLGiaoVien");
+            rs = pstmt.executeQuery();
+            int tongGiaoVien = 0;
+            if (rs.next()) {
+                tongGiaoVien = rs.getInt("tongGiaoVien");
+            }
+            
+            // 3. Tổng số lớp học
+            pstmt = conn.prepareStatement("SELECT COUNT(*) AS tongLopHoc FROM dbo.QLLopHoc");
+            rs = pstmt.executeQuery();
+            int tongLopHoc = 0;
+            if (rs.next()) {
+                tongLopHoc = rs.getInt("tongLopHoc");
+            }
+            
+            // 4. Top 10 lớp có sĩ số cao nhất
+            pstmt = conn.prepareStatement(
+                "SELECT TOP 10 l.TenLop, COUNT(hslh.MaHS) AS siSo " +
+                "FROM dbo.QLLopHoc l " +
+                "LEFT JOIN dbo.QLHocSinhLopHo hslh ON l.MaLop = hslh.MaLop " +
+                "GROUP BY l.MaLop, l.TenLop " +
+                "ORDER BY siSo DESC"
+            );
+            rs = pstmt.executeQuery();
+            
+            List<String> danhSachLop = new ArrayList<>();
+            List<Integer> siSoList = new ArrayList<>();
+            
+            while (rs.next()) {
+                danhSachLop.add(rs.getString("TenLop"));
+                siSoList.add(rs.getInt("siSo"));
+            }
+            
+            // 5. Phân bố học lực
+            pstmt = conn.prepareStatement(
+                "SELECT " +
+                "COUNT(CASE WHEN DiemTB >= 8 THEN 1 END) AS Gioi, " +
+                "COUNT(CASE WHEN DiemTB >= 6.5 AND DiemTB < 8 THEN 1 END) AS Kha, " +
+                "COUNT(CASE WHEN DiemTB >= 5 AND DiemTB < 6.5 THEN 1 END) AS TrungBinh, " +
+                "COUNT(CASE WHEN DiemTB < 5 THEN 1 END) AS Kem " +
+                "FROM dbo.QLDiem"
+            );
+            rs = pstmt.executeQuery();
+            
+            int gioi = 0, kha = 0, trungBinh = 0, kem = 0;
+            if (rs.next()) {
+                gioi = rs.getInt("Gioi");
+                kha = rs.getInt("Kha");
+                trungBinh = rs.getInt("TrungBinh");
+                kem = rs.getInt("Kem");
+            }
+            
+            // Set attribute 
+            request.setAttribute("totalStudents", tongHocSinh);
+            request.setAttribute("totalTeachers", tongGiaoVien);
+            request.setAttribute("totalClasses", tongLopHoc);
+            
+            // Chuyển danh sách thành JSON
+            Gson gson = new Gson();
+            request.setAttribute("classNames", gson.toJson(danhSachLop));
+            request.setAttribute("studentCounts", gson.toJson(siSoList));
+            
+            // Dữ liệu học lực
+            request.setAttribute("gioi", gioi);
+            request.setAttribute("kha", kha);
+            request.setAttribute("xuatSac", gioi); // Giả sử xuất sắc = giỏi (có thể điều chỉnh)
+            
+            // Phổ điểm
+            int[] phoDiem = {kem, trungBinh, kha, gioi};
+            request.setAttribute("scoreData", gson.toJson(phoDiem));
+            
+            // Chuyển đến JSP
+            request.getRequestDispatcher("/dashboard.jsp").forward(request, response);
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi kết nối database: " + e.getMessage());
+            request.getRequestDispatcher("/error.jsp").forward(request, response);
+        } finally {
+            // Đóng kết nối
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
