@@ -40,7 +40,7 @@ public class LoginController extends HttpServlet {
 		boolean showCaptcha = loginAttempts >= 3;
 		request.setAttribute("showCaptcha", showCaptcha);
 
-		/* ================= CAPTCHA ================= */
+		
 		if (showCaptcha) {
 			String captchaText = (String) session.getAttribute("CaptchaText");
 

@@ -3,7 +3,7 @@
 	pageEncoding="UTF-8"%>
 
 <%
-    // Lấy dữ liệu từ request
+   
     String message = (String) request.getAttribute("_message");
     String token = (String) request.getAttribute("token");
     Boolean showCaptcha = (Boolean) request.getAttribute("showCaptcha");
