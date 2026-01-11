@@ -41,7 +41,6 @@ public class QLLopHocController extends HttpServlet {
 				m.setItemTarget("#");
 		}
 
-		// Build tree
 		for (AdminMenu m : flatMenus) {
 			if (m.getParentLevel() != 0) {
 				AdminMenu parent = menuMap.get(m.getParentLevel());
@@ -61,7 +60,6 @@ public class QLLopHocController extends HttpServlet {
 		return rootMenus;
 	}
 
-	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
@@ -79,17 +77,12 @@ public class QLLopHocController extends HttpServlet {
 			request.setAttribute("contentPage", "/WEB-INF/admin/QLLopHoc/Index.jsp");
 			break;
 
-//            case "/Create":
-//                request.setAttribute("contentPage", "/WEB-INF/admin/QLLopHoc/Create.jsp");
-//                break;
 
 		case "/Create":
-			// Lấy danh sách khóa học từ DB
 			QLKhoaHocDAOImpl khoaHocDAO = new QLKhoaHocDAOImpl();
-			List<QLKhoaHoc> khoaHocList = khoaHocDAO.getAll(); // trả về tất cả khóa học
+			List<QLKhoaHoc> khoaHocList = khoaHocDAO.getAll(); 
 			request.setAttribute("KhoaHocList", khoaHocList);
 
-			// Nếu form submit lỗi, giữ giá trị đã nhập
 			request.setAttribute("ClassName",
 					request.getParameter("ClassName") != null ? request.getParameter("ClassName") : "");
 			request.setAttribute("MaxStudents",
@@ -112,7 +105,6 @@ public class QLLopHocController extends HttpServlet {
 		            if (lop != null) {
 		                request.setAttribute("lophoc", lop);
 
-		                // Lấy danh sách khối
 		                QLKhoiDAOImpl khoiDAO = new QLKhoiDAOImpl();
 		                List<QLKhoi> khoiList = khoiDAO.getAll()
 		                        .stream()
@@ -120,7 +112,6 @@ public class QLLopHocController extends HttpServlet {
 		                        .collect(Collectors.toList());
 		                request.setAttribute("khoiList", khoiList);
 
-		                // Lấy danh sách khóa học
 		                QLKhoaHocDAOImpl khoaHocDAO1 = new QLKhoaHocDAOImpl();
 		                request.setAttribute("KhoaHocList", khoaHocDAO1.getAll());
 		            }
@@ -181,14 +172,12 @@ public class QLLopHocController extends HttpServlet {
 					QLKhoaHoc khoaHoc = khoaHocDAO.getById(courseId);
 
 					if (khoaHoc != null && khoaHoc.getStartYear() != null && khoaHoc.getEndYear() != null) {
-						// Lấy danh sách khối từ DB
 						QLKhoiDAOImpl khoiDAO = new QLKhoiDAOImpl();
 						List<QLKhoi> khoiList = khoiDAO.getAll().stream()
 								.sorted(Comparator.comparingInt(QLKhoi::getGradeLevelId)).collect(Collectors.toList());
 
 						int totalYears = Math.min(khoiList.size(), khoaHoc.getEndYear() - khoaHoc.getStartYear() + 1);
 
-						// Lấy danh sách lớp hiện có
 						List<QLLopHoc> existingLops = dao.getAll();
 
 						for (int i = 0; i < totalYears; i++) {
@@ -204,7 +193,6 @@ public class QLLopHocController extends HttpServlet {
 							lopMoi.setCurrentStudents(0);
 							lopMoi.setActive(isActive);
 
-							// Kiểm tra trùng
 							boolean exists = existingLops.stream()
 									.anyMatch(x -> x.getClassName().equals(lopMoi.getClassName())
 											&& x.getCourseID().equals(lopMoi.getCourseID())
@@ -218,19 +206,15 @@ public class QLLopHocController extends HttpServlet {
 					}
 				}
 
-				// Chỉ redirect khi insert thành công
 				response.sendRedirect(request.getContextPath() + "/admin/QLLopHoc/Index");
-				return; // kết thúc method ngay sau redirect
+				return;
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				// Không redirect nữa, chỉ forward lỗi
 				request.setAttribute("errorMessage", "Lỗi thêm lớp: " + ex.getMessage());
 
-				// Cần load danh sách khóa học để form không bị lỗi
 				QLKhoaHocDAOImpl khoaHocDAO = new QLKhoaHocDAOImpl();
 				request.setAttribute("KhoaHocList", khoaHocDAO.getAll());
 
-				// Giữ lại giá trị đã nhập
 				request.setAttribute("ClassName", request.getParameter("ClassName"));
 				request.setAttribute("MaxStudents", request.getParameter("MaxStudents"));
 				request.setAttribute("CourseID", request.getParameter("CourseID"));
@@ -238,7 +222,7 @@ public class QLLopHocController extends HttpServlet {
 				request.setAttribute("IsActive", request.getParameter("IsActive") != null);
 
 				request.getRequestDispatcher("/WEB-INF/admin/QLLopHoc/Create.jsp").forward(request, response);
-				return; // kết thúc
+				return; 
 			}
 
 		case "/Edit":

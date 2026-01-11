@@ -23,7 +23,7 @@ public class QLMonHocController extends HttpServlet {
     private QLMonHocDAO dao = new QLMonHocDAOImpl();
     private AdminMenuDAO adminMenuDAO = new AdminMenuDAOImpl();
 
-    // Hàm buildMenuTree (Giữ nguyên)
+    
     private List<AdminMenu> buildMenuTree(List<AdminMenu> flatMenus, String contextPath) {
         List<AdminMenu> allMenus = new ArrayList<>(flatMenus);
         Map<Integer, AdminMenu> menuMap = new HashMap<>();
@@ -70,7 +70,6 @@ public class QLMonHocController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // --- LOGIC TẢI VÀ TRUYỀN MENU CHO SIDEBAR ---
         List<AdminMenu> menus = adminMenuDAO.getActiveMenus();
         request.setAttribute("menus", buildMenuTree(menus, request.getContextPath()));
         // ---------------------------------------------
@@ -122,14 +121,13 @@ public class QLMonHocController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        request.setCharacterEncoding("UTF-8"); // Đảm bảo tiếng Việt
+        request.setCharacterEncoding("UTF-8"); 
         String action = request.getPathInfo();
 
         if (action.equals("/Create")) {
             QLMonHoc mh = new QLMonHoc();
             mh.setSubjectName(request.getParameter("SubjectName"));
 
-            // Xử lý NumberOfLesson
             try {
                 mh.setNumberOfLesson(Integer.parseInt(request.getParameter("NumberOfLesson")));
             } catch (NumberFormatException e) {
@@ -147,7 +145,6 @@ public class QLMonHocController extends HttpServlet {
         } else if (action.equals("/Edit")) {
              QLMonHoc mh = new QLMonHoc();
 
-             // Xử lý SubjectID và NumberOfLesson
              try {
                  mh.setSubjectID(Integer.parseInt(request.getParameter("SubjectID")));
                  mh.setNumberOfLesson(Integer.parseInt(request.getParameter("NumberOfLesson")));
