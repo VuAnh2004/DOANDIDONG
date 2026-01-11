@@ -9,7 +9,7 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.util.*;
-import java.sql.Date; // Thêm import cho java.sql.Date
+import java.sql.Date;
 
 @WebServlet("/admin/QLDiem/*")
 public class QLDiemController extends HttpServlet {
@@ -21,18 +21,15 @@ public class QLDiemController extends HttpServlet {
     private final QLHocKyDAO hocKyDAO = new QLHocKyDAOImpl();
     private final AdminMenuDAO adminMenuDAO = new AdminMenuDAOImpl();
 
-    // ---------------- MENU ----------------
     private void setMenu(HttpServletRequest req) {
         List<AdminMenu> menus = adminMenuDAO.getActiveMenus();
         req.setAttribute("menus", buildMenuTree(menus, req.getContextPath()));
     }
 
-    // Hàm tạo cây menu (Đã tối ưu hóa lại để sử dụng trong QLDiemController)
     private List<AdminMenu> buildMenuTree(List<AdminMenu> flatMenus, String contextPath) {
         List<AdminMenu> allMenus = new ArrayList<>(flatMenus);
         Map<Integer, AdminMenu> menuMap = new HashMap<>();
         
-        // Bước 1: Khởi tạo Map và ItemTarget
         for (AdminMenu m : allMenus) {
             menuMap.put((int) m.getAdminMenuID(), m);
             if (m.getIdName() == null || m.getIdName().isEmpty())
@@ -50,7 +47,6 @@ public class QLDiemController extends HttpServlet {
             }
         }
 
-        // Bước 2: Xây dựng cấu trúc cây (subMenus)
         for (AdminMenu m : allMenus) {
             int parentId = m.getParentLevel();
             if (parentId != 0) {
@@ -63,7 +59,6 @@ public class QLDiemController extends HttpServlet {
             }
         }
 
-        // Bước 3: Lấy ra các Menu gốc (ParentLevel = 0)
         List<AdminMenu> rootMenus = new ArrayList<>();
         for (AdminMenu m : allMenus) {
             if (m.getParentLevel() == 0)
@@ -72,7 +67,6 @@ public class QLDiemController extends HttpServlet {
         return rootMenus;
     }
     
-    // ---------------- HELPER METHODS (Giữ nguyên) ----------------
     
     private void forward(HttpServletRequest req, HttpServletResponse resp, String view)
             throws ServletException, IOException {
@@ -95,7 +89,6 @@ public class QLDiemController extends HttpServlet {
         return path.isEmpty() ? "Index" : path.substring(0,1).toUpperCase() + path.substring(1);
     }
 
-    // Tương tự như QLGiaoVienController, tôi định nghĩa lại 3 hàm helper này để đảm bảo tính độc lập
     private Integer parseInt(String s) {
         try { return (s == null || s.isBlank()) ? null : Integer.parseInt(s); }
         catch(Exception e) { return null; }
@@ -125,8 +118,6 @@ public class QLDiemController extends HttpServlet {
         else return "Yếu";
     }
 
-    // ---------------- GET (Giữ nguyên) ----------------
-    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         setMenu(req);
         String action = getAction(req);
@@ -140,13 +131,10 @@ public class QLDiemController extends HttpServlet {
                 break;
        
             case "Create":
-                // 1️⃣ Load dropdowns
                 loadDropdowns(req); 
 
-                // 2️⃣ Lấy danh sách tất cả lớp
                 List<QLLopHoc> allClasses = lopHocDAO.getAll();
 
-                // 3️⃣ Lọc lớp + khóa duy nhất
                 Map<String, QLLopHoc> uniqueClassMap = new LinkedHashMap<>();
                 for (QLLopHoc cls : allClasses) {
                     String className = cls.getClassName() != null ? cls.getClassName() : "";
@@ -154,17 +142,14 @@ public class QLDiemController extends HttpServlet {
                             ? cls.getKhoaHoc().getCohort().toString()
                             : "";
 
-                    // Key: ClassName-Cohort
                     String key = className + "-" + cohortStr;
                     if (!key.isEmpty() && !uniqueClassMap.containsKey(key)) {
                         uniqueClassMap.put(key, cls);
                     }
                 }
 
-                // 4️⃣ Truyền danh sách lớp duy nhất sang JSP
                 req.setAttribute("classListUnique", new ArrayList<>(uniqueClassMap.values()));
 
-                // 5️⃣ Xử lý các tham số đã chọn
                 String classCohortParam = req.getParameter("classCohort");
                 Integer subjectID = parseInt(req.getParameter("subjectID"));
                 Integer semesterID = parseInt(req.getParameter("semesterID"));
@@ -180,10 +165,9 @@ public class QLDiemController extends HttpServlet {
                     }
 
                     if (classID != null && cohort != null) {
-                        // Lấy danh sách học sinh theo lớp + khóa
+
                         List<QLHocSinh> studentsWithDuplicates = hsDAO.getByClass(classID, cohort);
 
-                        // Lọc bỏ trùng lặp theo StudentID
                         Map<String, QLHocSinh> uniqueStudentMap = new LinkedHashMap<>();
                         for (QLHocSinh hs : studentsWithDuplicates) {
                             if (!uniqueStudentMap.containsKey(hs.getStudentID())) {
@@ -195,13 +179,11 @@ public class QLDiemController extends HttpServlet {
                         req.setAttribute("studentList", students);
                     }
 
-                    // Truyền lại giá trị đã chọn để JSP giữ trạng thái
                     req.setAttribute("selectedClassCohort", classCohortParam);
                     req.setAttribute("selectedSubjectID", subjectID);
                     req.setAttribute("selectedSemesterID", semesterID);
                 }
 
-                // 6️⃣ Forward sang JSP
                 forward(req, resp, "/WEB-INF/admin/QLDiem/Create.jsp");
                 break;
 
@@ -232,8 +214,6 @@ public class QLDiemController extends HttpServlet {
         }
     }
 
-    // ---------------- POST (Giữ nguyên) ----------------
-    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         String action = getAction(req);
@@ -276,7 +256,6 @@ public class QLDiemController extends HttpServlet {
                 }
             }
 
-            // ⚠️ Chỉ redirect **sau khi chưa ghi gì ra response**
             resp.sendRedirect(req.getContextPath() + "/admin/QLDiem/Index");
             break;
 
@@ -298,12 +277,10 @@ public class QLDiemController extends HttpServlet {
                         d2.setMidtermScore(parseDouble(req.getParameter("midtermScore")));
                         d2.setFinalScore(parseDouble(req.getParameter("finalScore")));
                         
-                        // Tính lại điểm trung bình và đánh giá (vì điểm thành phần đã thay đổi)
                         double updatedAvg = calculateAverage(d2);
                         d2.setAverageScore(updatedAvg);
                         d2.setGradeCategory(calculateGradeCategory(updatedAvg));
                         
-                        // Lưu lại các trường khác
                         d2.setNotes(req.getParameter("notes"));
                         d2.setUpdatedDate(new Date(System.currentTimeMillis()));
                         d2.setActive(req.getParameter("isActive") != null);

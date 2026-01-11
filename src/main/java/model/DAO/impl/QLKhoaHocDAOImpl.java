@@ -10,7 +10,6 @@ import java.util.List;
 
 public class QLKhoaHocDAOImpl implements QLKhoaHocDAO {
 
-    @Override
     public List<QLKhoaHoc> getAll() {
         List<QLKhoaHoc> list = new ArrayList<>();
         String sql = "SELECT CourseID, StartYear, EndYear, Cohort, IsActive FROM QLKhoaHoc ORDER BY CourseID";
@@ -36,7 +35,6 @@ public class QLKhoaHocDAOImpl implements QLKhoaHocDAO {
         return list;
     }
 
-    @Override
     public QLKhoaHoc getById(int id) {
         String sql = "SELECT CourseID, StartYear, EndYear, Cohort, IsActive FROM QLKhoaHoc WHERE CourseID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -61,7 +59,6 @@ public class QLKhoaHocDAOImpl implements QLKhoaHocDAO {
         return null;
     }
 
-    @Override
     public void insert(QLKhoaHoc q) {
         String sql = "INSERT INTO QLKhoaHoc (StartYear, EndYear, Cohort, IsActive) VALUES (?, ?, ?, ?)";
 
@@ -79,7 +76,6 @@ public class QLKhoaHocDAOImpl implements QLKhoaHocDAO {
         }
     }
 
-    @Override
     public void update(QLKhoaHoc q) {
         String sql = "UPDATE QLKhoaHoc SET StartYear=?, EndYear=?, Cohort=?, IsActive=? WHERE CourseID=?";
 
@@ -98,7 +94,6 @@ public class QLKhoaHocDAOImpl implements QLKhoaHocDAO {
         }
     }
 
-    @Override
     public void delete(int id) {
         String sql = "DELETE FROM QLKhoaHoc WHERE CourseID=?";
         try (Connection conn = DBConnection.getConnection();

@@ -38,7 +38,6 @@ public class QLDiemDAOImpl implements QLDiemDAO {
         return diem;
     }
 
-    @Override
     public List<QLDiem> getAll() {
         List<QLDiem> list = new ArrayList<>();
         String sql =
@@ -69,7 +68,6 @@ public class QLDiemDAOImpl implements QLDiemDAO {
             while (rs.next()) {
                 QLDiem d = new QLDiem();
                 
-                // 1. Ánh xạ các thuộc tính chính của QLDiem
                 d.setGradeID(rs.getInt("GradeID"));
                 d.setStudentID(rs.getString("StudentID"));
                 d.setSubjectID(rs.getInt("SubjectID"));
@@ -87,30 +85,24 @@ public class QLDiemDAOImpl implements QLDiemDAO {
                 d.setNotes(rs.getString("Notes"));
                 d.setActive(rs.getBoolean("IsActive"));
 
-                // 2. Ánh xạ đối tượng liên kết (Xử lý NULL an toàn)
-
-                // Học sinh (QLHocSinh)
                 QLHocSinh hs = new QLHocSinh();
                 hs.setStudentID(rs.getString("StudentID"));
-                hs.setFullName(rs.getString("StudentName")); // Lấy từ Alias
+                hs.setFullName(rs.getString("StudentName"));
                 d.setHocsinh(hs);
 
-                // Môn học (QLMonHoc)
                 QLMonHoc monHoc = new QLMonHoc();
                 monHoc.setSubjectID(rs.getInt("SubjectID"));
                 monHoc.setSubjectName(rs.getString("SubjectName"));
                 d.setMonHoc(monHoc);
 
-                // Học kỳ (QLHocKy)
                 QLHocKy hk = new QLHocKy();
                 hk.setSemesterId(rs.getInt("SemesterID"));
-                hk.setSemesterName(rs.getString("SemesterName"));   // HK1, HK2
-                hk.setSemesterCode(rs.getString("SemesterCode"));   // 2025-2026
+                hk.setSemesterName(rs.getString("SemesterName"));
+                hk.setSemesterCode(rs.getString("SemesterCode"));
 
                 
 
                 d.setHocKy(hk);
-             // ===== KHÓA HỌC (QLKhoaHoc) =====
                 Integer courseId = rs.getObject("CourseID", Integer.class);
                 if (courseId != null) {
                     QLKhoaHoc khoaHoc = new QLKhoaHoc();
@@ -122,17 +114,16 @@ public class QLDiemDAOImpl implements QLDiemDAO {
                 }
 
 
-                // Lớp học (QLLopHoc) - Cần kiểm tra NULL vì dùng LEFT JOIN
                 String className = rs.getString("ClassName");
                 
                 if (className != null) {
                     QLLopHoc lop = new QLLopHoc();
-                    // Lấy ClassID từ hl.ClassID (đã thêm vào SELECT)
+          
                     lop.setClassID(rs.getInt("ClassID")); 
                     lop.setClassName(className);
                     d.setLopHoc(lop);
                 } else {
-                    // Nếu không có lớp, set QLLopHoc là null (hoặc đối tượng mặc định)
+          
                     d.setLopHoc(null); 
                 }
 
@@ -146,7 +137,6 @@ public class QLDiemDAOImpl implements QLDiemDAO {
         return list;
     }
 
-    @Override
     public QLDiem getById(int gradeID) {
         String sql = "SELECT * FROM QLDiem WHERE GradeID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -165,7 +155,6 @@ public class QLDiemDAOImpl implements QLDiemDAO {
         return null;
     }
 
-    @Override
     public void insert(QLDiem diem) {
         String sql = "INSERT INTO QLDiem (StudentID, SubjectID, SemesterID, TeacherID, OralScore1, OralScore2, OralScore3, Quiz15Min1, Quiz15Min2, MidtermScore, Final_score, AverageScore, GradeCategory, Notes, IsActive) "
                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -202,7 +191,6 @@ public class QLDiemDAOImpl implements QLDiemDAO {
         }
     }
 
-    @Override
     public void update(QLDiem diem) {
         String sql = "UPDATE QLDiem SET StudentID=?, SubjectID=?, SemesterID=?, TeacherID=?, OralScore1=?, OralScore2=?, OralScore3=?, Quiz15Min1=?, Quiz15Min2=?, MidtermScore=?, Final_score=?, AverageScore=?, GradeCategory=?, Notes=?, IsActive=?, UpdatedDate=GETDATE() WHERE GradeID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -233,7 +221,6 @@ public class QLDiemDAOImpl implements QLDiemDAO {
         }
     }
 
-    @Override
     public void delete(int gradeID) {
         String sql = "DELETE FROM QLDiem WHERE GradeID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -247,7 +234,7 @@ public class QLDiemDAOImpl implements QLDiemDAO {
             throw new RuntimeException("Lỗi khi xóa điểm.", e);
         }
     }
-    @Override
+    
     public List<QLDiem> getByTeacher(String teacherID) {
         List<QLDiem> list = new ArrayList<>();
 
@@ -291,6 +278,4 @@ public class QLDiemDAOImpl implements QLDiemDAO {
         }
         return list;
     }
-
-
 }

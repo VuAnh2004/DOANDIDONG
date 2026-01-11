@@ -10,5 +10,4 @@ public interface QLDiemDAO {
     void update(QLDiem diem);
     void delete(int gradeID);
     List<QLDiem> getByTeacher(String teacherID);
-
 }

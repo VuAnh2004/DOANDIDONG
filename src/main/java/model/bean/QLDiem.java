@@ -24,7 +24,6 @@ public class QLDiem {
     private Date updatedDate;
     private boolean isActive;
 
-    // --- Getter / Setter ---
     public int getGradeID() { return gradeID; }
     public void setGradeID(int gradeID) { this.gradeID = gradeID; }
 
@@ -100,7 +99,4 @@ public class QLDiem {
     public void setKhoaHoc(QLKhoaHoc khoahoc) { 
         this.khoaHoc = khoahoc; 
     }
-
-    
-    
 }

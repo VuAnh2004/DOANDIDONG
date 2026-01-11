@@ -17,28 +17,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet("/admin/QLKhoaHoc/*")
-public class QLKhoaHocController extends HttpServlet {
+@WebServlet("/admin/QLKhoaHoc/*") 
+public class QLKhoaHocController extends HttpServlet { 
     private static final long serialVersionUID = 1L;
-
+    
     private QLKhoaHocDAO dao = new QLKhoaHocDAOImpl();
     private AdminMenuDAO adminMenuDAO = new AdminMenuDAOImpl();
-
-    // Build menu tree giống QLHocKyController
+    
+    
     private List<AdminMenu> buildMenuTree(List<AdminMenu> flatMenus, String contextPath) {
-        List<AdminMenu> allMenus = new ArrayList<>(flatMenus);
-        Map<Integer, AdminMenu> menuMap = new HashMap<>();
-
-        for (AdminMenu m : allMenus) {
-            menuMap.put((int)m.getAdminMenuID(), m);
-
-            if (m.getIdName() == null || m.getIdName().isEmpty()) {
+    	
+        List<AdminMenu> allMenus = new ArrayList<>(flatMenus); 
+        Map<Integer, AdminMenu> menuMap = new HashMap<>(); 
+        for (AdminMenu m : allMenus) { 
+            menuMap.put((int)m.getAdminMenuID(), m); 
+            if (m.getIdName() == null || m.getIdName().isEmpty()) { 
                 m.setIdName("menu-" + m.getAdminMenuID());
             }
 
             String controller = m.getControllerName();
             String action = m.getActionName();
-
+            
             if (m.getAdminMenuID() == 1 || ("Home".equalsIgnoreCase(controller) && "Index".equalsIgnoreCase(action))) {
                 m.setItemTarget(contextPath + "/admin");
             } else if (controller != null && !controller.isEmpty() && action != null && !action.isEmpty()) {
@@ -70,11 +69,9 @@ public class QLKhoaHocController extends HttpServlet {
         return rootMenus;
     }
 
-    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Gắn menu cho sidebar
         List<AdminMenu> menus = adminMenuDAO.getActiveMenus();
         request.setAttribute("menus", buildMenuTree(menus, request.getContextPath()));
 
@@ -112,7 +109,6 @@ public class QLKhoaHocController extends HttpServlet {
         }
     }
 
-    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
