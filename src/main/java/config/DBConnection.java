@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class DBConnection {
     // Nên đặt thông tin cấu hình trong tệp properties riêng, nhưng giữ nguyên ở đây
-    private static final String URL = "jdbc:sqlserver://localhost\\SQLEXPRESS:1433;databaseName=QLDIEM;encrypt=false";
+    private static final String URL = "jdbc:sqlserver://VUANH:1433;databaseName=QLDIEM;encrypt=false";
     private static final String USER = "sa";
     private static final String PASS = "123456";
 

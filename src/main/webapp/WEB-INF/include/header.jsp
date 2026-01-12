@@ -1,4 +1,5 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
 <%@ page import="Utilities.Functions"%>
 
 <header id="header" class="header fixed-top d-flex align-items-center">
