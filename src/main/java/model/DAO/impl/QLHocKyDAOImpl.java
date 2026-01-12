@@ -10,7 +10,7 @@ import java.util.List;
 
 public class QLHocKyDAOImpl implements QLHocKyDAO {
 
-    @Override
+
     public List<QLHocKy> getAll() {
         List<QLHocKy> list = new ArrayList<>();
         String sql = "SELECT SemesterID, SemesterName, SemesterCode, IsActive FROM QLHocKy ORDER BY SemesterID";
@@ -35,7 +35,6 @@ public class QLHocKyDAOImpl implements QLHocKyDAO {
         return list;
     }
 
-    @Override
     public QLHocKy getById(int id) {
         String sql = "SELECT SemesterID, SemesterName, SemesterCode, IsActive FROM QLHocKy WHERE SemesterID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -59,7 +58,6 @@ public class QLHocKyDAOImpl implements QLHocKyDAO {
         return null;
     }
 
-    @Override
     public void insert(QLHocKy hk) {
         String sql = "INSERT INTO QLHocKy (SemesterName, SemesterCode, IsActive) VALUES (?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
@@ -75,7 +73,6 @@ public class QLHocKyDAOImpl implements QLHocKyDAO {
         }
     }
 
-    @Override
     public void update(QLHocKy hk) {
         String sql = "UPDATE QLHocKy SET SemesterName=?, SemesterCode=?, IsActive=? WHERE SemesterID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -92,7 +89,6 @@ public class QLHocKyDAOImpl implements QLHocKyDAO {
         }
     }
 
-    @Override
     public void delete(int id) {
         String sql = "DELETE FROM QLHocKy WHERE SemesterID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -107,7 +103,7 @@ public class QLHocKyDAOImpl implements QLHocKyDAO {
     }
 
 	public List<QLHocKy> getSchoolYear(String schoolYear) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 	
