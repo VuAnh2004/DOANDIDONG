@@ -10,7 +10,6 @@ import java.util.List;
 
 public class MenuDAOImpl implements MenuDAO {
 
-    @Override
     public List<Menu> getUserMenus() {
         List<Menu> allMenus = new ArrayList<>();
         List<Menu> parentMenus = new ArrayList<>();
@@ -64,31 +63,30 @@ public class MenuDAOImpl implements MenuDAO {
         }
     }
 
-    @Override
     public void update(Menu m) {
         String sqlUpdateCurrent = "UPDATE Menu SET MenuName=?, IsActive=?, ControllerName=?, ActionName=?, Levels=?, ParentID=?, MenuOrder=?, Position=?, Icon=?, IDName=?, ItemTarget=? WHERE MenuID=?";
         String sqlDisableChildren = "UPDATE Menu SET IsActive = 0 WHERE ParentID = ?";
 
         try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false); // Bắt đầu giao dịch
+            conn.setAutoCommit(false); 
             try {
-                // 1. Cập nhật menu hiện tại
+               
                 try (PreparedStatement ps = conn.prepareStatement(sqlUpdateCurrent)) {
                     setMenuParameters(ps, m);
                     ps.setInt(12, m.getMenuID());
                     ps.executeUpdate();
                 }
 
-                // 2. Nếu tắt menu cha, tắt luôn các menu con
+               
                 if (!m.isActive()) {
                     try (PreparedStatement psSub = conn.prepareStatement(sqlDisableChildren)) {
                         psSub.setInt(1, m.getMenuID());
                         psSub.executeUpdate();
                     }
                 }
-                conn.commit(); // Thành công thì commit
+                conn.commit(); 
             } catch (SQLException e) {
-                conn.rollback(); // Lỗi thì rollback
+                conn.rollback(); 
                 e.printStackTrace();
             }
         } catch (SQLException e) {

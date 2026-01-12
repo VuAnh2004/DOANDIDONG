@@ -74,7 +74,7 @@ public class MenuController extends HttpServlet {
             Menu m = dao.getById(id);
             if (m != null) {
                 m.setActive(!m.isActive());
-                dao.update(m); // Logic Cascade xóa con nằm ở đây
+                dao.update(m);
             }
         }
         response.sendRedirect(request.getContextPath() + "/admin/Menu/Index");

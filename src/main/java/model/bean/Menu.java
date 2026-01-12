@@ -19,7 +19,6 @@ public class Menu {
 
     private List<Menu> subMenus;
 
-    // ===== getter & setter =====
     public int getMenuID() { return menuID; }
     public void setMenuID(int menuID) { this.menuID = menuID; }
 
