@@ -21,7 +21,6 @@ public class AdminController extends HttpServlet {
 
 	private AdminMenuDAO menuDAO = new AdminMenuDAOImpl();
 
-	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setAttribute("pageTitle", " Quản Trị Hệ Thống");
@@ -42,29 +41,25 @@ public class AdminController extends HttpServlet {
 		
 		for (AdminMenu m : allMenus) {
 			menuMap.put((int) m.getAdminMenuID(), m);
-
-			// Tạo IdName nếu chưa có
 			if (m.getIdName() == null || m.getIdName().isEmpty()) {
 				m.setIdName("menu-" + m.getAdminMenuID());
 			}
-
 			String controller = m.getControllerName();
 			String action = m.getActionName();
-			
-			// Tính ItemTarget: LUÔN bao gồm contextPath để khớp với request.getRequestURI() trong JSP
+
 			if (m.getAdminMenuID() == 1 || ("Home".equalsIgnoreCase(controller) && "Index".equalsIgnoreCase(action))) {
-				// Trường hợp Trang Chủ
+				
 				m.setItemTarget(contextPath + "/admin");
 			} else if (controller != null && !controller.isEmpty() && action != null && !action.isEmpty()) {
-				// Trường hợp Menu Con (Có Controller và Action)
+				
 				m.setItemTarget(contextPath + "/admin/" + controller + "/" + action);
 			} else {
-				// Trường hợp Menu Cha (Không có Controller/Action)
+				
 				m.setItemTarget("#"); 
 			}
 		}
 
-		// 2. Gán con cho cha (Xây dựng cây)
+		
 		for (AdminMenu m : allMenus) {
 			int parentId = m.getParentLevel();
 			if (parentId != 0) {
@@ -77,7 +72,7 @@ public class AdminController extends HttpServlet {
 			}
 		}
 
-		// 3. Chỉ trả về menu root (ParentLevel = 0)
+		
 		List<AdminMenu> rootMenus = new ArrayList<>();
 		for (AdminMenu m : allMenus) {
 			if (m.getParentLevel() == 0) {
@@ -88,7 +83,7 @@ public class AdminController extends HttpServlet {
 		return rootMenus;
 	}
 
-	@Override
+	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		doGet(request, response);

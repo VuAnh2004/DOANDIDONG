@@ -10,7 +10,7 @@ import java.util.List;
 
 public class AdminMenuDAOImpl implements AdminMenuDAO {
 
-    @Override
+    
     public List<AdminMenu> getActiveMenus() {
         List<AdminMenu> list = new ArrayList<>();
         String sql = "SELECT * FROM AdminMenu WHERE IsActive = 1 ORDER BY ItemOrder ASC";

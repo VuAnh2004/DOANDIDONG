@@ -5,7 +5,6 @@
 <%@ page import="java.util.List"%>
 
 <%! 
-// Hàm render menu đệ quy
 private void renderMenu(List<AdminMenu> menuList, Writer out) throws java.io.IOException {
     if (menuList == null || menuList.isEmpty()) return;
 
@@ -26,7 +25,7 @@ private void renderMenu(List<AdminMenu> menuList, Writer out) throws java.io.IOE
             renderMenu(m.getSubMenus(), out);
             out.write("</ul>");
         } else {
-            // Menu cuối cùng
+ 
             out.write("<a class='nav-link collapsed' href='" + m.getItemTarget() + "'>");
             out.write("<i class='" + m.getIcon() + "'></i><span>" + m.getItemName() + "</span></a>");
         }

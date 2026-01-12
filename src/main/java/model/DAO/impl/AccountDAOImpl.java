@@ -11,7 +11,7 @@ import java.util.List;
 public class AccountDAOImpl implements AccountDAO {
 
 
-    @Override
+    
     public List<Account> getAll() {
         List<Account> list = new ArrayList<>();
         String sql = """
@@ -50,7 +50,7 @@ public class AccountDAOImpl implements AccountDAO {
         return list;
     }
 
-    @Override
+    
     public Account getById(int id) {
         String sql = "SELECT * FROM Account WHERE UserID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -76,7 +76,7 @@ public class AccountDAOImpl implements AccountDAO {
         return null;
     }
 
-    @Override
+   
     public void insert(Account account) {
         String sql = "INSERT INTO Account(UserName, Email, Password, IsActive) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
@@ -97,7 +97,7 @@ public class AccountDAOImpl implements AccountDAO {
         }
     }
 
-    @Override
+
     public void update(Account account) {
         String sql = "UPDATE Account SET UserName=?, Email=?, Password=?, IsActive=? WHERE UserID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -113,7 +113,7 @@ public class AccountDAOImpl implements AccountDAO {
         }
     }
 
-    @Override
+    
     public void delete(int id) {
         String sql = "DELETE FROM Account WHERE UserID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -125,7 +125,7 @@ public class AccountDAOImpl implements AccountDAO {
         }
     }
 
-    @Override
+    
     public void toggleActive(int id, boolean status) {
         String sql = "UPDATE Account SET IsActive=? WHERE UserID=?";
         try (Connection conn = DBConnection.getConnection();

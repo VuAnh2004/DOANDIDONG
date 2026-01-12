@@ -10,7 +10,7 @@ import java.util.List;
 
 public class RoleDAOImpl implements RoleDAO {
 
-    @Override
+ 
     public List<Role> getAll() {
         List<Role> list = new ArrayList<>();
         String sql = "SELECT * FROM tblRoles ORDER BY RoleID";
@@ -29,7 +29,7 @@ public class RoleDAOImpl implements RoleDAO {
         return list;
     }
 
-    @Override
+
     public Role getById(int id) {
         String sql = "SELECT * FROM tblRoles WHERE RoleID=?";
         try (Connection conn = DBConnection.getConnection();

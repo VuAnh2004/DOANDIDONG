@@ -53,7 +53,7 @@ public class AccountController extends HttpServlet {
         return flatMenus.stream().filter(m -> m.getParentLevel() == 0).collect(Collectors.toList());
     }
 
-    @Override
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
@@ -71,35 +71,19 @@ public class AccountController extends HttpServlet {
                 request.setAttribute("roles", roleDAO.getAll());
                 request.setAttribute("contentPage", "/WEB-INF/admin/Account/Create.jsp");
                 break;
-
-//            case "/Edit":
-//                int editId = parseIntSafe(request.getParameter("id"), 0);
-//                if (editId > 0) {
-//                    Account acc = accountDAO.getById(editId);
-//                    if (acc != null) {
-//                        request.setAttribute("account", acc);
-//                        request.setAttribute("roles", roleDAO.getAll());
-//                    }
-//                }
-//                request.setAttribute("contentPage", "/WEB-INF/admin/Account/Edit.jsp");
-//                break;
             case "/Edit":
                 int editId = parseIntSafe(request.getParameter("id"), 0);
                 if (editId > 0) {
                     Account acc = accountDAO.getById(editId);
                     if (acc != null) {
                         request.setAttribute("account", acc);
-
-                        // Lấy tất cả quyền để hiển thị
                         List<Role> allRoles = roleDAO.getAll();
                         request.setAttribute("roles", allRoles);
-
-                        // Lấy danh sách RoleID mà user này đang có
                         List<Role> userRoleList = userRoleDAO.getRolesByUserId(editId);
                         List<Integer> userRoleIds = userRoleList.stream()
                                 .map(Role::getRoleID)
                                 .collect(Collectors.toList());
-                        request.setAttribute("userRoles", userRoleIds); // set sang JSP
+                        request.setAttribute("userRoles", userRoleIds);
                     }
                 }
                 request.setAttribute("contentPage", "/WEB-INF/admin/Account/Edit.jsp");
@@ -119,7 +103,7 @@ public class AccountController extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/admin/layout.jsp").forward(request, response);
     }
 
-    @Override
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 

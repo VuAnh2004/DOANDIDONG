@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QLHocSinhDAOImpl implements QLHocSinhDAO {
-
-	@Override
 	public List<QLHocSinh> getAll() {
 		List<QLHocSinh> list = new ArrayList<>();
 		String sql = "SELECT * FROM QLHocSinh ORDER BY FullName ASC";
@@ -29,7 +27,7 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 		return list;
 	}
 
-	@Override
+
 	public QLHocSinh getById(int id) {
 		String sql = "SELECT * FROM QLHocSinh WHERE ID=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -46,7 +44,6 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 		return null;
 	}
 
-	@Override
 	public QLHocSinh getByStudentID(String studentID) {
 		String sql = "SELECT * FROM QLHocSinh WHERE StudentID=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -63,7 +60,6 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 		return null;
 	}
 
-	@Override
 	public void insert(QLHocSinh s) {
 		String sql = "INSERT INTO QLHocSinh(StudentID, FullName, Birth, Gender, Address, Nation, Religion, StatusStudent, NumberPhone, Images, IsActive) VALUES(?,?,?,?,?,?,?,?,?,?,?)";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -76,7 +72,6 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 		}
 	}
 
-	@Override
 	public void update(QLHocSinh s) {
 		String sql = "UPDATE QLHocSinh SET StudentID=?, FullName=?, Birth=?, Gender=?, Address=?, Nation=?, Religion=?, StatusStudent=?, NumberPhone=?, Images=?, IsActive=? WHERE ID=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -90,7 +85,7 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 		}
 	}
 
-	@Override
+
 	public void delete(int id) {
 		String sql = "DELETE FROM QLHocSinh WHERE ID=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -103,7 +98,6 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 		}
 	}
 
-	// Toggle trạng thái
 	public void toggleStatus(int id) {
 		QLHocSinh s = getById(id);
 		if (s != null) {
@@ -112,7 +106,6 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 		}
 	}
 
-	// Mapping ResultSet -> QLHocSinh
 	private QLHocSinh mapResultSetToStudent(ResultSet rs) throws SQLException {
 		QLHocSinh s = new QLHocSinh();
 		s.setID(rs.getInt("ID"));
@@ -130,7 +123,6 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 		return s;
 	}
 
-	// Fill dữ liệu vào PreparedStatement
 	private void fillPreparedStatement(PreparedStatement ps, QLHocSinh s) throws SQLException {
 		ps.setString(1, s.getStudentID());
 		ps.setString(2, s.getFullName());
@@ -145,7 +137,6 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 		ps.setBoolean(11, s.isIsActive());
 	}
 
-	@Override
 	public List<QLHocSinh> getByClass(Integer classId, Integer cohort) {
 	    List<QLHocSinh> list = new ArrayList<>();
 	    if (classId == null || cohort == null) return list; // tránh null pointer
@@ -180,7 +171,7 @@ public class QLHocSinhDAOImpl implements QLHocSinhDAO {
 	        }
 
 	    } catch (SQLException e) {
-	        // log lỗi hoặc ném ra, tránh chỉ printStackTrace
+
 	        e.printStackTrace();
 	    }
 

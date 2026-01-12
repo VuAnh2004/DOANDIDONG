@@ -29,8 +29,6 @@ public class QLGiaoVienController extends HttpServlet {
 	private QLMonHocDAO monHocDAO = new QLMonHocDAOImpl();
 	private AdminMenuDAO adminMenuDAO = new AdminMenuDAOImpl();
 	private static final String UPLOAD_DIR = "uploads";
-
-	// ===== Build menu sidebar =====
 	private List<AdminMenu> buildMenuTree(List<AdminMenu> flatMenus, String contextPath) {
 		List<AdminMenu> allMenus = new ArrayList<>(flatMenus);
 		Map<Integer, AdminMenu> menuMap = new HashMap<>();
@@ -70,14 +68,10 @@ public class QLGiaoVienController extends HttpServlet {
 		return rootMenus;
 	}
 
-	// =========================================================
-	// GET METHOD
-	// =========================================================
-	@Override
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		// Load menu
 		List<AdminMenu> menus = adminMenuDAO.getActiveMenus();
 		request.setAttribute("menus", buildMenuTree(menus, request.getContextPath()));
 
@@ -110,8 +104,6 @@ public class QLGiaoVienController extends HttpServlet {
 		            response.sendRedirect(request.getContextPath() + "/admin/QLGiaoVien/Index");
 		            return;
 		        }
-
-		        // Lấy danh sách môn giáo viên đang dạy
 		        List<QLMonHoc> assigned = dao.getSubjectsByTeacherID(gv.getTeacherID());
 		        Set<Integer> assignedSubjectIDs = new HashSet<>();
 		        for (QLMonHoc mh : assigned) {
@@ -146,10 +138,6 @@ public class QLGiaoVienController extends HttpServlet {
 		}
 	}
 
-	// =========================================================
-	// POST METHOD
-	// =========================================================
-	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
@@ -174,10 +162,6 @@ public class QLGiaoVienController extends HttpServlet {
 		}
 		response.sendRedirect(request.getContextPath() + "/admin/QLGiaoVien/Index");
 	}
-
-	// =========================================================
-	// HÀM XỬ LÝ RIÊNG
-	// =========================================================
 
 	private void handleCreate(HttpServletRequest request) throws IOException, ServletException {
 		QLGiaoVien gv = extractGiaoVienFromRequest(request, null);
@@ -224,7 +208,6 @@ public class QLGiaoVienController extends HttpServlet {
 		}
 	}
 
-	// Extract object from form
 	private QLGiaoVien extractGiaoVienFromRequest(HttpServletRequest request, QLGiaoVien existing)
 			throws IOException, ServletException {
 		QLGiaoVien gv = existing != null ? existing : new QLGiaoVien();
@@ -248,17 +231,14 @@ public class QLGiaoVienController extends HttpServlet {
 		gv.setNumberBHXH(request.getParameter("NumberBHXH"));
 		gv.setIsActive(request.getParameter("IsActive") != null);
 
-		// SubjectIDs (checkbox danh sách môn học)
 		String[] subjectIDs = request.getParameterValues("SubjectIDs");
 
 		if (subjectIDs != null) {
-			// Người dùng có tick môn
 			List<Integer> list = new ArrayList<>();
 			for (String s : subjectIDs)
 				list.add(Integer.parseInt(s));
 			gv.setSubjectIDs(list);
 		} else {
-			// Không tick gì → KHÔNG XÓA môn học → giữ danh sách cũ
 			if (existing != null) {
 				gv.setSubjectIDs(existing.getSubjectIDs());
 			} else {
@@ -266,7 +246,6 @@ public class QLGiaoVienController extends HttpServlet {
 			}
 		}
 
-		// Images
 		Part filePart = request.getPart("Images");
 		String deleteImage = request.getParameter("DeleteImage");
 		boolean needDeleteOldFile = "true".equals(deleteImage);

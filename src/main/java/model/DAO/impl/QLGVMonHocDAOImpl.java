@@ -22,8 +22,6 @@ public class QLGVMonHocDAOImpl implements QLGVMonHocDAO {
     public QLGVMonHocDAOImpl() {
         conn = DBConnection.getConnection();
     }
-
-    @Override
     public List<Integer> getSubjectsByTeacher(String teacherID) {
         List<Integer> list = new ArrayList<>();
         try {
@@ -42,8 +40,6 @@ public class QLGVMonHocDAOImpl implements QLGVMonHocDAO {
 
         return list;
     }
-
-    @Override
     public void insert(String teacherID, int subjectID) {
         try {
             String sql = "INSERT INTO QLGVMonHoc (TeacherID, SubjectID) VALUES (?, ?)";
@@ -57,7 +53,7 @@ public class QLGVMonHocDAOImpl implements QLGVMonHocDAO {
         }
     }
 
-    @Override
+ 
     public void deleteByTeacher(String teacherID) {
         try {
             String sql = "DELETE FROM QLGVMonHoc WHERE TeacherID = ?";

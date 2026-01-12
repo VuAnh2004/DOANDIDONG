@@ -10,7 +10,6 @@ import java.util.List;
 
 public class UserRoleDAOImpl implements UserRoleDAO {
 
-    @Override
     public List<Role> getRolesByUserId(int userId) {
         List<Role> roles = new ArrayList<>();
         String sql = "SELECT r.RoleID, r.RoleName FROM tblRoles r " +
@@ -33,9 +32,9 @@ public class UserRoleDAOImpl implements UserRoleDAO {
         return roles;
     }
 
-    @Override
+
     public void assignRoles(int userId, List<Integer> roleIds) {
-        removeRoles(userId); // Xóa hết trước
+        removeRoles(userId); 
         String sql = "INSERT INTO tblUsersRoles(UserID, RoleID) VALUES (?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -50,7 +49,6 @@ public class UserRoleDAOImpl implements UserRoleDAO {
         }
     }
 
-    @Override
     public void removeRoles(int userId) {
         String sql = "DELETE FROM tblUsersRoles WHERE UserID=?";
         try (Connection conn = DBConnection.getConnection();

@@ -66,13 +66,13 @@ public class QLMonHocController extends HttpServlet {
         return rootMenus;
     }
 
-    @Override
+
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         List<AdminMenu> menus = adminMenuDAO.getActiveMenus();
         request.setAttribute("menus", buildMenuTree(menus, request.getContextPath()));
-        // ---------------------------------------------
+        
 
         String action = request.getPathInfo();
         if (action == null || action.equals("/"))
@@ -117,7 +117,7 @@ public class QLMonHocController extends HttpServlet {
         }
     }
 
-    @Override
+   
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 

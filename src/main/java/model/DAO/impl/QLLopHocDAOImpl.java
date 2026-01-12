@@ -14,10 +14,10 @@ import java.util.List;
 
 public class QLLopHocDAOImpl implements QLLopHocDAO {
 
-    private QLKhoiDAO qlKhoiDAO = new QLKhoiDAOImpl();     // DAO để load khối
-    private QLKhoaHocDAO qlKhoaHocDAO = new QLKhoaHocDAOImpl(); // DAO để load khóa học
+    private QLKhoiDAO qlKhoiDAO = new QLKhoiDAOImpl();   
+    private QLKhoaHocDAO qlKhoaHocDAO = new QLKhoaHocDAOImpl(); 
 
-    @Override
+
     public List<QLLopHoc> getAll() {
         List<QLLopHoc> list = new ArrayList<>();
         String sql = "SELECT ClassID, ClassName, GradeLevelId, CourseID, MaxStudents, CurrentStudents, SchoolYear, IsActive " +
@@ -32,8 +32,6 @@ public class QLLopHocDAOImpl implements QLLopHocDAO {
                 q.setClassID(rs.getInt("ClassID"));
                 q.setClassName(rs.getString("ClassName"));
                 q.setGradeLevelId(rs.getInt("GradeLevelId"));
-
-                // CourseID có thể null
                 Object courseObj = rs.getObject("CourseID");
                 if(courseObj != null) q.setCourseID((Integer) courseObj);
 
@@ -45,11 +43,10 @@ public class QLLopHocDAOImpl implements QLLopHocDAO {
                 q.setSchoolYear(rs.getString("SchoolYear"));
                 q.setActive(rs.getBoolean("IsActive"));
 
-                // Load khối
                 QLKhoi khoi = qlKhoiDAO.getById(q.getGradeLevelId());
                 q.setKhois(khoi);
 
-                // Load khóa học
+     
                 if(q.getCourseID() != null) {
                     QLKhoaHoc khoaHoc = qlKhoaHocDAO.getById(q.getCourseID());
                     q.setKhoaHoc(khoaHoc);

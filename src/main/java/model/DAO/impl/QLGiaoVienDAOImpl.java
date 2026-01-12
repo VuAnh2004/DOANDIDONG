@@ -12,9 +12,6 @@ import java.util.stream.Collectors; // Cần thiết cho việc ánh xạ tên m
 
 public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 
-	// --- Helper Methods ---
-
-	// Phương thức ánh xạ dữ liệu từ ResultSet sang Model QLGiaoVien
 	private QLGiaoVien mapResultSetToGiaoVien(ResultSet rs) throws SQLException {
 		QLGiaoVien gv = new QLGiaoVien();
 		gv.setID(rs.getInt("ID"));
@@ -34,8 +31,6 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 		gv.setImages(rs.getString("Images"));
 		return gv;
 	}
-
-	// Helper để INSERT môn học (Đã fix lỗi đệ quy/transaction)
 	private void insertTeacherSubjectsInternal(Connection conn, String teacherID, List<Integer> subjectIDs)
 			throws SQLException {
 		String sql = "INSERT INTO QLGVMonHoc (TeacherID, SubjectID) VALUES (?, ?)";
@@ -48,8 +43,6 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 			ps.executeBatch();
 		}
 	}
-
-	// Helper để DELETE môn học
 	private void deleteSubjectsByTeacherIDInternal(Connection conn, String teacherID) throws SQLException {
 		String sql = "DELETE FROM QLGVMonHoc WHERE TeacherID=?";
 		try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -57,10 +50,6 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 			ps.executeUpdate();
 		}
 	}
-
-	// --- CRUD GET ALL (Đã FIX để load Tên Môn học) ---
-
-	@Override
 	public List<QLGiaoVien> getAll() {
 		List<QLGiaoVien> list = new ArrayList<>();
 		String sql = "SELECT * FROM QLGiaoVien ORDER BY FullName";
@@ -69,22 +58,14 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 				PreparedStatement ps = conn.prepareStatement(sql);
 				ResultSet rs = ps.executeQuery()) {
 
-			// Bước 1: Lấy danh sách giáo viên cơ bản
+			
 			while (rs.next()) {
 				list.add(mapResultSetToGiaoVien(rs));
 			}
-
-			// Bước 2: Ánh xạ Tên Môn học cho từng giáo viên (FIX mới)
 			for (QLGiaoVien gv : list) {
-				// Lấy danh sách môn học đầy đủ (QLMonHoc)
 				List<QLMonHoc> subjects = getSubjectsByTeacherID(gv.getTeacherID());
-
-				// Trích xuất Tên Môn học từ List<QLMonHoc> sang List<String>
 				List<String> subjectNames = subjects.stream().map(QLMonHoc::getSubjectName)
 						.collect(Collectors.toList());
-
-				// Gán danh sách tên môn học vào Model (Sử dụng phương thức trong
-				// QLGiaoVien.java)
 				gv.setSubjectNames(subjectNames);
 			}
 
@@ -93,10 +74,6 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 		}
 		return list;
 	}
-
-	// --- CRUD GET BY ID ---
-
-	@Override
 	public QLGiaoVien getById(int id) {
 	    String sql = "SELECT * FROM QLGiaoVien WHERE ID=?";
 	    try (Connection conn = DBConnection.getConnection();
@@ -114,16 +91,13 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 	    return null;
 	}
 
-	// --- CRUD INSERT (Đã có logic Transaction và Log lỗi) ---
-
-	@Override
 	public void insert(QLGiaoVien gv) {
 		String sqlGV = "INSERT INTO QLGiaoVien (TeacherID, FullName, Birth, Gender, Address, StatusTeacher, CCCD, Nation, Religion, GroupDV, NumberPhone, NumberBHXH, Images, IsActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		Connection conn = null;
 
 		try {
 			conn = DBConnection.getConnection();
-			conn.setAutoCommit(false); // Bắt đầu Transaction
+			conn.setAutoCommit(false);
 
 			try (PreparedStatement ps = conn.prepareStatement(sqlGV)) {
 				ps.setString(1, gv.getTeacherID());
@@ -173,19 +147,13 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 			}
 		}
 	}
-
-	// --- CRUD UPDATE (Đã có logic Transaction và Log lỗi) ---
-
-	@Override
 	public void update(QLGiaoVien gv) {
 		String sqlGV = "UPDATE QLGiaoVien SET FullName=?, Birth=?, Gender=?, Address=?, StatusTeacher=?, CCCD=?, Nation=?, Religion=?, GroupDV=?, NumberPhone=?, NumberBHXH=?, Images=?, IsActive=? WHERE TeacherID=?";
 		Connection conn = null;
 
 		try {
 			conn = DBConnection.getConnection();
-			conn.setAutoCommit(false); // Bắt đầu Transaction
-
-			// Cập nhật thông tin GV
+			conn.setAutoCommit(false);
 			try (PreparedStatement ps = conn.prepareStatement(sqlGV)) {
 				ps.setString(1, gv.getFullName());
 				ps.setDate(2, gv.getBirth());
@@ -203,8 +171,6 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 				ps.setString(14, gv.getTeacherID());
 				ps.executeUpdate();
 			}
-
-			// --- XỬ LÝ môn học ---
 			List<Integer> oldSubjects = getSubjectsByTeacherID(gv.getTeacherID()).stream().map(m -> m.getSubjectID())
 					.collect(Collectors.toList());
 			List<Integer> newSubjects = gv.getSubjectIDs() != null ? gv.getSubjectIDs() : oldSubjects;
@@ -241,9 +207,7 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 		}
 	}
 
-	// --- CRUD DELETE (Đã có logic Transaction và Log lỗi) ---
 
-	@Override
 	public void delete(int id) {
 		QLGiaoVien gv = getById(id);
 		if (gv == null)
@@ -286,11 +250,8 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 		}
 	}
 
-	// --- Các phương thức giao dịch với QLGVMonHoc (Đã Fix) ---
-
 	public List<QLMonHoc> getSubjectsByTeacherID(String teacherID) {
 		List<QLMonHoc> subjects = new ArrayList<>();
-		// Lệnh JOIN để lấy Tên môn học (SubjectName)
 		String sql = "SELECT mh.SubjectID, mh.SubjectName FROM QLGVMonHoc gvmh JOIN QLMonHoc mh ON gvmh.SubjectID=mh.SubjectID WHERE gvmh.TeacherID=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, teacherID);
@@ -350,7 +311,7 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 		}
 	}
 
-	// Phương thức riêng cho Toggle Status
+	
 	public void updateStatus(String teacherID, boolean isActive) {
 		String sql = "UPDATE QLGiaoVien SET IsActive=? WHERE TeacherID=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -361,8 +322,6 @@ public class QLGiaoVienDAOImpl implements QLGiaoVienDAO {
 			e.printStackTrace();
 		}
 	}
-
-	// Xóa chỉ những môn học bị bỏ tích
 	private void deleteTeacherSubjectsByIDs(Connection conn, String teacherID, List<Integer> subjectIDs)
 			throws SQLException {
 		if (subjectIDs == null || subjectIDs.isEmpty())

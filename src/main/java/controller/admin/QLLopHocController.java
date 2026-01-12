@@ -147,8 +147,6 @@ public class QLLopHocController extends HttpServlet {
 
 		request.getRequestDispatcher("/WEB-INF/admin/layout.jsp").forward(request, response);
 	}
-
-	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 

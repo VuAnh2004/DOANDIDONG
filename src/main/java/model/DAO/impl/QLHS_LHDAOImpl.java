@@ -15,11 +15,6 @@ public class QLHS_LHDAOImpl implements QLHS_LHDAO {
 	private QLKhoaHocDAO khoaHocDAO = new QLKhoaHocDAOImpl();
 	private QLHocKyDAO hocKyDAO = new QLHocKyDAOImpl();
 
-	// Các phương thức getAll, getById, insert, update, delete giữ nguyên logic đã
-	// có
-	// (tôi lược bỏ các phương thức này ở đây để tập trung vào phần FIX/ADD)
-
-	@Override
 	public List<QLHS_LH> getAll() {
 		List<QLHS_LH> list = new ArrayList<>();
 		String sql = "SELECT HocSinhLopHocID, StudentID, ClassID, IsActive, SemesterID, CourseID FROM QLHocSinhLopHoc ORDER BY HocSinhLopHocID";
@@ -43,7 +38,6 @@ public class QLHS_LHDAOImpl implements QLHS_LHDAO {
 				if (courseObj != null)
 					hs_lh.setCourseID((Integer) courseObj);
 
-				// Load quan hệ
 				if (hs_lh.getStudentID() != null)
 					hs_lh.setHocsinh(hocSinhDAO.getByStudentID(hs_lh.getStudentID()));
 				hs_lh.setLopHoc(lopHocDAO.getById(hs_lh.getClassID()));
@@ -63,7 +57,7 @@ public class QLHS_LHDAOImpl implements QLHS_LHDAO {
 		return list;
 	}
 
-	@Override
+
 	public QLHS_LH getById(int id) {
 		String sql = "SELECT HocSinhLopHocID, StudentID, ClassID, IsActive, SemesterID, CourseID FROM QLHocSinhLopHoc WHERE HocSinhLopHocID=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -105,7 +99,7 @@ public class QLHS_LHDAOImpl implements QLHS_LHDAO {
 		return null;
 	}
 
-	@Override
+
 	public void insert(QLHS_LH hs_lh) {
 		String sql = "INSERT INTO QLHocSinhLopHoc (StudentID, ClassID, IsActive, SemesterID, CourseID) VALUES (?, ?, ?, ?, ?)";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -131,7 +125,7 @@ public class QLHS_LHDAOImpl implements QLHS_LHDAO {
 		}
 	}
 
-	@Override
+
 	public void update(QLHS_LH hs_lh) {
 		String sql = "UPDATE QLHocSinhLopHoc SET StudentID=?, ClassID=?, IsActive=?, SemesterID=?, CourseID=? WHERE HocSinhLopHocID=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -158,7 +152,6 @@ public class QLHS_LHDAOImpl implements QLHS_LHDAO {
 		}
 	}
 
-	@Override
 	public void delete(int id) {
 		String sql = "DELETE FROM QLHocSinhLopHoc WHERE HocSinhLopHocID=?";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -171,13 +164,8 @@ public class QLHS_LHDAOImpl implements QLHS_LHDAO {
 		}
 	}
 
-
-
-	// ⭐ PHƯƠNG THỨC FIX/ADD 2: Đếm số học sinh DUY NHẤT (Distinct StudentID) đang
-	// Active
 	public int countUniqueStudentsInClass(int classId) {
-		// Dùng COUNT(DISTINCT...) để đếm học sinh duy nhất (một học sinh có thể có
-		// nhiều bản ghi nếu có nhiều học kỳ)
+
 		String sql = "SELECT COUNT(DISTINCT StudentID) FROM QLHocSinhLopHoc WHERE ClassID=? AND IsActive";
 		try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setInt(1, classId);
@@ -191,7 +179,6 @@ public class QLHS_LHDAOImpl implements QLHS_LHDAO {
 		return 0;
 	}
 
-	@Override
 	public boolean existsInClassSemester(String studentID, int classID, int semesterID, int courseID) {
 	    String sql = "SELECT COUNT(*) FROM QLHocSinhLopHoc WHERE StudentID=? AND ClassID=? AND SemesterID=? AND CourseID=?";
 	    try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {

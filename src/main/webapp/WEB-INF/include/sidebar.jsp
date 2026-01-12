@@ -1,10 +1,8 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.*, model.bean.Menu"%>
 <%
 List<Menu> menus = (List<Menu>) request.getAttribute("menus");
-if (menus == null)
-    menus = new ArrayList<>();
+if (menus == null) menus = new ArrayList<>();
 menus.sort(Comparator.comparingInt(Menu::getMenuOrder));
 String currentPath = request.getRequestURI();
 %>
@@ -14,43 +12,53 @@ String currentPath = request.getRequestURI();
         <% for (Menu menu : menus) {
             List<Menu> subMenus = menu.getSubMenus() != null ? menu.getSubMenus() : new ArrayList<>();
             subMenus.sort(Comparator.comparingInt(Menu::getMenuOrder));
-            boolean isActive = menu.getControllerName() != null && currentPath.contains(menu.getControllerName());
+
+            boolean isParentActive = menu.getControllerName() != null && !menu.getControllerName().equals("#") && currentPath.contains(menu.getControllerName());
+
+            boolean hasActiveChild = false;
+            for(Menu child : subMenus) {
+                if(child.getControllerName() != null && currentPath.contains(child.getControllerName())) {
+                    hasActiveChild = true;
+                    break;
+                }
+            }
+            
+            boolean showExpanded = isParentActive || hasActiveChild;
         %>
-        <li class="nav-item <%=isActive ? "active" : ""%>">
+        <li class="nav-item">
             <% if (!subMenus.isEmpty()) { %>
-                <!-- Menu cấp 1 có submenu -->
-                <a class="nav-link collapsed" 
+                <a class="nav-link <%= showExpanded ? "" : "collapsed" %> <%= hasActiveChild ? "parent-active" : "" %>" 
                    data-bs-toggle="collapse" 
                    data-bs-target="#collapse-<%=menu.getMenuID()%>" 
                    href="#"
-                   aria-expanded="<%=isActive%>">
-                    <i class="<%=menu.getIcon() != null ? menu.getIcon().trim() : "fas fa-circle"%>"></i>
+                   aria-expanded="<%=showExpanded%>">
+                    <i class="<%=menu.getIcon() != null ? menu.getIcon().trim() : "bi bi-grid"%>"></i>
                     <span><%=menu.getMenuName()%></span>
                     <i class="bi bi-chevron-down ms-auto"></i>
                 </a>
 
                 <ul id="collapse-<%=menu.getMenuID()%>" 
-                    class="nav-content collapse <%=isActive ? "show" : ""%>" 
+                    class="nav-content collapse <%= showExpanded ? "show" : ""%>" 
                     data-bs-parent="#sidebar-nav">
                     <% for (Menu child : subMenus) {
                         boolean isChildActive = child.getControllerName() != null && currentPath.contains(child.getControllerName());
                     %>
-                    <li class="<%=isChildActive ? "active" : ""%>">
-                        <a href="<%=child.getControllerName() != null ? child.getControllerName() : "#" %>">
-                            <i class="<%=child.getIcon() != null ? child.getIcon().trim() : "fas fa-circle"%>"></i>
+                    <li>
+                        <a href="<%=request.getContextPath() + "/" + child.getControllerName()%>" 
+                           class="<%=isChildActive ? "active" : ""%>">
+                            <i class="<%=child.getIcon() != null ? child.getIcon().trim() : "bi bi-circle"%>"></i>
                             <span><%=child.getMenuName()%></span>
                         </a>
                     </li>
                     <% } %>
                 </ul>
             <% } else { %>
-                <!-- Menu cấp 1 không có submenu -->
-                <%
-                    // Chỉ menu "Trang chủ" dẫn index.jsp
+<%
                     String href = menu.getMenuName().equals("Trang chủ") ? "index.jsp" : (menu.getControllerName() != null ? menu.getControllerName() : "#");
+                    boolean isSingleActive = currentPath.contains(href) || (href.equals("index.jsp") && currentPath.endsWith("/"));
                 %>
-                <a class="nav-link" href="<%=href%>">
-                    <i class="<%=menu.getIcon() != null ? menu.getIcon().trim() : "fas fa-circle"%>"></i>
+                <a class="nav-link <%= isSingleActive ? "active" : "collapsed" %>" href="<%=href%>">
+                    <i class="<%=menu.getIcon() != null ? menu.getIcon().trim() : "bi bi-grid"%>"></i>
                     <span><%=menu.getMenuName()%></span>
                 </a>
             <% } %>
@@ -60,28 +68,81 @@ String currentPath = request.getRequestURI();
 </aside>
 
 <style>
-/* Menu cấp 2 (submenu) */
-.sidebar-nav .nav-content li a {
+/* Sidebar Style */
+.sidebar {
+    width: 300px;
+    background: #fff;
+    padding: 20px;
+}
+
+.sidebar-nav {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.nav-item {
+    margin-bottom: 5px;
+}
+
+/* Trạng thái mặc định (Chưa chọn) */
+.sidebar-nav .nav-link.collapsed {
+    background: transparent;
+    color: #444;
+}
+
+/* Trạng thái SÁNG (Active) cho Menu cấp 1 */
+.sidebar-nav .nav-link:not(.collapsed),
+.sidebar-nav .nav-link.active {
+    background: #f0f3ff; /* Màu xanh nhạt nhẹ */
+    color: #4154f1;      /* Chữ xanh đậm */
+    border-radius: 8px;
+}
+
+/* Menu cấp 1 khi có con đang active (nhưng nó đang đóng/mở) */
+.parent-active {
+    color: #4154f1 !important;
+    font-weight: 600;
+}
+
+/* Menu cấp 1 Icon */
+.sidebar-nav .nav-link i {
+    font-size: 1.1rem;
+    margin-right: 10px;
+    color: inherit;
+}
+
+/* Menu cấp 2 (Submenu) */
+.sidebar-nav .nav-content {
+    padding: 5px 0 0 0;
+    list-style: none;
+}
+
+.sidebar-nav .nav-content a {
     display: flex;
     align-items: center;
-    font-size: 15px;      /* chữ submenu 15px */
-    padding-left: 15px;   /* đẩy submenu sang phải */
+    font-size: 14px;
+    padding: 10px 10px 10px 40px;
+    transition: 0.3s;
+    color: #444;
+    text-decoration: none;
+    border-radius: 8px;
 }
 
-/* Icon submenu */
-.sidebar-nav .nav-content li a i {
-    margin-right: 10px;   /* khoảng cách icon và chữ */
-    font-size: 15px;      /* cỡ icon submenu 15px */
+/* Trạng thái SÁNG (Active) cho Menu cấp 2 */
+.sidebar-nav .nav-content a.active {
+    background: #f0f3ff;
+    color: #4154f1;
+    font-weight: 600;
 }
 
-/* Icon và chữ menu cấp 1 */
-.sidebar-nav > li > a i {
-    margin-right: 8px;    /* icon menu cấp 1 */
+.sidebar-nav .nav-content a i {
+    font-size: 12px;
+    margin-right: 8px;
 }
 
-/* Active menu highlight */
-.sidebar-nav li.active > a {
-    background-color: #e0e0e0;  /* màu nền active */
-    color: #000;
+.sidebar-nav .nav-content a:hover {
+    color: #4154f1;
+    background: #f6f9ff;
 }
 </style>

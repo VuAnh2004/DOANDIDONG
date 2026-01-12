@@ -14,7 +14,6 @@ import java.util.List;
 @WebFilter("/admin/*")
 public class AdminMenuFilter implements Filter {
 
-    // Thay thế Service bằng DAO
     private AdminMenuDAO menuDAO = new AdminMenuDAOImpl();
 
     @Override
@@ -23,7 +22,6 @@ public class AdminMenuFilter implements Filter {
 
         HttpServletRequest request = (HttpServletRequest) req;
 
-        // Lấy menu trực tiếp từ DAO
         List<AdminMenu> menus = menuDAO.getActiveMenus(); 
         
         request.setAttribute("adminMenus", menus);

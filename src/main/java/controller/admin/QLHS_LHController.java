@@ -20,7 +20,6 @@ public class QLHS_LHController extends HttpServlet {
 	private final QLHocKyDAOImpl hocKyDAO = new QLHocKyDAOImpl();
 	private final AdminMenuDAO adminMenuDAO = new AdminMenuDAOImpl();
 
-	/* ---------------- MENU ---------------- */
 	private void setMenu(HttpServletRequest req) {
 		List<AdminMenu> flatMenus = adminMenuDAO.getActiveMenus();
 		req.setAttribute("menus", buildMenuTree(flatMenus, req.getContextPath()));
@@ -55,8 +54,6 @@ public class QLHS_LHController extends HttpServlet {
 				roots.add(m);
 		return roots;
 	}
-
-	/* ---------------- FORWARD ---------------- */
 	private void forward(HttpServletRequest req, HttpServletResponse resp, String view)
 			throws ServletException, IOException {
 		setMenu(req);
@@ -64,7 +61,6 @@ public class QLHS_LHController extends HttpServlet {
 		req.getRequestDispatcher("/WEB-INF/admin/layout.jsp").forward(req, resp);
 	}
 
-	/* ---------------- LOAD DROPDOWNS ---------------- */
 	private void loadDropdowns(HttpServletRequest req) {
 		List<QLHocSinh> students = hsDAO.getAll();
 		List<QLLopHoc> classes = lopHocDAO.getAll();
@@ -77,7 +73,6 @@ public class QLHS_LHController extends HttpServlet {
 		req.setAttribute("semesterList", semesters);
 	}
 
-	/* ---------------- GET ACTION ---------------- */
 	private String getAction(HttpServletRequest req) {
 		String path = req.getPathInfo();
 		if (path == null || path.equals("/"))
@@ -88,20 +83,16 @@ public class QLHS_LHController extends HttpServlet {
 		return path.substring(0, 1).toUpperCase() + path.substring(1);
 	}
 
-	/* ---------------- GET ---------------- */
-	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		// Set menu
 		setMenu(req);
-
 		String action = getAction(req);
 
 		switch (action) {
 		case "Create":
-			// Load dropdowns cho form
+			
 			loadDropdowns(req);
-			// Forward tới JSP tạo mới
+			
 			forward(req, resp, "/WEB-INF/admin/QLHS_LH/Create.jsp");
 			break;
 
@@ -114,7 +105,7 @@ public class QLHS_LHController extends HttpServlet {
 			break;
 
 		default:
-			// List tất cả học sinh lớp học
+			
 			req.setAttribute("hs_lhList", hs_lhDAO.getAll());
 			forward(req, resp, "/WEB-INF/admin/QLHS_LH/Index.jsp");
 			break;
@@ -147,9 +138,6 @@ public class QLHS_LHController extends HttpServlet {
 		req.setAttribute("hs_lh", hs_lhDAO.getById(id));
 		forward(req, resp, "/WEB-INF/admin/QLHS_LH/Delete.jsp");
 	}
-
-	/* ---------------- POST ---------------- */
-	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		req.setCharacterEncoding("UTF-8");
 
@@ -172,13 +160,11 @@ public class QLHS_LHController extends HttpServlet {
 	}
 
 	private void createBulk(HttpServletRequest req) {
-	    // Lấy classID và courseID
+
 	    Integer classID = parseInt(req.getParameter("ClassID"));
 	    Integer courseID = parseInt(req.getParameter("CourseID"));
 	    if (classID == null || courseID == null)
 	        return;
-
-	    // Lấy thông tin lớp
 	    QLLopHoc lop = lopHocDAO.getById(classID);
 	    if (lop == null)
 	        return;
@@ -188,15 +174,12 @@ public class QLHS_LHController extends HttpServlet {
 	    int availableSeats = maxStudents - currentStudents;
 	    if (availableSeats <= 0)
 	        return;
-
-	    // Lấy danh sách học kỳ
 	    List<QLHocKy> semesters = hocKyDAO.getAll();
 	    if (semesters.isEmpty())
 	        return;
 
-	    // Lấy danh sách học sinh và trạng thái
 	    String[] studentIDs = req.getParameterValues("StudentID[]");
-	    String[] isActiveValues = req.getParameterValues("IsActive"); // hidden input
+	    String[] isActiveValues = req.getParameterValues("IsActive"); 
 	    if (studentIDs == null || studentIDs.length == 0)
 	        return;
 
@@ -214,7 +197,7 @@ public class QLHS_LHController extends HttpServlet {
 
 	        boolean insertedAtLeastOnce = false;
 
-	        // Thêm học sinh vào tất cả học kỳ nếu chưa tồn tại
+
 	        for (QLHocKy hk : semesters) {
 	            if (!hs_lhDAO.existsInClassSemester(studentID, classID, hk.getSemesterId(), courseID)) {
 	                QLHS_LH item = new QLHS_LH();
@@ -231,18 +214,17 @@ public class QLHS_LHController extends HttpServlet {
 	        if (insertedAtLeastOnce)
 	            addedCount++;
 
-	        // Dừng nếu lớp đã đầy
+	        
 	        if (addedCount >= availableSeats)
 	            break;
 	    }
 
-	    // Cập nhật số học sinh hiện tại của lớp
+	 
 	    if (addedCount > 0) {
 	        lopHocDAO.updateCurrentStudents(classID, currentStudents + addedCount);
 	    }
 	}
 
-	/* ---------------- UPDATE ---------------- */
 	private void update(HttpServletRequest req) {
 		Integer id = parseInt(req.getParameter("HocSinhLopHocID"));
 		if (id == null)
@@ -257,22 +239,17 @@ public class QLHS_LHController extends HttpServlet {
 		hs_lhDAO.update(x);
 	}
 
-	/* ---------------- DELETE ---------------- */
 	private void delete(HttpServletRequest req) {
 		Integer id = parseInt(req.getParameter("HocSinhLopHocID"));
 		if (id != null) {
-			QLHS_LH rec = hs_lhDAO.getById(id); // Lấy bản ghi trước khi xóa
+			QLHS_LH rec = hs_lhDAO.getById(id); 
 			if (rec != null) {
-				hs_lhDAO.delete(id); // Xóa học sinh khỏi lớp
-
-				// Cập nhật số học sinh hiện tại của lớp
+				hs_lhDAO.delete(id); 
 				int currentCount = hs_lhDAO.countUniqueStudentsInClass(rec.getClassID());
 				lopHocDAO.updateCurrentStudents(rec.getClassID(), currentCount);
 			}
 		}
 	}
-
-	/* ---------------- TOGGLE STATUS ---------------- */
 	private void toggleStatus(HttpServletRequest req) {
 		Integer id = parseInt(req.getParameter("id"));
 		if (id == null)
@@ -283,8 +260,6 @@ public class QLHS_LHController extends HttpServlet {
 			hs_lhDAO.update(rec);
 		}
 	}
-
-	/* ---------------- HELPER ---------------- */
 	private Integer parseInt(String text) {
 		try {
 			return (text == null || text.isBlank()) ? null : Integer.parseInt(text);

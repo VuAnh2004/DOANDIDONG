@@ -10,7 +10,7 @@ import java.util.List;
 
 public class QLMonHocDAOImpl implements QLMonHocDAO {
 
-    @Override
+
     public List<QLMonHoc> getAll() {
         List<QLMonHoc> list = new ArrayList<>();
         String sql = "SELECT SubjectID, SubjectName, NumberOfLesson, Semester, IsActive FROM QLMonHoc ORDER BY SubjectID";
@@ -36,7 +36,6 @@ public class QLMonHocDAOImpl implements QLMonHocDAO {
         return list;
     }
 
-    @Override
     public QLMonHoc getById(int id) {
         String sql = "SELECT SubjectID, SubjectName, NumberOfLesson, Semester, IsActive FROM QLMonHoc WHERE SubjectID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -61,7 +60,7 @@ public class QLMonHocDAOImpl implements QLMonHocDAO {
         return null;
     }
 
-    @Override
+
     public void insert(QLMonHoc mh) {
         String sql = "INSERT INTO QLMonHoc (SubjectName, NumberOfLesson, Semester, IsActive) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
@@ -78,7 +77,7 @@ public class QLMonHocDAOImpl implements QLMonHocDAO {
         }
     }
 
-    @Override
+
     public void update(QLMonHoc mh) {
         String sql = "UPDATE QLMonHoc SET SubjectName=?, NumberOfLesson=?, Semester=?, IsActive=? WHERE SubjectID=?";
         try (Connection conn = DBConnection.getConnection();
@@ -96,7 +95,7 @@ public class QLMonHocDAOImpl implements QLMonHocDAO {
         }
     }
 
-    @Override
+
     public void delete(int id) {
         String sql = "DELETE FROM QLMonHoc WHERE SubjectID=?";
         try (Connection conn = DBConnection.getConnection();

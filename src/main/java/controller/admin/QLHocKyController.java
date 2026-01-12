@@ -74,8 +74,6 @@ public class QLHocKyController extends HttpServlet {
 
 		return rootMenus;
 	}
-
-	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 

@@ -22,16 +22,10 @@ public class QLKhoiController extends HttpServlet {
 
 	private QLKhoiDAO dao = new QLKhoiDAOImpl();
 	private AdminMenuDAO adminMenuDAO = new AdminMenuDAOImpl();
-
-	// *** HÀM BUILD MENU TREE ĐÃ SỬA LỖI ***
-	// Hàm này phải dùng logic AdminMenuID và ParentLevel để xây cây, 
-	// và xử lý đường dẫn Trang Chủ (/admin) đúng cách.
 	private List<AdminMenu> buildMenuTree(List<AdminMenu> flatMenus, String contextPath) {
 		List<AdminMenu> allMenus = new ArrayList<>(flatMenus);
-		// Dùng Map để tra cứu menu cha bằng ID
-		Map<Integer, AdminMenu> menuMap = new HashMap<>(); 
 
-		// 1. Khởi tạo Map và tính ItemTarget (Đường dẫn đích)
+		Map<Integer, AdminMenu> menuMap = new HashMap<>(); 
 		for (AdminMenu m : allMenus) {
 			menuMap.put((int) m.getAdminMenuID(), m);
 
@@ -41,26 +35,24 @@ public class QLKhoiController extends HttpServlet {
 
 			String controller = m.getControllerName();
 			String action = m.getActionName();
-			
-			// FIX LỖI ĐƯỜNG DẪN TRANG CHỦ: Chỉ trỏ về /admin
 			if (m.getAdminMenuID() == 1 || ("Home".equalsIgnoreCase(controller) && "Index".equalsIgnoreCase(action))) {
 				m.setItemTarget(contextPath + "/admin");
 			} 
-			// Trường hợp Menu Con tiêu chuẩn
+
 			else if (controller != null && !controller.isEmpty() && action != null && !action.isEmpty()) {
 				m.setItemTarget(contextPath + "/admin/" + controller + "/" + action);
 			} 
-			// Trường hợp Menu Cha (Không có controller/action)
+			
 			else {
 				m.setItemTarget("#");
 			}
 		}
 
-		// 2. Gán con cho cha (Sử dụng AdminMenuID làm khóa tra cứu)
+		
 		for (AdminMenu m : allMenus) {
 			int parentId = m.getParentLevel();
 			if (parentId != 0) {
-				AdminMenu parent = menuMap.get(parentId); // Tra cứu cha bằng AdminMenuID
+				AdminMenu parent = menuMap.get(parentId);
 				if (parent != null) {
 					if (parent.getSubMenus() == null)
 						parent.setSubMenus(new ArrayList<>());
@@ -68,8 +60,6 @@ public class QLKhoiController extends HttpServlet {
 				}
 			}
 		}
-
-		// 3. Chỉ trả về menu root (ParentLevel = 0)
 		List<AdminMenu> rootMenus = new ArrayList<>();
 		for (AdminMenu m : allMenus) {
 			if (m.getParentLevel() == 0) {
@@ -81,19 +71,14 @@ public class QLKhoiController extends HttpServlet {
 	}
 
 
-	@Override
+	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		// --- LOGIC TẢI VÀ TRUYỀN MENU CHO SIDEBAR ---
-		// 1. Lấy danh sách Menu phẳng (flat) từ DB
 		List<AdminMenu> flatMenus = adminMenuDAO.getActiveMenus();
-		// 2. Xây dựng cây menu (tree)
+	
 		List<AdminMenu> treeMenus = buildMenuTree(flatMenus, request.getContextPath());
-		// 3. Đặt menu vào request để sidebar.jsp có thể đọc
 		request.setAttribute("menus", treeMenus);
-		// ----------------------------------------------------
-
 		String action = request.getPathInfo();
 		if (action == null || action.equals("/"))
 			action = "/Index";
@@ -143,8 +128,6 @@ public class QLKhoiController extends HttpServlet {
 				break;
 		}
 	}
-
-	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
