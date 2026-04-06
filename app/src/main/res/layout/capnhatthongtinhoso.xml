@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="4dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp">
+
+            <!-- Ảnh đại diện -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="24dp">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/img_edit_avatar"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:src="@drawable/anhuser"
+                    app:civ_border_width="4dp"
+                    app:civ_border_color="#1E3A8A" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_change_avatar"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thay đổi ảnh"
+                    android:layout_marginTop="12dp" />
+            </LinearLayout>
+
+            <!-- Form chỉnh sửa -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:startIconDrawable="@android:drawable/ic_menu_myplaces">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edt_fullname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Họ và tên" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Các trường khác có thể bổ sung tại đây -->
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_save_profile"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="24dp"
+                android:text="LƯU THÔNG TIN"
+                android:textStyle="bold"
+                app:cornerRadius="12dp"
+                app:backgroundTint="#1E3A8A" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>

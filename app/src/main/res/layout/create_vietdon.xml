@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8FAFC"
+    android:fitsSystemWindows="true">
+
+    <include layout="@layout/toolbar_header" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Card Thông tin học sinh -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thông tin học sinh"
+                        android:textStyle="bold"
+                        android:textSize="17sp"
+                        android:textColor="#1E3A8A" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_student_id"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Mã học sinh"
+                            android:text="24290001"
+                            android:enabled="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_request_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:enabled="false"
+                            android:hint="Ngày tạo đơn" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card Thời gian nghỉ -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thời gian nghỉ học"
+                        android:textStyle="bold"
+                        android:textSize="17sp"
+                        android:textColor="#1E3A8A" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:endIconMode="custom"
+                        app:endIconDrawable="@android:drawable/ic_menu_today">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_start_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Từ ngày"
+                            android:focusable="false"
+                            android:clickable="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:endIconMode="custom"
+                        app:endIconDrawable="@android:drawable/ic_menu_today">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_end_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Đến ngày"
+                            android:focusable="false"
+                            android:clickable="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card Lý do & Đính kèm -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Lý do nghỉ học"
+                        android:textStyle="bold"
+                        android:textSize="17sp"
+                        android:textColor="#1E3A8A" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_reason"
+                            android:layout_width="match_parent"
+                            android:layout_height="100dp"
+                            android:gravity="top|start"
+                            android:inputType="textMultiLine"
+                            android:hint="Nhập lý do chi tiết..." />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Phần đính kèm file -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="16dp"
+                        android:gravity="center_vertical">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_choose_file"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Chọn file"
+                            app:icon="@android:drawable/ic_menu_add" />
+
+                        <TextView
+                            android:id="@+id/txt_file_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:text="Chưa chọn file minh chứng"
+                            android:textSize="13sp"
+                            android:textColor="#666"
+                            android:ellipsize="middle"
+                            android:singleLine="true" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Nút Gửi đơn -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_submit_leave"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:text="GỬI ĐƠN NGHỈ HỌC"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                app:cornerRadius="12dp"
+                app:backgroundTint="#1E3A8A"
+                app:elevation="4dp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

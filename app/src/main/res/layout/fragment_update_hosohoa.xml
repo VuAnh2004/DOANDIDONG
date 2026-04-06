@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <!-- Card Tải lên mới -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="2dp"
+        app:strokeWidth="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tải lên hồ sơ số hóa"
+                android:textStyle="bold"
+                android:textColor="#1E3A8A"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Loại giấy tờ">
+                <AutoCompleteTextView
+                    android:id="@+id/spin_doc_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="Ghi chú (nếu có)">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edt_notes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_pick_file"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="CHỌN TỆP MINH CHỨNG"
+                app:icon="@android:drawable/ic_menu_upload" />
+
+            <TextView
+                android:id="@+id/tv_file_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Chưa chọn file"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:layout_marginTop="4dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_upload_doc"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="16dp"
+                android:text="CẬP NHẬT HỒ SƠ"
+                app:cornerRadius="12dp"
+                app:backgroundTint="#1E3A8A" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Danh sách hiện tại (RecyclerView) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_hoso_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:nestedScrollingEnabled="false" />
+
+</LinearLayout>

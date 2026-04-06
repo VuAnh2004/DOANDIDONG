@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginBottom="16dp">
+
+    <!-- Tiêu đề Thứ + Ngày: Thứ 2 (30/03) -->
+    <TextView
+        android:id="@+id/tv_day_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#E5E7EB"
+        android:padding="12dp"
+        android:text="Thứ -- (dd/MM)"
+        android:textColor="#374151"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- Container chứa các môn học của ngày này -->
+    <LinearLayout
+        android:id="@+id/container_subjects"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="4dp" />
+
+</LinearLayout>

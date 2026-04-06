@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_phananh_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F8F9FA"
+    android:fitsSystemWindows="true">
+
+    <!-- Header Toolbar -->
+    <include layout="@layout/toolbar_header" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Card chính chứa form -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="#FFFFFF">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thông tin phản ánh"
+                        android:textStyle="bold"
+                        android:textSize="18sp"
+                        android:textColor="#1E3A8A"
+                        android:layout_marginBottom="20dp"/>
+
+                    <!-- Mã học sinh -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                        app:startIconTint="#1E3A8A">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_student_id"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Mã học sinh"
+                            android:text="24290001"
+                            android:enabled="false"
+                            android:textColor="#334155" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Ngày gửi -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:startIconDrawable="@android:drawable/ic_menu_today"
+                        app:startIconTint="#1E3A8A">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_submit_date"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:enabled="false"
+                            android:hint="Ngày gửi"
+                            android:textColor="#334155" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Nội dung phản ánh -->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="20dp"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        app:startIconDrawable="@android:drawable/ic_menu_edit"
+                        app:startIconTint="#1E3A8A">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edt_content"
+                            android:layout_width="match_parent"
+                            android:layout_height="150dp"
+                            android:hint="Nhập nội dung phản ánh..."
+                            android:gravity="top|start"
+                            android:inputType="textMultiLine"
+                            android:textSize="14sp"
+                            android:textColor="#334155" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!-- Tệp đính kèm -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tệp đính kèm (nếu có)"
+                        android:textStyle="bold"
+                        android:textSize="15sp"
+                        android:textColor="#1E3A8A"
+                        android:layout_marginBottom="8dp" />
+
+                    <!-- Upload Area -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_upload"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="12dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="1dp"
+                        app:strokeColor="#E2E8F0"
+                        app:cardBackgroundColor="#F8FAFC">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="20dp"
+                            android:gravity="center">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:src="@android:drawable/ic_menu_upload"
+                                app:tint="#1E3A8A" />
+
+                            <TextView
+                                android:id="@+id/txt_file_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Nhấn để chọn tệp minh chứng"
+                                android:textSize="14sp"
+                                android:textColor="#64748B"
+                                android:layout_marginTop="8dp"
+                                android:gravity="center" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Nút Gửi -->
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_submit"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="24dp"
+                        android:text="GỬI PHẢN ÁNH NGAY"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="12dp"
+                        app:backgroundTint="#1E3A8A"
+                        app:elevation="4dp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Loading -->
+    <ProgressBar
+        android:id="@+id/loading_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Màu nền của tab đang active (màu xanh dương) -->
+    <solid android:color="#1E88E5" />
+
+    <!-- Viền ngoài (nếu muốn) -->
+    <stroke
+        android:width="2dp"
+        android:color="#1565C0" />
+
+    <!-- Bo tròn hoàn toàn (oval) -->
+    <size
+        android:width="36dp"
+        android:height="36dp" />
+
+</shape>
