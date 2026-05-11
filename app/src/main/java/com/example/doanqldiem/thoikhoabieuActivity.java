@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -42,6 +43,7 @@ import retrofit2.Response;
 
 public class thoikhoabieuActivity extends AppCompatActivity {
 
+    private static final String TAG = "TKB_LOG";
     private LinearLayout containerSchedule;
     private GridLayout gridWeeks;
     private TextView txtWeekInfo, tvSemesterInfo;
@@ -49,35 +51,27 @@ public class thoikhoabieuActivity extends AppCompatActivity {
     private Button btnViewWeek, btnViewFull;
 
     private int selectedWeekNumber = 1;
-    private final String studentId = "24290001"; // Mã HS test
-    private String currentSemesterCode = "HK1";
+    private final String studentId = "24290001"; // Cố định mã HS test
+    private String currentYear = "";
+    private String currentSemesterCode = "";
     private List<KhoaBieuModel.AcademicWeek> semesterWeeks = new ArrayList<>();
     private List<KhoaBieuModel> fullSemesterSchedule = new ArrayList<>();
     private boolean isFullSemesterMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.thoikhoabieu);
 
         initViews();
         setupInsets();
         setupToolbar();
 
+        // 1. Tự động đồng bộ và tải dữ liệu
         autoSyncAndLoad();
 
-        btnViewWeek.setOnClickListener(v -> {
-            isFullSemesterMode = false;
-            updateTabUI();
-            renderSchedule(selectedWeekNumber);
-        });
-
-        btnViewFull.setOnClickListener(v -> {
-            isFullSemesterMode = true;
-            updateTabUI();
-            renderFullSemesterSchedule();
-        });
+        setupListeners();
     }
 
     private void initViews() {
@@ -88,6 +82,24 @@ public class thoikhoabieuActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.loading_progress);
         btnViewWeek = findViewById(R.id.btn_view_week);
         btnViewFull = findViewById(R.id.btn_view_full);
+    }
+
+    private void setupListeners() {
+        if (btnViewWeek != null) {
+            btnViewWeek.setOnClickListener(v -> {
+                isFullSemesterMode = false;
+                updateTabUI();
+                renderSchedule(selectedWeekNumber);
+            });
+        }
+
+        if (btnViewFull != null) {
+            btnViewFull.setOnClickListener(v -> {
+                isFullSemesterMode = true;
+                updateTabUI();
+                renderFullSemesterSchedule();
+            });
+        }
     }
 
     private void setupInsets() {
@@ -117,12 +129,19 @@ public class thoikhoabieuActivity extends AppCompatActivity {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
         SharedPreferences prefs = getSharedPreferences("AppConfig", Context.MODE_PRIVATE);
-        String year = prefs.getString("selected_year", "2023-2024");
-        String semester = prefs.getString("selected_semester", "HK1");
-        currentSemesterCode = semester.contains("2") ? "HK2" : "HK1";
+        currentYear = prefs.getString("selected_year", "2023-2024");
+        String semesterDisplay = prefs.getString("selected_semester", "Học kỳ 1");
+        
+        // Hiện thông tin cấu hình lên Header ngay lập tức
+        if (tvSemesterInfo != null) {
+            tvSemesterInfo.setText(String.format("Năm học: %s | %s", currentYear, semesterDisplay));
+        }
+
+        // Chuẩn hóa sang mã code (HK1/HK2) để server nhận diện
+        currentSemesterCode = (semesterDisplay != null && semesterDisplay.contains("2")) ? "HK2" : "HK1";
 
         cauhinhapi api = RetrofitClient.getClient().create(cauhinhapi.class);
-        api.saveConfig(studentId, year, currentSemesterCode).enqueue(new Callback<ResponseBody>() {
+        api.saveConfig(studentId, currentYear, currentSemesterCode).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                 fetchInitialData();
@@ -142,12 +161,15 @@ public class thoikhoabieuActivity extends AppCompatActivity {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     KhoaBieuModel.IndexResponse data = response.body();
-                    if (data.studentInfo != null) {
+                    
+                    if (data.studentInfo != null && tvSemesterInfo != null) {
                         tvSemesterInfo.setText(String.format("%s | Lớp: %s", data.studentInfo.semesterName, data.studentInfo.className));
                     }
-                    semesterWeeks = data.weeksInSemester;
-                    fullSemesterSchedule = data.schedule;
+                    if (data.weeksInSemester != null) semesterWeeks = data.weeksInSemester;
+                    if (data.schedule != null) fullSemesterSchedule = data.schedule;
+                    
                     if (data.currentWeek != null) selectedWeekNumber = data.currentWeek.weekNumber;
+                    else if (!semesterWeeks.isEmpty()) selectedWeekNumber = semesterWeeks.get(0).weekNumber;
 
                     updateTabUI();
                     setupWeekGrid();
@@ -157,16 +179,16 @@ public class thoikhoabieuActivity extends AppCompatActivity {
             @Override
             public void onFailure(@NonNull Call<KhoaBieuModel.IndexResponse> call, @NonNull Throwable t) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                Toast.makeText(thoikhoabieuActivity.this, "Lỗi tải lịch học", Toast.LENGTH_SHORT).show();
+                Toast.makeText(thoikhoabieuActivity.this, "Lỗi kết nối lịch học", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void setupWeekGrid() {
-        if (semesterWeeks == null || semesterWeeks.isEmpty()) return;
+        if (semesterWeeks == null || semesterWeeks.isEmpty() || gridWeeks == null) return;
         gridWeeks.removeAllViews();
         for (KhoaBieuModel.AcademicWeek w : semesterWeeks) {
-            Button btn = new Button(this, null, 0, com.google.android.material.R.style.Widget_Material3_Button_ElevatedButton);
+            Button btn = new Button(this, null, com.google.android.material.R.attr.materialButtonStyle);
             btn.setText(String.valueOf(w.weekNumber));
             btn.setPadding(0, 0, 0, 0);
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
@@ -197,68 +219,47 @@ public class thoikhoabieuActivity extends AppCompatActivity {
         }
     }
 
-    private void loadScheduleByWeek(int week) {
-        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
-        int semId = currentSemesterCode.equals("HK2") ? 2 : 1;
-
-        thoikhoabieuapi api = RetrofitClient.getClient().create(thoikhoabieuapi.class);
-        api.getThoiKB(week, semId, studentId).enqueue(new Callback<List<KhoaBieuModel>>() {
-            @Override
-            public void onResponse(@NonNull Call<List<KhoaBieuModel>> call, @NonNull Response<List<KhoaBieuModel>> response) {
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
-                if (response.isSuccessful() && response.body() != null) {
-                    renderScheduleData(response.body(), week);
-                }
-            }
-            @Override
-            public void onFailure(@NonNull Call<List<KhoaBieuModel>> call, @NonNull Throwable t) {
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
-            }
-        });
-    }
-
     private void renderSchedule(int weekNumber) {
-        // Lọc từ dữ liệu đã load sẵn nếu có, hoặc gọi API
-        renderScheduleData(null, weekNumber);
-    }
-
-    private void renderScheduleData(List<KhoaBieuModel> newData, int weekNumber) {
+        if (containerSchedule == null) return;
         containerSchedule.removeAllViews();
         KhoaBieuModel.AcademicWeek weekInfo = null;
         for (KhoaBieuModel.AcademicWeek w : semesterWeeks) {
             if (w.weekNumber == weekNumber) { weekInfo = w; break; }
         }
-        if (weekInfo != null) {
+        if (weekInfo != null && txtWeekInfo != null) {
             txtWeekInfo.setText(String.format("Tuần %d (%s - %s)", weekNumber, formatDateSimple(weekInfo.startDate), formatDateSimple(weekInfo.endDate)));
         }
 
         Map<Integer, List<KhoaBieuModel>> dayMap = new HashMap<>();
-        List<KhoaBieuModel> targetList = (newData != null) ? newData : fullSemesterSchedule;
-
-        for (KhoaBieuModel item : targetList) {
-            if (item.getWeekNumber() != null && item.getWeekNumber() == weekNumber) {
-                int day = item.getDayOfWeek();
-                if (!dayMap.containsKey(day)) dayMap.put(day, new ArrayList<>());
-                dayMap.get(day).add(item);
+        if (fullSemesterSchedule != null) {
+            for (KhoaBieuModel item : fullSemesterSchedule) {
+                if (item != null && item.getWeekNumber() != null && item.getWeekNumber() == weekNumber) {
+                    int day = item.getDayOfWeek();
+                    if (!dayMap.containsKey(day)) dayMap.put(day, new ArrayList<>());
+                    dayMap.get(day).add(item);
+                }
             }
         }
         renderDays(dayMap, weekInfo);
     }
 
     private void renderFullSemesterSchedule() {
+        if (containerSchedule == null) return;
         containerSchedule.removeAllViews();
-        txtWeekInfo.setText("Toàn bộ lịch học trong kỳ");
+        if (txtWeekInfo != null) txtWeekInfo.setText("Toàn bộ lịch học trong kỳ");
         Map<Integer, List<KhoaBieuModel>> dayMap = new HashMap<>();
-        for (KhoaBieuModel item : fullSemesterSchedule) {
-            int day = item.getDayOfWeek();
-            if (!dayMap.containsKey(day)) dayMap.put(day, new ArrayList<>());
-            boolean exists = false;
-            for (KhoaBieuModel m : dayMap.get(day)) {
-                if (m.getSubjectName().equals(item.getSubjectName()) && m.getPeriod().equals(item.getPeriod())) {
-                    exists = true; break;
+        if (fullSemesterSchedule != null) {
+            for (KhoaBieuModel item : fullSemesterSchedule) {
+                int day = item.getDayOfWeek();
+                if (!dayMap.containsKey(day)) dayMap.put(day, new ArrayList<>());
+                boolean exists = false;
+                for (KhoaBieuModel m : dayMap.get(day)) {
+                    if (m.getSubjectName() != null && m.getSubjectName().equals(item.getSubjectName()) && m.getPeriod().equals(item.getPeriod())) {
+                        exists = true; break;
+                    }
                 }
+                if (!exists) dayMap.get(day).add(item);
             }
-            if (!exists) dayMap.get(day).add(item);
         }
         renderDays(dayMap, null);
     }
@@ -268,27 +269,51 @@ public class thoikhoabieuActivity extends AppCompatActivity {
         for (int day : daysOrder) {
             View dayView = LayoutInflater.from(this).inflate(R.layout.item_thoikhoabieu_day, containerSchedule, false);
             TextView tvHeader = dayView.findViewById(R.id.tv_day_header);
-            LinearLayout subContainer = dayView.findViewById(R.id.container_subjects);
-            tvHeader.setText(calculateDayHeader(day, weekInfo));
+            LinearLayout morningContainer = dayView.findViewById(R.id.layout_morning_periods);
+            LinearLayout afternoonContainer = dayView.findViewById(R.id.layout_afternoon_periods);
+
+            if (tvHeader != null) tvHeader.setText(calculateDayHeader(day, weekInfo));
+
+            Map<Integer, KhoaBieuModel> periodMap = new HashMap<>();
             if (dayMap.containsKey(day)) {
                 for (KhoaBieuModel m : dayMap.get(day)) {
-                    View cell = LayoutInflater.from(this).inflate(R.layout.item_timetable_cell, subContainer, false);
-                    ((TextView) cell.findViewById(R.id.tvSubject)).setText(m.getSubjectName());
-                    ((TextView) cell.findViewById(R.id.tvTeacher)).setText(m.getTeacherName() + " | Tiết " + m.getPeriod());
-                    subContainer.addView(cell);
+                    periodMap.put(m.getPeriod(), m);
                 }
-            } else if (weekInfo != null) {
-                TextView tvEmpty = new TextView(this); tvEmpty.setText("Nghỉ học"); tvEmpty.setPadding(40, 20, 0, 20); subContainer.addView(tvEmpty);
             }
+
+            for (int p = 1; p <= 5; p++) addPeriodRow(morningContainer, p, periodMap.get(p));
+            for (int p = 6; p <= 10; p++) addPeriodRow(afternoonContainer, p, periodMap.get(p));
+
             if (dayMap.containsKey(day) || weekInfo != null) containerSchedule.addView(dayView);
         }
     }
 
+    private void addPeriodRow(LinearLayout container, int periodNum, KhoaBieuModel model) {
+        View row = LayoutInflater.from(this).inflate(R.layout.item_timetable_row, container, false);
+        TextView tvNum = row.findViewById(R.id.tv_period_num);
+        TextView tvInfo = row.findViewById(R.id.tv_subject_info);
+
+        if (tvNum != null) tvNum.setText(String.valueOf(periodNum));
+        if (tvInfo != null) {
+            if (model != null) tvInfo.setText(model.getSubjectName() + " - " + model.getTeacherName());
+            else tvInfo.setText("");
+        }
+        container.addView(row);
+    }
+
     private void updateTabUI() {
-        btnViewWeek.setBackgroundTintList(isFullSemesterMode ? null : ColorStateList.valueOf(0xFF1E40AF));
-        btnViewWeek.setTextColor(isFullSemesterMode ? ContextCompat.getColor(this, android.R.color.darker_gray) : ContextCompat.getColor(this, android.R.color.white));
-        btnViewFull.setBackgroundTintList(isFullSemesterMode ? ColorStateList.valueOf(0xFF1E40AF) : null);
-        btnViewFull.setTextColor(isFullSemesterMode ? ContextCompat.getColor(this, android.R.color.white) : ContextCompat.getColor(this, android.R.color.darker_gray));
+        if (btnViewWeek == null || btnViewFull == null) return;
+        if (!isFullSemesterMode) {
+            btnViewWeek.setBackgroundTintList(ColorStateList.valueOf(0xFF1E40AF));
+            btnViewWeek.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+            btnViewFull.setBackgroundTintList(ColorStateList.valueOf(0xFFE5E7EB));
+            btnViewFull.setTextColor(ColorStateList.valueOf(0xFF4B5563));
+        } else {
+            btnViewFull.setBackgroundTintList(ColorStateList.valueOf(0xFF1E40AF));
+            btnViewFull.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+            btnViewWeek.setBackgroundTintList(ColorStateList.valueOf(0xFFE5E7EB));
+            btnViewWeek.setTextColor(ColorStateList.valueOf(0xFF4B5563));
+        }
     }
 
     private String calculateDayHeader(int dayOfWeek, KhoaBieuModel.AcademicWeek week) {

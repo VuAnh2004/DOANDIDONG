@@ -2,13 +2,15 @@
 <com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="16dp"
+    android:layout_marginHorizontal="12dp"
     android:layout_marginVertical="8dp"
-    app:cardCornerRadius="16dp"
+    app:cardCornerRadius="12dp"
     app:cardElevation="4dp"
-    app:strokeWidth="0dp"
+    app:strokeWidth="1dp"
+    app:strokeColor="#EDF2F7"
     app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
@@ -17,45 +19,41 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Dòng đầu: Tên phòng và Trạng thái -->
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
             <TextView
                 android:id="@+id/txt_room_name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Tên phòng học"
+                android:layout_weight="1"
+                tools:text="Tên phòng học"
                 android:textSize="17sp"
                 android:textStyle="bold"
-                android:textColor="#1E3A8A"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"/>
+                android:textColor="#1E3A8A"/>
 
             <TextView
                 android:id="@+id/txt_status"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="Trạng thái"
+                tools:text="Trạng thái"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                android:paddingHorizontal="12dp"
-                android:paddingVertical="6dp"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="4dp"
                 android:background="@drawable/tab_inactive_background"
-                android:textColor="#F59E0B"
-                android:layout_centerVertical="true"/>
-        </RelativeLayout>
+                android:textColor="#10B981"/>
+        </LinearLayout>
 
-        <!-- Thanh gạch ngang nhẹ -->
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="#F1F5F9"
-            android:layout_marginVertical="12dp"/>
+            android:layout_marginVertical="10dp"/>
 
-        <!-- Dòng giữa: Thời gian và Ngày tạo -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,43 +61,30 @@
             android:gravity="center_vertical">
 
             <ImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:src="@android:drawable/ic_menu_recent_history"
                 app:tint="#64748B"/>
 
             <TextView
                 android:id="@+id/txt_time_range"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="00:00 - 00:00"
+                tools:text="Thời gian mượn"
                 android:textColor="#475569"
-                android:textSize="14sp"/>
-
-            <TextView
-                android:id="@+id/txt_created_at"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="01/01/2024"
-                android:textSize="12sp"
-                android:textColor="#94A3B8"/>
+                android:textSize="13sp"/>
         </LinearLayout>
 
-        <!-- Dòng cuối: Mục đích -->
         <TextView
             android:id="@+id/txt_purpose"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="Mục đích: Đang cập nhật..."
+            android:layout_marginTop="8dp"
+            tools:text="Lý do mượn phòng"
             android:textColor="#64748B"
             android:textSize="13sp"
-            android:fontFamily="sans-serif-light"
-            android:fontStyle="italic"
-            android:maxLines="2"
-            android:ellipsize="end"/>
+            android:fontStyle="italic"/>
 
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -23,7 +23,7 @@
             android:orientation="vertical"
             android:padding="8dp">
 
-            <!-- Card Chế độ xem & Thông tin -->
+            <!-- Card Chế độ xem & Thông tin Cấu hình -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -45,7 +45,16 @@
                         android:textStyle="bold"
                         android:textColor="#1F2937" />
 
-                    <!-- Tabs chọn chế độ -->
+                    <!-- Dòng hiển thị Năm học | Học kỳ từ Cấu hình -->
+                    <TextView
+                        android:id="@+id/tv_semester_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Năm học: -- | Học kỳ: --"
+                        android:textSize="13sp"
+                        android:textColor="#6B7280"
+                        android:layout_marginTop="2dp" />
+
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="42dp"
@@ -80,7 +89,7 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Thông tin Tuần hiển thị -->
+            <!-- Thông tin Tuần đang chọn -->
             <TextView
                 android:id="@+id/txt_week_info"
                 android:layout_width="match_parent"
@@ -93,7 +102,7 @@
                 android:textColor="#374151"
                 android:gravity="center_vertical" />
 
-            <!-- Container lịch học dọc -->
+            <!-- Container lịch học dọc (Thứ -> Môn) -->
             <LinearLayout
                 android:id="@+id/container_schedule"
                 android:layout_width="match_parent"
@@ -116,6 +125,14 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chọn tuần học"
+                        android:textStyle="bold"
+                        android:textColor="#374151"
+                        android:layout_marginBottom="8dp"/>
 
                     <GridLayout
                         android:id="@+id/grid_weeks"

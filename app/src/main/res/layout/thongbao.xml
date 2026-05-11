@@ -6,9 +6,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FA"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="false"> <!-- Đổi thành FALSE ở đây -->
 
     <!-- Header Toolbar -->
+    <!-- Đảm bảo trong file toolbar_header cũng đã đổi fitsSystemWindows thành false -->
     <include layout="@layout/toolbar_header" />
 
     <androidx.core.widget.NestedScrollView
@@ -22,7 +23,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Tiêu đề với nút Close -->
+            <!-- Tiêu đề với nút Close (Dải màu xanh) -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -47,17 +48,18 @@
                     android:layout_centerVertical="true"
                     android:text="✕"
                     android:textColor="#FFFFFF"
-                    android:textSize="22sp"
+                    android:textSize="20sp"
                     android:padding="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
                     android:focusable="true" />
             </RelativeLayout>
 
+            <!-- RecyclerView hiển thị danh sách -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_thongbao"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:paddingBottom="20dp"
                 tools:listitem="@android:layout/simple_list_item_2" />

@@ -4,19 +4,19 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class KhoaBieuModel {
-    @SerializedName(value = "Period", alternate = {"period"})
+    @SerializedName(value = "period", alternate = {"Period"})
     private Integer period;
     
-    @SerializedName(value = "DayOfWeek", alternate = {"dayOfWeek"})
+    @SerializedName(value = "dayOfWeek", alternate = {"DayOfWeek"})
     private Integer dayOfWeek;
     
-    @SerializedName(value = "SubjectName", alternate = {"subjectName", "Subject", "subject"})
+    @SerializedName(value = "subjectName", alternate = {"SubjectName", "subject", "Subject"})
     private String subjectName;
     
-    @SerializedName(value = "TeacherName", alternate = {"teacherName", "Teacher", "teacher"})
+    @SerializedName(value = "teacherName", alternate = {"TeacherName", "teacher", "Teacher"})
     private String teacherName;
     
-    @SerializedName(value = "WeekNumber", alternate = {"weekNumber"})
+    @SerializedName(value = "weekNumber", alternate = {"WeekNumber"})
     private Integer weekNumber;
 
     public Integer getPeriod() { return period; }
@@ -26,38 +26,38 @@ public class KhoaBieuModel {
     public Integer getWeekNumber() { return weekNumber; }
 
     public static class IndexResponse {
-        @SerializedName("StudentInfo")
+        @SerializedName(value = "studentInfo", alternate = {"StudentInfo"})
         public StudentInfo studentInfo;
         
-        @SerializedName("CurrentWeek")
+        @SerializedName(value = "currentWeek", alternate = {"CurrentWeek"})
         public AcademicWeek currentWeek;
         
-        @SerializedName("WeeksInSemester")
+        @SerializedName(value = "weeksInSemester", alternate = {"WeeksInSemester"})
         public List<AcademicWeek> weeksInSemester;
         
-        @SerializedName("Schedule")
+        @SerializedName(value = "schedule", alternate = {"Schedule"})
         public List<KhoaBieuModel> schedule;
     }
 
     public static class StudentInfo {
-        @SerializedName("FullName")
+        @SerializedName(value = "fullName", alternate = {"FullName"})
         public String fullName;
-        @SerializedName("ClassName")
+        @SerializedName(value = "className", alternate = {"ClassName"})
         public String className;
-        @SerializedName("SemesterName")
+        @SerializedName(value = "semesterName", alternate = {"SemesterName"})
         public String semesterName;
     }
 
     public static class AcademicWeek {
-        @SerializedName("WeekNumber")
+        @SerializedName(value = "weekNumber", alternate = {"WeekNumber"})
         public int weekNumber;
-        @SerializedName("StartDate")
+        @SerializedName(value = "startDate", alternate = {"StartDate"})
         public String startDate;
-        @SerializedName("EndDate")
+        @SerializedName(value = "endDate", alternate = {"EndDate"})
         public String endDate;
-        @SerializedName("SemesterCode")
+        @SerializedName(value = "semesterCode", alternate = {"SemesterCode"})
         public String semesterCode;
-        @SerializedName("IsCurrentWeek")
+        @SerializedName(value = "isCurrentWeek", alternate = {"IsCurrentWeek"})
         public boolean isCurrentWeek;
     }
 }

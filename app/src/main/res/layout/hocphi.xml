@@ -6,9 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FA"
-    android:fitsSystemWindows="true">
-
-    <include layout="@layout/toolbar_header" />
+    android:fitsSystemWindows="false"> <include layout="@layout/toolbar_header" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -22,13 +20,12 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Card Số dư -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="3dp"
                 app:strokeWidth="0dp"
                 app:cardBackgroundColor="#FFFFFF">
 
@@ -36,7 +33,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:padding="20dp"
+                    android:padding="24dp"
                     android:gravity="center_vertical">
 
                     <LinearLayout
@@ -48,93 +45,99 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Số dư ví hiện tại"
-                            android:textSize="14sp"
+                            android:textSize="16sp"
                             android:textColor="#64748B" />
                         <TextView
                             android:id="@+id/txt_balance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="0 ₫"
-                            android:textSize="24sp"
+                            android:textSize="28sp"
                             android:textStyle="bold"
                             android:textColor="#10B981"
-                            android:layout_marginTop="4dp" />
+                            android:layout_marginTop="8dp" />
                     </LinearLayout>
 
                     <ImageView
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
                         android:src="@drawable/imgtien"
-                         />
+                        android:scaleType="fitCenter" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card Nạp tiền -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp">
+                app:cardCornerRadius="20dp"
+                app:cardElevation="2dp"
+                app:cardBackgroundColor="#F3E5F5"
+                app:strokeWidth="0dp"> <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
 
-                <LinearLayout
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nạp tiền vào ví"
+                    android:textStyle="bold"
+                    android:textColor="#1E3A8A"
+                    android:textSize="18sp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Nạp tiền vào ví"
-                        android:textStyle="bold"
-                        android:textColor="#1E3A8A"
-                        android:textSize="16sp" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_marginTop="16dp"
+                    android:hint="Nhập số tiền (VNĐ)"
+                    app:boxBackgroundColor="#FFFFFF"
+                    app:boxCornerRadiusBottomEnd="12dp"
+                    app:boxCornerRadiusBottomStart="12dp"
+                    app:boxCornerRadiusTopEnd="12dp"
+                    app:boxCornerRadiusTopStart="12dp">
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edt_amount"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:hint="Nhập số tiền (VNĐ)">
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/edt_amount"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:inputType="number" />
-                    </com.google.android.material.textfield.TextInputLayout>
+                        android:inputType="number"
+                        android:paddingVertical="16dp" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_deposit"
-                        android:layout_width="match_parent"
-                        android:layout_height="54dp"
-                        android:layout_marginTop="12dp"
-                        android:text=" NẠP TIỀN"
-                        android:textStyle="bold"
-                        app:cornerRadius="10dp"
-                        app:backgroundTint="#1E3A8A" />
-                </LinearLayout>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_deposit"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="16dp"
+                    android:text="NẠP TIỀN"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#1E3A8A" />
+            </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Tiêu đề Danh sách nợ -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="DANH SÁCH KHOẢN CHƯA NỘP"
                 android:background="#1E3A8A"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
                 android:gravity="center"
-                android:paddingVertical="12dp"
+                android:paddingVertical="14dp"
+                android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"/>
 
-            <!-- RecyclerView danh sách nợ -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recycler_nghia_vu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false" />
+                android:nestedScrollingEnabled="false"
+                tools:listitem="@android:layout/simple_list_item_1" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
