@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".LoginActivity" android:exported="false" />
         <activity android:name=".hosonguoihocActivity"/>
         <activity android:name=".cauhinhActivity"/>
         <activity android:name=".diemActivity"/>
