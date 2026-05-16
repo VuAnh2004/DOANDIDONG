@@ -3,9 +3,23 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/login_gradient_background">
+    android:layout_height="match_parent">
+
+    <!-- 1. Ảnh nền -->
+    <ImageView
+        android:id="@+id/bg_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/truong"
+        android:contentDescription="@null" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#99000000" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -15,15 +29,15 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="20dp">
+            android:padding="24dp">
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                app:cardCornerRadius="24dp"
-                app:cardElevation="12dp"
-                app:cardBackgroundColor="@android:color/white">
+                app:cardBackgroundColor="#F2FFFFFF"
+                app:cardCornerRadius="32dp"
+                app:cardElevation="24dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -34,17 +48,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:background="@color/primary_color"
-                        android:padding="28dp"
+                        android:background="#CC1E40AF"
                         android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:padding="16dp">
 
                         <ImageView
-                            android:id="@+id/img_logo"
                             android:layout_width="70dp"
                             android:layout_height="70dp"
                             android:src="@drawable/logotruong"
-                            android:scaleType="fitCenter"
                             android:contentDescription="Logo" />
 
                         <LinearLayout
@@ -67,9 +79,8 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="HỆ THỐNG QUẢN TRỊ THÔNG MINH"
-                                android:textColor="#D1D5DB"
-                                android:textSize="12sp"
-                                android:letterSpacing="0.03" />
+                                android:textColor="#E5E7EB"
+                                android:textSize="12sp" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -78,142 +89,161 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="30dp">
+                        android:paddingHorizontal="24dp"
+                        android:paddingTop="32dp"
+                        android:paddingBottom="36dp">
 
-                        <!-- Error Message -->
+                        <!-- KHU VỰC CHÀO MỪNG (Hiện khi đã có tài khoản lưu) -->
+                        <LinearLayout
+                            android:id="@+id/layout_saved_user"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:gravity="center"
+                            android:visibility="gone"
+                            android:layout_marginBottom="24dp">
+
+                            <TextView
+                                android:id="@+id/tv_greeting"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Chào mừng trở lại,"
+                                android:textColor="#4B5563"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:id="@+id/tv_display_username"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Username"
+                                android:textColor="#1E40AF"
+                                android:textSize="24sp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
                         <com.google.android.material.textview.MaterialTextView
                             android:id="@+id/tv_error"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:visibility="gone"
-                            android:padding="12dp"
-                            android:textColor="@color/danger_color"
-                            android:textSize="14sp"
-                            android:gravity="center"
                             android:layout_marginBottom="16dp"
-                            tools:visibility="visible"
-                            tools:text="Tên đăng nhập hoặc mật khẩu không đúng" />
+                            android:gravity="center"
+                            android:textColor="#EF4444"
+                            android:visibility="gone" />
 
-                        <!-- Username -->
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/til_username"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            app:startIconDrawable="@android:drawable/ic_menu_myplaces">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/et_username"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="Tên đăng nhập"
-                                android:inputType="text"
-                                android:maxLines="1" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <!-- Password -->
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/til_password"
-                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
-                            app:endIconMode="password_toggle">
-
-                            <com.google.android.material.textfield.TextInputEditText
-                                android:id="@+id/et_password"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="Mật khẩu"
-                                android:inputType="textPassword" />
-                        </com.google.android.material.textfield.TextInputLayout>
-
-                        <CheckBox
-                            android:id="@+id/cb_remember_me"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
-                            android:text="Ghi nhớ đăng nhập"
-                            android:textSize="14sp" />
-
-                        <!-- Captcha Area -->
+                        <!-- KHU VỰC NHẬP TÊN (Hiện lần đầu hoặc khi đổi tài khoản) -->
                         <LinearLayout
-                            android:id="@+id/layout_captcha"
+                            android:id="@+id/layout_username_input"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:visibility="gone"
-                            android:layout_marginTop="16dp">
+                            android:orientation="vertical">
 
-                            <LinearLayout
-                                android:layout_width="match_parent"
+                            <TextView
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal">
-
-                                <ImageView
-                                    android:id="@+id/img_captcha"
-                                    android:layout_width="0dp"
-                                    android:layout_weight="1"
-                                    android:layout_height="50dp"
-                                    android:background="#F3F4F6"
-                                    android:scaleType="fitCenter" />
-
-                                <ImageButton
-                                    android:id="@+id/btn_refresh_captcha"
-                                    android:layout_width="48dp"
-                                    android:layout_height="48dp"
-                                    android:src="@android:drawable/ic_menu_rotate"
-                                    android:background="?attr/selectableItemBackgroundBorderless"
-                                    android:contentDescription="Refresh" />
-                            </LinearLayout>
+                                android:text="Tên đăng nhập"
+                                android:textColor="#1F2937"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:layout_marginBottom="8dp" />
 
                             <com.google.android.material.textfield.TextInputLayout
-                                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="8dp">
-
+                                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                                app:hintEnabled="false">
                                 <com.google.android.material.textfield.TextInputEditText
-                                    android:id="@+id/et_captcha"
+                                    android:id="@+id/et_username"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:hint="Mã xác thực"
+                                    android:hint="Mã học sinh"
                                     android:inputType="text" />
                             </com.google.android.material.textfield.TextInputLayout>
                         </LinearLayout>
 
-                        <!-- Login Button -->
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_login"
-                            android:layout_width="match_parent"
-                            android:layout_height="58dp"
-                            android:layout_marginTop="24dp"
-                            android:text="ĐĂNG NHẬP"
-                            android:textSize="16sp"
-                            android:textStyle="bold"
-                            app:cornerRadius="12dp"
-                            app:elevation="4dp" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btn_passkey"
-                            style="@style/Widget.Material3.Button.OutlinedButton"
-                            android:layout_width="match_parent"
-                            android:layout_height="58dp"
-                            android:layout_marginTop="12dp"
-                            android:text="SỬ DỤNG MÃ KHÓA"
-                            app:cornerRadius="12dp" />
-
+                        <!-- MẬT KHẨU (Luôn hiện) -->
                         <TextView
-                            android:id="@+id/tv_forgot_password"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="center_horizontal"
+                            android:text="Mật khẩu"
+                            android:textColor="#1F2937"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
                             android:layout_marginTop="20dp"
-                            android:text="Quên mật khẩu?"
-                            android:textColor="@color/primary_color"
-                            android:textStyle="bold" />
+                            android:layout_marginBottom="8dp" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            app:endIconMode="password_toggle"
+                            app:hintEnabled="false">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/et_password"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Nhập mật khẩu"
+                                android:inputType="textPassword" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!-- NÚT ĐĂNG NHẬP -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="32dp"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:weightSum="2">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_login"
+                                android:layout_width="0dp"
+                                android:layout_height="56dp"
+                                android:layout_weight="1.6"
+                                android:backgroundTint="#EF4444"
+                                android:text="ĐĂNG NHẬP"
+                                android:textSize="17sp"
+                                android:textStyle="bold"
+                                app:cornerRadius="16dp" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_faceid"
+                                style="@style/Widget.Material3.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="56dp"
+                                android:layout_weight="0.4"
+                                android:layout_marginStart="12dp"
+                                app:cornerRadius="16dp"
+                                app:icon="@drawable/ic_fingerprint"
+                                app:iconGravity="textStart"
+                                app:iconSize="28dp" />
+                        </LinearLayout>
+
+                        <!-- LIÊN KẾT PHÍA DƯỚI -->
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="28dp">
+
+                            <TextView
+                                android:id="@+id/tv_switch_account"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentStart="true"
+                                android:text="Dùng tài khoản khác"
+                                android:textColor="#4B5563"
+                                android:textSize="15sp"
+                                android:visibility="gone" />
+
+                            <TextView
+                                android:id="@+id/tv_forgot_password"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentEnd="true"
+                                android:text="Quên mật khẩu"
+                                android:textColor="#EF4444"
+                                android:textSize="15sp"
+                                android:textStyle="bold" />
+                        </RelativeLayout>
 
                     </LinearLayout>
                 </LinearLayout>

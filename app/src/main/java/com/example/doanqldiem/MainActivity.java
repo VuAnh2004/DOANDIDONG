@@ -1,37 +1,39 @@
 package com.example.doanqldiem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
+import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
+import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+import de.hdodenhof.circleimageview.CircleImageView;
+
+/**
+ * Kế thừa từ BaseActivity để thừa hưởng tính năng tự động đăng xuất sau 2 phút
+ */
+public class MainActivity extends BaseActivity {
+
+    private TextView txtUserName, txtPopupName, txtPopupEmail;
+    private View overlayPopup;
+    private CircleImageView btnMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 1. Kích hoạt EdgeToEdge (thay thế cho setStatusBarColor thủ công)
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // 3. Click Hồ sơ người học
-        CardView hosonguoihoc = findViewById(R.id.hosonguoihoc);
-        if (hosonguoihoc != null) {
-            hosonguoihoc.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, hosonguoihocActivity.class);
-                startActivity(intent);
-            });
-        }
+        initViews();
+        displayUserInfo();
+        setupProfilePopup();
 
-        // 4. Xử lý Insets để layout không bị đè bởi thanh hệ thống
-        View mainView = findViewById(R.id.main); // Đảm bảo ID này trùng với ID trong activity_main.xml
+        View mainView = findViewById(R.id.main_drawer_layout);
         if (mainView != null) {
             ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
                 Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -39,81 +41,104 @@ public class MainActivity extends AppCompatActivity {
                 return insets;
             });
         }
-        // 5. MỞ màn hình Cấu hình
-        ImageView imgCauHinh = findViewById(R.id.btn_setting);
-        if (imgCauHinh != null) {
-            imgCauHinh.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, cauhinhActivity.class);
-                startActivity(intent);
-                // Hiệu ứng chuyển cảnh mượt
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            });
+
+        setupFeatureClicks();
+    }
+
+    private void initViews() {
+        txtUserName = findViewById(R.id.txt_user_name_main);
+        txtPopupName = findViewById(R.id.popup_user_name);
+        txtPopupEmail = findViewById(R.id.popup_user_email);
+        overlayPopup = findViewById(R.id.overlay_popup);
+        btnMenu = findViewById(R.id.btn_menu);
+    }
+
+    private void setupProfilePopup() {
+        if (btnMenu != null && overlayPopup != null) {
+            btnMenu.setOnClickListener(v -> overlayPopup.setVisibility(View.VISIBLE));
+            overlayPopup.setOnClickListener(v -> overlayPopup.setVisibility(View.GONE));
+
+            View btnPopupHome = findViewById(R.id.popup_home);
+            if (btnPopupHome != null) {
+                btnPopupHome.setOnClickListener(v -> overlayPopup.setVisibility(View.GONE));
+            }
+
+            View btnLogout = findViewById(R.id.popup_logout);
+            if (btnLogout != null) {
+                btnLogout.setOnClickListener(v -> handleLogoutManual());
+            }
         }
-        // 6. Click xem điểm
-        CardView diem = findViewById(R.id.btn_diem);
-        if (diem != null) {
-            diem.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, diemActivity.class);
-                startActivity(intent);
-            });
+    }
+
+    /**
+     * Đăng xuất thủ công từ Popup
+     */
+    private void handleLogoutManual() {
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        prefs.edit()
+            .remove("AuthToken")
+            .remove("UserID")
+            .putBoolean("isLoggedIn", false)
+            .remove("LastPauseTime") // Xóa luôn thời gian chờ
+            .apply();
+
+        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    private void setupFeatureClicks() {
+        findViewById(R.id.btn_setting).setOnClickListener(v -> 
+            startActivity(new Intent(this, cauhinhActivity.class)));
+            
+        findViewById(R.id.btn_diem).setOnClickListener(v -> 
+            startActivity(new Intent(this, diemActivity.class)));
+            
+        findViewById(R.id.btn_vietdon).setOnClickListener(v -> 
+            startActivity(new Intent(this, vietdonActivity.class)));
+            
+        findViewById(R.id.btn_muonphong).setOnClickListener(v -> 
+            startActivity(new Intent(this, muonphongActivity.class)));
+            
+        findViewById(R.id.btn_phananh).setOnClickListener(v -> 
+            startActivity(new Intent(this, phananhActivity.class)));
+            
+        findViewById(R.id.btn_capnhathoso).setOnClickListener(v -> 
+            startActivity(new Intent(this, capnhathosoActivity.class)));
+            
+        findViewById(R.id.btn_bell).setOnClickListener(v -> 
+            startActivity(new Intent(this, thongbaoActivity.class)));
+            
+        findViewById(R.id.btn_thoikhoabieu).setOnClickListener(v -> 
+            startActivity(new Intent(this, thoikhoabieuActivity.class)));
+            
+        findViewById(R.id.btn_naptien).setOnClickListener(v -> 
+            startActivity(new Intent(this, hocphiActivity.class)));
+        
+        View hosonguoihoc = findViewById(R.id.hosonguoihoc);
+        if (hosonguoihoc != null) {
+            hosonguoihoc.setOnClickListener(v -> 
+                startActivity(new Intent(this, hosonguoihocActivity.class)));
         }
-        // 7. Click xem viet don
-        CardView vietdon = findViewById(R.id.btn_vietdon);
-        if (vietdon != null) {
-            vietdon.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, vietdonActivity.class);
-                startActivity(intent);
-            });
-        }
-        // 7. Click xem muon phong
-        CardView muonphong = findViewById(R.id.btn_muonphong);
-        if (muonphong != null) {
-            muonphong.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, muonphongActivity.class);
-                startActivity(intent);
-            });
-        }
-        // 8. Click xem phananh
-        CardView phananh = findViewById(R.id.btn_phananh);
-        if (phananh != null) {
-            phananh.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, phananhActivity.class);
-                startActivity(intent);
-            });
-        }
-        // 9. Click cập nhật hồ sơ
-        CardView capnhathoso = findViewById(R.id.btn_capnhathoso);
-        if (capnhathoso != null) {
-           capnhathoso.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, capnhathosoActivity.class);
-                startActivity(intent);
-            });
-        }
-        // 10. Click Icon thong bao
-        ImageView thongbao = findViewById(R.id.btn_bell);
-        if (thongbao != null) {
-            thongbao.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, thongbaoActivity.class);
-                startActivity(intent);
-                // Hiệu ứng chuyển cảnh mượt
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            });
-        }
-        // Click thoikhoabieu
-        CardView thoikhoabieu = findViewById(R.id.btn_thoikhoabieu);
-        if (thoikhoabieu != null) {
-            thoikhoabieu.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, thoikhoabieuActivity.class);
-                startActivity(intent);
-            });
-        }
-        // Click nap tien
-        CardView naptien = findViewById(R.id.btn_naptien);
-        if (naptien != null) {
-            naptien.setOnClickListener(v -> {
-                Intent intent = new Intent(MainActivity.this, hocphiActivity.class);
-                startActivity(intent);
-            });
+    }
+
+    private void displayUserInfo() {
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        String fullName = prefs.getString("FullName", "Người dùng");
+        String email = prefs.getString("Email", "---");
+
+        if (txtUserName != null) txtUserName.setText(fullName);
+        if (txtPopupName != null) txtPopupName.setText(fullName);
+        if (txtPopupEmail != null) txtPopupEmail.setText(email);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (overlayPopup != null && overlayPopup.getVisibility() == View.VISIBLE) {
+            overlayPopup.setVisibility(View.GONE);
+        } else {
+            super.onBackPressed();
         }
     }
 }

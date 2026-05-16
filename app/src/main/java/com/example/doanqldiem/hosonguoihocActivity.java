@@ -1,6 +1,7 @@
 package com.example.doanqldiem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -39,7 +40,16 @@ public class hosonguoihocActivity extends AppCompatActivity {
         setupToolbar();
         setupExpandableSections();
 
-        loadStudentProfile("24290001");
+        // Lấy StudentID từ SharedPreferences đã lưu lúc Login
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        String loggedInStudentId = prefs.getString("StudentID", "");
+
+        if (!loggedInStudentId.isEmpty()) {
+            loadStudentProfile(loggedInStudentId);
+        } else {
+            Toast.makeText(this, "Không tìm thấy thông tin đăng nhập!", Toast.LENGTH_SHORT).show();
+            // Có thể chuyển về màn hình Login nếu cần
+        }
     }
 
     private void initViews() {

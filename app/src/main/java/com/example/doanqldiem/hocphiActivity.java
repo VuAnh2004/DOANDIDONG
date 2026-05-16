@@ -1,6 +1,7 @@
 package com.example.doanqldiem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,7 +45,7 @@ public class hocphiActivity extends AppCompatActivity {
     private RecyclerView rvNghiaVu;
     private NghiaVuAdapter adapter;
     private ProgressBar progressBar;
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
     private final DecimalFormat formatter = new DecimalFormat("#,### ₫");
 
     @Override
@@ -52,6 +53,16 @@ public class hocphiActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.hocphi);
+
+        // Lấy StudentID từ SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        studentId = prefs.getString("StudentID", "");
+
+        if (studentId.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         initViews();
         setupInsets();
@@ -61,23 +72,21 @@ public class hocphiActivity extends AppCompatActivity {
         loadNghiaVu();
 
         findViewById(R.id.btn_deposit).setOnClickListener(v -> handleDeposit());
-        //  Click Icon thong bao
+        
         ImageView thongbao = findViewById(R.id.btn_bell);
         if (thongbao != null) {
             thongbao.setOnClickListener(v -> {
                 Intent intent = new Intent(hocphiActivity.this, thongbaoActivity.class);
                 startActivity(intent);
-                // Hiệu ứng chuyển cảnh mượt
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
-        // MỞ màn hình Cấu hình
+        
         ImageView imgCauHinh = findViewById(R.id.btn_setting);
         if (imgCauHinh != null) {
             imgCauHinh.setOnClickListener(v -> {
                 Intent intent = new Intent(hocphiActivity.this, cauhinhActivity.class);
                 startActivity(intent);
-                // Hiệu ứng chuyển cảnh mượt
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
@@ -86,9 +95,10 @@ public class hocphiActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // Tự động tải lại dữ liệu khi người dùng quay lại từ trang thanh toán
-        loadDashboard();
-        loadNghiaVu();
+        if (studentId != null && !studentId.isEmpty()) {
+            loadDashboard();
+            loadNghiaVu();
+        }
     }
 
     private void initViews() {
@@ -116,7 +126,10 @@ public class hocphiActivity extends AppCompatActivity {
         if (logo != null) logo.setOnClickListener(v -> finish());
         
         ImageView btnSetting = findViewById(R.id.btn_setting);
-        if (btnSetting != null) btnSetting.setOnClickListener(v -> finish());
+        if (btnSetting != null) btnSetting.setOnClickListener(v -> {
+             Intent intent = new Intent(hocphiActivity.this, cauhinhActivity.class);
+             startActivity(intent);
+        });
     }
 
     private void handleDeposit() {
@@ -134,7 +147,6 @@ public class hocphiActivity extends AppCompatActivity {
 
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
-        // Đã cập nhật constructor thêm platform "mobile" để server nhận diện
         PaymentInformationModel paymentInfo = new PaymentInformationModel(
                 "topup",
                 amount,

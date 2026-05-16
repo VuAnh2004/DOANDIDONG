@@ -1,6 +1,7 @@
 package com.example.doanqldiem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -43,13 +44,23 @@ public class phananhActivity extends AppCompatActivity {
     private TextView txtFileName;
     private ProgressBar progressBar;
     private final List<Uri> selectedFiles = new ArrayList<>();
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.phananh);
+
+        // Lấy StudentID từ SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        studentId = prefs.getString("StudentID", "");
+
+        if (studentId.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         initViews();
         setupToolbar();
@@ -64,13 +75,12 @@ public class phananhActivity extends AppCompatActivity {
 
         // Nút gửi
         findViewById(R.id.btn_submit).setOnClickListener(v -> submitPhanAnh());
-        //  Click Icon thong bao
+        
         ImageView thongbao = findViewById(R.id.btn_bell);
         if (thongbao != null) {
             thongbao.setOnClickListener(v -> {
                 Intent intent = new Intent(phananhActivity.this, thongbaoActivity.class);
                 startActivity(intent);
-                // Hiệu ứng chuyển cảnh mượt
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
@@ -88,7 +98,10 @@ public class phananhActivity extends AppCompatActivity {
         ImageView logo = findViewById(R.id.logotruong);
         if (logo != null) logo.setOnClickListener(v -> finish());
         ImageView btnSetting = findViewById(R.id.btn_setting);
-        if (btnSetting != null) btnSetting.setOnClickListener(v -> finish());
+        if (btnSetting != null) btnSetting.setOnClickListener(v -> {
+            Intent intent = new Intent(this, cauhinhActivity.class);
+            startActivity(intent);
+        });
     }
 
     private final ActivityResultLauncher<Intent> filePickerLauncher = registerForActivityResult(

@@ -3,6 +3,7 @@ package com.example.doanqldiem;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -36,7 +37,7 @@ public class create_muonphongActivity extends AppCompatActivity {
     private TextInputEditText edtPurpose, edtStartTime, edtEndTime;
     private MaterialButton btnSubmit, btnCancel;
 
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
 
     private List<RoomModel> roomList;
     private RoomModel selectedRoom;
@@ -50,6 +51,16 @@ public class create_muonphongActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_muonphong);
+
+        // Lấy StudentID từ SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        studentId = prefs.getString("StudentID", "");
+
+        if (studentId.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         initViews();
         setupEvents();

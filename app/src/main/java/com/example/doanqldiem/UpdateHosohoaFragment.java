@@ -1,6 +1,8 @@
 package com.example.doanqldiem;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -42,12 +44,18 @@ public class UpdateHosohoaFragment extends Fragment {
     private TextView tvFileName;
     private RecyclerView rvHosoList;
     private Uri selectedFileUri;
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update_hosohoa, container, false);
+
+        // Lấy StudentID từ SharedPreferences
+        if (getActivity() != null) {
+            SharedPreferences prefs = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
+            studentId = prefs.getString("StudentID", "");
+        }
 
         spinDocType = view.findViewById(R.id.spin_doc_type);
         edtNotes = view.findViewById(R.id.edt_notes);
@@ -61,7 +69,9 @@ public class UpdateHosohoaFragment extends Fragment {
         view.findViewById(R.id.btn_pick_file).setOnClickListener(v -> openFilePicker());
         view.findViewById(R.id.btn_upload_doc).setOnClickListener(v -> uploadHoso());
 
-        loadHosoList();
+        if (studentId != null && !studentId.isEmpty()) {
+            loadHosoList();
+        }
         return view;
     }
 
@@ -106,7 +116,7 @@ public class UpdateHosohoaFragment extends Fragment {
             @Override
             public void onResponse(@NonNull Call<ProfileResponse> call, @NonNull Response<ProfileResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Logic hiển thị danh sách hồ sơ vào RecyclerView
+                    // Logic hiển thị danh sách hồ sơ
                 }
             }
             @Override
@@ -115,6 +125,11 @@ public class UpdateHosohoaFragment extends Fragment {
     }
 
     private void uploadHoso() {
+        if (studentId == null || studentId.isEmpty()) {
+            Toast.makeText(getContext(), "Không tìm thấy thông tin đăng nhập", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String docType = spinDocType.getText().toString();
         String notes = edtNotes.getText().toString();
 

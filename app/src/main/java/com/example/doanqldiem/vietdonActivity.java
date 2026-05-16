@@ -1,6 +1,7 @@
 package com.example.doanqldiem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +30,7 @@ public class vietdonActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private VietDonAdapter adapter;
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,16 @@ public class vietdonActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vietdon);
+
+        // Lấy StudentID từ SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        studentId = prefs.getString("StudentID", "");
+
+        if (studentId.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         setupToolbar();
         
@@ -78,7 +89,9 @@ public class vietdonActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadData(); // Tải lại danh sách mỗi khi quay lại trang này
+        if (studentId != null && !studentId.isEmpty()) {
+            loadData(); // Tải lại danh sách mỗi khi quay lại trang này
+        }
     }
 
     private void setupToolbar() {

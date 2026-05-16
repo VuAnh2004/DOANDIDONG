@@ -62,7 +62,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Mã học sinh"
-                            android:text="24290001"
+                            android:text=""
                             android:enabled="false"
                             android:textColor="#334155" />
                     </com.google.android.material.textfield.TextInputLayout>

@@ -1,6 +1,7 @@
 package model;
 
 import com.google.gson.annotations.SerializedName;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DiemModel {
@@ -35,20 +36,37 @@ public class DiemModel {
     @SerializedName("AverageScore")
     private Double AverageScore;
 
-    // ===== GETTER (BỔ SUNG ĐẦY ĐỦ ĐỂ HẾT LỖI) =====
+    // ================== GETTERS ==================
     public String getSubjectName() { return SubjectName; }
-
-    // Hai dòng quan trọng nhất để fix lỗi trong Activity:
     public String getSemesterName() { return SemesterName; }
     public String getSemesterCode() { return SemesterCode; }
 
-    public OralScores getOralScores() { return oralScores; }
-    public Quizzes getQuizzes() { return quizzes; }
     public Double getMidtermScore() { return MidtermScore; }
     public Double getFinal_score() { return Final_score; }
     public Double getAverageScore() { return AverageScore; }
 
-    // ===== INNER CLASSES =====
+    public OralScores getOralScores() { return oralScores; }
+    public Quizzes getQuizzes() { return quizzes; }
+
+    // ================== STRING METHODS (QUAN TRỌNG) ==================
+    public String getOralScoresString() {
+        if (oralScores == null) return "---";
+        List<String> s = new ArrayList<>();
+        if (oralScores.OralScore1 != null) s.add(String.valueOf(oralScores.OralScore1));
+        if (oralScores.OralScore2 != null) s.add(String.valueOf(oralScores.OralScore2));
+        if (oralScores.OralScore3 != null) s.add(String.valueOf(oralScores.OralScore3));
+        return s.isEmpty() ? "---" : String.join(", ", s);
+    }
+
+    public String getQuizzesString() {
+        if (quizzes == null) return "---";
+        List<String> s = new ArrayList<>();
+        if (quizzes.Quiz15Min1 != null) s.add(String.valueOf(quizzes.Quiz15Min1));
+        if (quizzes.Quiz15Min2 != null) s.add(String.valueOf(quizzes.Quiz15Min2));
+        return s.isEmpty() ? "---" : String.join(", ", s);
+    }
+
+    // ================== INNER CLASSES ==================
     public static class OralScores {
         @SerializedName("OralScore1")
         private Double OralScore1;
@@ -72,7 +90,6 @@ public class DiemModel {
         public Double getQuiz15Min2() { return Quiz15Min2; }
     }
 
-    // ===== SUBJECT OPTION =====
     public static class SubjectOption {
         @SerializedName("SubjectID")
         public int SubjectID;

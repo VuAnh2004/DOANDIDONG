@@ -1,5 +1,7 @@
 package com.example.doanqldiem;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,12 +21,18 @@ import retrofit2.Response;
 public class UpdateSecurityFragment extends Fragment {
 
     private TextInputEditText edtEmail, edtOldPassword, edtNewPassword;
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update_security, container, false);
+
+        // Lấy StudentID từ SharedPreferences
+        if (getActivity() != null) {
+            SharedPreferences prefs = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
+            studentId = prefs.getString("StudentID", "");
+        }
 
         edtEmail = view.findViewById(R.id.edt_email);
         edtOldPassword = view.findViewById(R.id.edt_old_password);
@@ -36,6 +44,11 @@ public class UpdateSecurityFragment extends Fragment {
     }
 
     private void updateSecurity() {
+        if (studentId == null || studentId.isEmpty()) {
+            Toast.makeText(getContext(), "Không tìm thấy thông tin đăng nhập", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String email = edtEmail.getText().toString().trim();
         String oldPass = edtOldPassword.getText().toString().trim();
         String newPass = edtNewPassword.getText().toString().trim();

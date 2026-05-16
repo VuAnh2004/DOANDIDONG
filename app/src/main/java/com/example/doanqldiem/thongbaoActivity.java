@@ -43,7 +43,7 @@ public class thongbaoActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private ThongBaoAdapter adapter;
     private ProgressBar progressBar;
-    private final String userName = "24290001";
+    private String userName; // Đã bỏ gán cứng
     private SharedPreferences readPrefs;
     private static final String READ_NOTIFS_KEY = "read_notifications";
 
@@ -52,6 +52,16 @@ public class thongbaoActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.thongbao);
+
+        // Lấy Username từ SharedPreferences (đã lưu lúc đăng nhập)
+        SharedPreferences userPrefs = getSharedPreferences("USER", MODE_PRIVATE);
+        userName = userPrefs.getString("Username", "");
+
+        if (userName.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         readPrefs = getSharedPreferences("NotificationPrefs", MODE_PRIVATE);
 
@@ -71,9 +81,7 @@ public class thongbaoActivity extends AppCompatActivity {
     }
 
     private void setupInsets() {
-        View main = findViewById(R.id.main_diem_layout); // Note: Assuming the ID in thongbao.xml is same or use root
-        if (main == null) main = findViewById(android.R.id.content);
-        
+        View main = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -82,14 +90,13 @@ public class thongbaoActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        TextView btnClose = findViewById(R.id.btn_close_thongbao);
-        if (btnClose != null) btnClose.setOnClickListener(v -> finish());
-
         ImageView logo = findViewById(R.id.logotruong);
         if (logo != null) logo.setOnClickListener(v -> finish());
         
         ImageView btnSetting = findViewById(R.id.btn_setting);
-        if (btnSetting != null) btnSetting.setOnClickListener(v -> finish());
+        if (btnSetting != null) btnSetting.setOnClickListener(v -> {
+            startActivity(new android.content.Intent(this, cauhinhActivity.class));
+        });
     }
 
     private void autoSyncAndLoad() {
@@ -136,7 +143,6 @@ public class thongbaoActivity extends AppCompatActivity {
 
     private class ThongBaoAdapter extends RecyclerView.Adapter<ThongBaoAdapter.ViewHolder> {
         private List<ThongBaoModel> list;
-
         public ThongBaoAdapter(List<ThongBaoModel> list) { this.list = list; }
 
         public void updateData(List<ThongBaoModel> newList) {
@@ -159,7 +165,6 @@ public class thongbaoActivity extends AppCompatActivity {
             holder.txtContent.setText(item.getContent());
             holder.txtTime.setText(getTimeAgo(item.getSenDate()));
 
-            // Logic đánh dấu đã đọc
             Set<String> readIds = readPrefs.getStringSet(READ_NOTIFS_KEY, new HashSet<>());
             if (readIds.contains(String.valueOf(item.getID()))) {
                 holder.unreadDot.setVisibility(View.GONE);
@@ -172,7 +177,6 @@ public class thongbaoActivity extends AppCompatActivity {
             holder.itemView.setOnClickListener(v -> {
                 markAsRead(item.getID());
                 notifyItemChanged(position);
-                // Hiển thị nội dung chi tiết nếu cần
                 Toast.makeText(thongbaoActivity.this, item.getTitle(), Toast.LENGTH_SHORT).show();
             });
         }
@@ -199,9 +203,7 @@ public class thongbaoActivity extends AppCompatActivity {
                 if (minutes < 60) return minutes + " phút trước";
                 if (hours < 24) return hours + " giờ trước";
                 return days + " ngày trước";
-            } catch (ParseException e) {
-                return dateStr;
-            }
+            } catch (ParseException e) { return dateStr; }
         }
 
         @Override
@@ -210,8 +212,6 @@ public class thongbaoActivity extends AppCompatActivity {
         class ViewHolder extends RecyclerView.ViewHolder {
             TextView txtTitle, txtSender, txtContent, txtTime;
             View unreadDot;
-            ImageView imgAvatar;
-
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
                 txtTitle = itemView.findViewById(R.id.txt_notif_title);
@@ -219,7 +219,6 @@ public class thongbaoActivity extends AppCompatActivity {
                 txtContent = itemView.findViewById(R.id.txt_notif_content);
                 txtTime = itemView.findViewById(R.id.txt_notif_time);
                 unreadDot = itemView.findViewById(R.id.view_unread_dot);
-                imgAvatar = itemView.findViewById(R.id.img_sender_avatar);
             }
         }
     }

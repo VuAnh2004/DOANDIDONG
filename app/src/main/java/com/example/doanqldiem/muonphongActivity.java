@@ -1,6 +1,7 @@
 package com.example.doanqldiem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -35,7 +36,7 @@ public class muonphongActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private BookingAdapter adapter;
     private ProgressBar progressBar;
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,37 +44,40 @@ public class muonphongActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.muonphong);
 
-        // 1. Fix lỗi lấn Header bằng cách xử lý WindowInsets
-        View mainLayout = findViewById(android.R.id.content); // Hoặc ID CoordinatorLayout của bạn
+        // Lấy StudentID từ SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        studentId = prefs.getString("StudentID", "");
+
+        if (studentId.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        // 1. Fix lỗi lấn Header
+        View mainLayout = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(mainLayout, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        // 2. Khởi tạo UI
         progressBar = findViewById(R.id.loading_progress);
         recyclerView = findViewById(R.id.recycler_bookings);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Khởi tạo Adapter với danh sách rỗng
         adapter = new BookingAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
-        // 3. Cài đặt các sự kiện Click
         setupClickListeners();
-
-        // 4. Tải dữ liệu
         loadHistory();
     }
 
     private void setupClickListeners() {
-        // Nút Đăng ký mới
         findViewById(R.id.btn_dang_ky).setOnClickListener(v -> {
             startActivity(new Intent(this, create_muonphongActivity.class));
         });
 
-        // Nút Cấu hình
         ImageView imgCauHinh = findViewById(R.id.btn_setting);
         if (imgCauHinh != null) {
             imgCauHinh.setOnClickListener(v -> {
@@ -82,7 +86,6 @@ public class muonphongActivity extends AppCompatActivity {
             });
         }
 
-        // Nút Thông báo
         ImageView thongbao = findViewById(R.id.btn_bell);
         if (thongbao != null) {
             thongbao.setOnClickListener(v -> {
@@ -91,7 +94,6 @@ public class muonphongActivity extends AppCompatActivity {
             });
         }
 
-        // Nút Back (Logo)
         View logo = findViewById(R.id.logotruong);
         if (logo != null) logo.setOnClickListener(v -> finish());
     }
@@ -99,7 +101,9 @@ public class muonphongActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadHistory();
+        if (studentId != null && !studentId.isEmpty()) {
+            loadHistory();
+        }
     }
 
     private void loadHistory() {
@@ -122,7 +126,6 @@ public class muonphongActivity extends AppCompatActivity {
         });
     }
 
-    // --- LỚP ADAPTER SỬA LẠI ĐỂ KHÔNG LỖI HIỂN THỊ ---
     private class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.ViewHolder> {
         private List<BookingModel> list;
         public BookingAdapter(List<BookingModel> list) { this.list = list; }
@@ -135,7 +138,6 @@ public class muonphongActivity extends AppCompatActivity {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // Luôn sử dụng file layout item_muonphong của bạn
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_muonphong, parent, false);
             return new ViewHolder(view);
         }
@@ -143,14 +145,11 @@ public class muonphongActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             BookingModel m = list.get(position);
-
-            // Đổ dữ liệu thật từ Data vào View
             holder.txtRoomName.setText(m.getRoomName() != null ? m.getRoomName() : "N/A");
             holder.txtStatus.setText(m.getStatusText());
             holder.txtTimeRange.setText(m.getStartTime() + " -> " + m.getEndTime());
             holder.txtPurpose.setText("Lý do: " + m.getPurpose());
 
-            // Xử lý màu sắc dựa trên dữ liệu thật
             if (m.getStatusText().contains("duyệt") || m.getStatusText().contains("trả")) {
                 holder.txtStatus.setTextColor(android.graphics.Color.parseColor("#10B981"));
             } else {

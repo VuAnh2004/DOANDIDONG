@@ -16,7 +16,7 @@
         android:usesCleartextTraffic="true">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".MainActivity" android:exported="false" />
         <activity android:name=".hosonguoihocActivity"/>
         <activity android:name=".cauhinhActivity"/>
         <activity android:name=".diemActivity"/>
@@ -36,8 +37,9 @@
         <activity android:name=".thongbaoActivity"/>
         <activity android:name=".thoikhoabieuActivity"/>
         <activity android:name=".hocphiActivity"/>
+        <activity android:name=".ForgotPasswordActivity" android:exported="false"/>
+        <activity android:name=".ResetPasswordActivity" android:exported="false"/>
 
-        <!-- ⚡ ĐĂNG KÝ ĐỂ NHẬN KẾT QUẢ THANH TOÁN TỪ VNPAY -->
         <activity
             android:name=".thanhtoanthanhcongActivity"
             android:exported="true">
@@ -45,7 +47,6 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Link này phải khớp với lệnh Redirect trong ASP.NET của bạn -->
                 <data android:scheme="myapp" android:host="payment-success" />
             </intent-filter>
         </activity>

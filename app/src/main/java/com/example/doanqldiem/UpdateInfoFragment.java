@@ -2,7 +2,9 @@ package com.example.doanqldiem;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -52,7 +54,7 @@ public class UpdateInfoFragment extends Fragment {
     private AutoCompleteTextView spinGender, spinProvince, spinCommune;
     private ImageView imgEditAvatar;
     private Uri selectedImageUri;
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
     
     private List<AddressModel> provinces = new ArrayList<>();
     private List<AddressModel> wards = new ArrayList<>();
@@ -63,6 +65,17 @@ public class UpdateInfoFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update_info, container, false);
         
+        // Lấy StudentID từ SharedPreferences
+        if (getActivity() != null) {
+            SharedPreferences prefs = getActivity().getSharedPreferences("USER", Context.MODE_PRIVATE);
+            studentId = prefs.getString("StudentID", "");
+        }
+
+        if (studentId == null || studentId.isEmpty()) {
+            Toast.makeText(getContext(), "Không tìm thấy thông tin đăng nhập", Toast.LENGTH_SHORT).show();
+            return view;
+        }
+
         initAddressApi();
         initViews(view);
         setupEvents(view);
@@ -108,7 +121,6 @@ public class UpdateInfoFragment extends Fragment {
             btnSaveInfo.setOnClickListener(view -> updateInfo());
         }
 
-        // Đảm bảo click vào là hiện dropdown ngay
         View.OnClickListener dropdownOpener = view -> ((AutoCompleteTextView)view).showDropDown();
         spinGender.setOnClickListener(dropdownOpener);
         spinProvince.setOnClickListener(dropdownOpener);
@@ -146,7 +158,6 @@ public class UpdateInfoFragment extends Fragment {
     }
 
     private void loadWards(int provinceCode) {
-        // Depth = 2 để lấy danh sách Quận/Huyện/Xã tùy thuộc vào cấp
         addressApi.getWards(provinceCode, 2).enqueue(new Callback<AddressModel>() {
             @Override
             public void onResponse(@NonNull Call<AddressModel> call, @NonNull Response<AddressModel> response) {

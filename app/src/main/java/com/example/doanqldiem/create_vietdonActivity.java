@@ -2,6 +2,7 @@ package com.example.doanqldiem;
 
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -40,13 +41,23 @@ public class create_vietdonActivity extends AppCompatActivity {
 
     private Uri selectedFileUri;
 
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
     private final Calendar calendar = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_vietdon);
+
+        // Lấy StudentID từ SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        studentId = prefs.getString("StudentID", "");
+
+        if (studentId.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         initViews();
         setupToolbar();
@@ -75,7 +86,9 @@ public class create_vietdonActivity extends AppCompatActivity {
         if (logo != null) logo.setOnClickListener(v -> finish());
 
         ImageView btnSetting = findViewById(R.id.btn_setting);
-        if (btnSetting != null) btnSetting.setOnClickListener(v -> finish());
+        if (btnSetting != null) btnSetting.setOnClickListener(v -> {
+            startActivity(new Intent(this, cauhinhActivity.class));
+        });
     }
 
     // ================= DATE =================
@@ -92,8 +105,6 @@ public class create_vietdonActivity extends AppCompatActivity {
     private void showDatePicker(TextInputEditText target) {
         new DatePickerDialog(this, (view, year, month, day) -> {
             calendar.set(year, month, day);
-
-            // 🔥 FORMAT CHUẨN ASP.NET
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             target.setText(sdf.format(calendar.getTime()));
 
@@ -121,7 +132,6 @@ public class create_vietdonActivity extends AppCompatActivity {
 
     private String getFileName(Uri uri) {
         String result = null;
-
         if ("content".equals(uri.getScheme())) {
             try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
                 if (cursor != null && cursor.moveToFirst()) {
@@ -130,19 +140,16 @@ public class create_vietdonActivity extends AppCompatActivity {
                 }
             }
         }
-
         if (result == null) {
             result = uri.getPath();
             int cut = result.lastIndexOf('/');
             if (cut != -1) result = result.substring(cut + 1);
         }
-
         return result;
     }
 
     // ================= SUBMIT =================
     private void submitLeaveRequest() {
-
         String reason = edtReason.getText().toString().trim();
         String start = edtStartDate.getText().toString().trim();
         String end = edtEndDate.getText().toString().trim();
@@ -152,66 +159,38 @@ public class create_vietdonActivity extends AppCompatActivity {
             return;
         }
 
-        // ===== TEXT PART =====
         RequestBody rStudentId = RequestBody.create(MediaType.parse("text/plain"), studentId);
         RequestBody rReason = RequestBody.create(MediaType.parse("text/plain; charset=utf-8"), reason);
         RequestBody rStart = RequestBody.create(MediaType.parse("text/plain"), start);
         RequestBody rEnd = RequestBody.create(MediaType.parse("text/plain"), end);
 
-        // ===== FILE PART =====
         MultipartBody.Part filePart = null;
-
         if (selectedFileUri != null) {
             try {
                 InputStream inputStream = getContentResolver().openInputStream(selectedFileUri);
                 byte[] bytes = getBytes(inputStream);
-
                 String type = getContentResolver().getType(selectedFileUri);
                 if (type == null) type = "application/octet-stream";
-
                 RequestBody requestFile = RequestBody.create(MediaType.parse(type), bytes);
-
-                // 🔥 QUAN TRỌNG: tên phải giống backend
-                filePart = MultipartBody.Part.createFormData(
-                        "fileUpload",
-                        getFileName(selectedFileUri),
-                        requestFile
-                );
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                filePart = MultipartBody.Part.createFormData("fileUpload", getFileName(selectedFileUri), requestFile);
+            } catch (Exception e) { e.printStackTrace(); }
         }
 
-        // ===== CALL API =====
         vietdonapi api = RetrofitClient.getClient().create(vietdonapi.class);
-
         api.taoDon(rStudentId, rStart, rEnd, rReason, filePart)
                 .enqueue(new Callback<ResponseBody>() {
-
                     @Override
-                    public void onResponse(@NonNull Call<ResponseBody> call,
-                                           @NonNull Response<ResponseBody> response) {
-
+                    public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                         if (response.isSuccessful()) {
-                            Toast.makeText(create_vietdonActivity.this,
-                                    "Gửi đơn thành công!",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(create_vietdonActivity.this, "Gửi đơn thành công!", Toast.LENGTH_SHORT).show();
                             finish();
                         } else {
-                            Toast.makeText(create_vietdonActivity.this,
-                                    "Lỗi server: " + response.code(),
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(create_vietdonActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_LONG).show();
                         }
                     }
-
                     @Override
-                    public void onFailure(@NonNull Call<ResponseBody> call,
-                                          @NonNull Throwable t) {
-
-                        Toast.makeText(create_vietdonActivity.this,
-                                "Lỗi: " + t.getMessage(),
-                                Toast.LENGTH_LONG).show();
+                    public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                        Toast.makeText(create_vietdonActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -220,11 +199,7 @@ public class create_vietdonActivity extends AppCompatActivity {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         byte[] data = new byte[1024];
         int n;
-
-        while ((n = inputStream.read(data)) != -1) {
-            buffer.write(data, 0, n);
-        }
-
+        while ((n = inputStream.read(data)) != -1) { buffer.write(data, 0, n); }
         return buffer.toByteArray();
     }
 }

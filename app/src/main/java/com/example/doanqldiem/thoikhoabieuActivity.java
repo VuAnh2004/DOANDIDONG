@@ -51,7 +51,7 @@ public class thoikhoabieuActivity extends AppCompatActivity {
     private Button btnViewWeek, btnViewFull;
 
     private int selectedWeekNumber = 1;
-    private final String studentId = "24290001"; // Cố định mã HS test
+    private String studentId; // Đã bỏ gán cứng
     private String currentYear = "";
     private String currentSemesterCode = "";
     private List<KhoaBieuModel.AcademicWeek> semesterWeeks = new ArrayList<>();
@@ -63,6 +63,16 @@ public class thoikhoabieuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.thoikhoabieu);
+
+        // Lấy StudentID từ SharedPreferences
+        SharedPreferences userPrefs = getSharedPreferences("USER", MODE_PRIVATE);
+        studentId = userPrefs.getString("StudentID", "");
+
+        if (studentId.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         initViews();
         setupInsets();

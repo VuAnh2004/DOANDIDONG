@@ -1,6 +1,7 @@
 package com.example.doanqldiem;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,7 +28,7 @@ public class capnhathosoActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView tvFullName, tvSubInfo;
     private ImageView imgAvatar;
-    private final String studentId = "24290001";
+    private String studentId; // Đã bỏ gán cứng
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,17 +36,26 @@ public class capnhathosoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.capnhathoso);
 
+        // Lấy StudentID từ SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        studentId = prefs.getString("StudentID", "");
+
+        if (studentId.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         initViews();
         setupToolbar();
         setupViewPager();
         loadInitialData();
-        //  Click Icon thong bao
+        
         ImageView thongbao = findViewById(R.id.btn_bell);
         if (thongbao != null) {
             thongbao.setOnClickListener(v -> {
                 Intent intent = new Intent(capnhathosoActivity.this, thongbaoActivity.class);
                 startActivity(intent);
-                // Hiệu ứng chuyển cảnh mượt
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
