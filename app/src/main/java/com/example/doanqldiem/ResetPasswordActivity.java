@@ -2,13 +2,12 @@ package com.example.doanqldiem;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
 
 import api.RetrofitClient;
 import api.loginapi;
@@ -20,8 +19,8 @@ import retrofit2.Response;
 
 public class ResetPasswordActivity extends AppCompatActivity {
 
-    private TextInputEditText etToken, etNewPassword, etConfirmPassword;
-    private MaterialButton btnReset;
+    private EditText etToken, etNewPassword, etConfirmPassword;
+    private Button btnReset;
     private ProgressBar progressBar;
 
     @Override
@@ -57,7 +56,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
             return;
         }
 
-        progressBar.setVisibility(View.VISIBLE);
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
         btnReset.setEnabled(false);
 
         ResetPasswordRequest request = new ResetPasswordRequest(token, newPassword);
@@ -66,7 +65,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         api.resetPassword(request).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                progressBar.setVisibility(View.GONE);
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
                 btnReset.setEnabled(true);
 
                 if (response.isSuccessful()) {
@@ -74,20 +73,15 @@ public class ResetPasswordActivity extends AppCompatActivity {
                     finish(); // Quay lại màn hình đăng nhập
                 } else {
                     String error = "Lỗi xác thực hoặc Token hết hạn";
-                    try {
-                        if (response.errorBody() != null) {
-                            error = response.errorBody().string();
-                        }
-                    } catch (Exception e) { e.printStackTrace(); }
                     Toast.makeText(ResetPasswordActivity.this, error, Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
                 btnReset.setEnabled(true);
-                Toast.makeText(ResetPasswordActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ResetPasswordActivity.this, "Lỗi kết nối mạng", Toast.LENGTH_SHORT).show();
             }
         });
     }

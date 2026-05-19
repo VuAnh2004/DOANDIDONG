@@ -3,15 +3,20 @@ package com.example.doanqldiem;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
+import org.json.JSONObject;
 
 import java.util.Calendar;
 
@@ -27,10 +32,12 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private TextInputEditText etUsername, etPassword;
-    private MaterialButton btnLogin;
+    private EditText etUsername, etPassword;
+    private Button btnLogin;
     private TextView tvError, tvForgotPassword, tvDisplayUsername, tvSwitchAccount, tvGreeting;
     private LinearLayout layoutSavedUser, layoutUsernameInput;
+    private ImageView ivTogglePassword;
+    private boolean isPasswordVisible = false;
     
     private String savedUsername = "";
 
@@ -38,7 +45,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        // Kiểm tra nếu đã đăng nhập thì vào thẳng Main
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         if (prefs.getBoolean("isLoggedIn", false)) {
             navigateToMain();
@@ -49,6 +55,7 @@ public class LoginActivity extends AppCompatActivity {
 
         initViews();
         checkRememberedUser();
+        setupInputWatchers();
 
         btnLogin.setOnClickListener(v -> handleLogin());
         
@@ -58,6 +65,18 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         tvSwitchAccount.setOnClickListener(v -> switchToNewAccount());
+
+        ivTogglePassword.setOnClickListener(v -> {
+            isPasswordVisible = !isPasswordVisible;
+            if (isPasswordVisible) {
+                etPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                ivTogglePassword.setImageResource(R.drawable.ic_eye);
+            } else {
+                etPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                ivTogglePassword.setImageResource(R.drawable.ic_eye_off);
+            }
+            etPassword.setSelection(etPassword.getText().length());
+        });
     }
 
     private void initViews() {
@@ -72,13 +91,29 @@ public class LoginActivity extends AppCompatActivity {
         tvSwitchAccount = findViewById(R.id.tv_switch_account);
         layoutSavedUser = findViewById(R.id.layout_saved_user);
         layoutUsernameInput = findViewById(R.id.layout_username_input);
+        ivTogglePassword = findViewById(R.id.iv_toggle_password);
+    }
+
+    private void setupInputWatchers() {
+        TextWatcher watcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tvError.setVisibility(View.GONE);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        };
+        etUsername.addTextChangedListener(watcher);
+        etPassword.addTextChangedListener(watcher);
     }
 
     private String getGreetingMessage() {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        if (hour >= 0 && hour < 10) return "Chào buổi sáng,";
-        if (hour >= 10 && hour < 13) return "Chào buổi trưa,";
-        if (hour >= 13 && hour < 18) return "Chào buổi chiều,";
+        if (hour < 10) return "Chào buổi sáng,";
+        if (hour < 13) return "Chào buổi trưa,";
+        if (hour < 18) return "Chào buổi chiều,";
         return "Chào buổi tối,";
     }
 
@@ -88,17 +123,13 @@ public class LoginActivity extends AppCompatActivity {
         String fullName = prefs.getString("FullName", "");
         
         if (!savedUsername.isEmpty()) {
-            // Hiển thị giao diện "Chào mừng quay trở lại" cho tài khoản này
             layoutUsernameInput.setVisibility(View.GONE);
             layoutSavedUser.setVisibility(View.VISIBLE);
             tvGreeting.setText(getGreetingMessage());
             tvDisplayUsername.setText(fullName.isEmpty() ? savedUsername : fullName);
             tvSwitchAccount.setVisibility(View.VISIBLE);
-            
-            // Focus vào ô mật khẩu để người dùng nhập luôn
             etPassword.requestFocus();
         } else {
-            // Hiển thị giao diện nhập mới từ đầu
             layoutUsernameInput.setVisibility(View.VISIBLE);
             layoutSavedUser.setVisibility(View.GONE);
             tvSwitchAccount.setVisibility(View.GONE);
@@ -106,7 +137,6 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void switchToNewAccount() {
-        // Xóa thông tin lưu cũ để đăng nhập tài khoản khác hoàn toàn
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         prefs.edit().clear().apply();
         
@@ -119,17 +149,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleLogin() {
-        String username;
-        if (layoutUsernameInput.getVisibility() == View.VISIBLE) {
-            username = etUsername.getText().toString().trim();
-        } else {
-            username = savedUsername;
-        }
+        String username = (layoutUsernameInput.getVisibility() == View.VISIBLE) 
+                ? etUsername.getText().toString().trim() 
+                : savedUsername;
         
         String password = etPassword.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
-            showError("Vui lòng nhập mật khẩu");
+            showError("Vui lòng nhập đầy đủ thông tin");
             return;
         }
 
@@ -149,19 +176,71 @@ public class LoginActivity extends AppCompatActivity {
                         saveUserData(loginResponse);
                         fetchProfileAndNavigate(loginResponse.getUser().getUsername());
                     } else {
-                        showError(loginResponse.getMessage());
+                        processLoginError(loginResponse.getMessage(), response.code());
                     }
                 } else {
-                    showError("Mật khẩu không chính xác.");
+                    String errorMsg = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            try {
+                                JSONObject jsonObject = new JSONObject(errorJson);
+                                errorMsg = jsonObject.optString("message", 
+                                           jsonObject.optString("Message", 
+                                           jsonObject.optString("error", "")));
+                            } catch (Exception e) {
+                                errorMsg = errorJson;
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    processLoginError(errorMsg, response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 btnLogin.setEnabled(true);
-                showError("Lỗi kết nối mạng");
+                showError("Lỗi kết nối mạng. Vui lòng thử lại.");
             }
         });
+    }
+
+    private void processLoginError(String message, int statusCode) {
+        if (message == null) message = "";
+        String cleanMsg = message.trim().toLowerCase();
+
+        boolean hasUserKeyword = cleanMsg.contains("tên đăng nhập") || cleanMsg.contains("username") || cleanMsg.contains("tài khoản");
+        boolean hasPassKeyword = cleanMsg.contains("mật khẩu") || cleanMsg.contains("password");
+
+        // 1. Trường hợp sai cả hai hoặc lỗi đăng nhập chung (Mã 401 không kèm thông tin chi tiết hoặc có cả 2 từ khóa)
+        if ((hasUserKeyword && hasPassKeyword) ||
+            cleanMsg.contains("credentials") ||
+            (statusCode == 401 && !hasUserKeyword && !hasPassKeyword) ||
+            cleanMsg.isEmpty()) {
+            
+            if (layoutSavedUser.getVisibility() == View.VISIBLE) {
+                showError("Mật khẩu không chính xác. Vui lòng nhập lại");
+            } else {
+                showError("Tên đăng nhập hoặc mật khẩu không chính xác vui lòng nhập lại");
+            }
+            return;
+        }
+
+        // 2. Trường hợp chỉ sai mật khẩu
+        if (hasPassKeyword) {
+            showError("Mật khẩu không chính xác. Vui lòng nhập lại");
+            return;
+        }
+
+        // 3. Trường hợp chỉ sai tên đăng nhập
+        if (hasUserKeyword) {
+            showError("Tên đăng nhập không tồn tại");
+            return;
+        }
+
+        showError("Đăng nhập thất bại. Vui lòng thử lại.");
     }
 
     private void fetchProfileAndNavigate(String studentId) {
