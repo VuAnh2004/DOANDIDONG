@@ -54,7 +54,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
         ForgotPasswordRequest request = new ForgotPasswordRequest(email);
         loginapi api = RetrofitClient.getClient().create(loginapi.class);
-        
+
         api.forgotPassword(request).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -62,9 +62,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 btnSubmit.setEnabled(true);
 
                 if (response.isSuccessful()) {
-                    Toast.makeText(ForgotPasswordActivity.this, 
-                        "Thành công! Vui lòng kiểm tra email để đặt lại mật khẩu.", 
-                        Toast.LENGTH_LONG).show();
+
+                    Toast.makeText(ForgotPasswordActivity.this,
+                            "Thành công! Vui lòng kiểm tra email để đặt lại mật khẩu.",
+                            Toast.LENGTH_LONG).show();
                     finish();
                 } else {
                     String errorMsg = "Email không tồn tại trong hệ thống";

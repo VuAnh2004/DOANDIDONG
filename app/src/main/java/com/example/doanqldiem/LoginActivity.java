@@ -38,13 +38,13 @@ public class LoginActivity extends AppCompatActivity {
     private LinearLayout layoutSavedUser, layoutUsernameInput;
     private ImageView ivTogglePassword;
     private boolean isPasswordVisible = false;
-    
+
     private String savedUsername = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         if (prefs.getBoolean("isLoggedIn", false)) {
             navigateToMain();
@@ -58,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         setupInputWatchers();
 
         btnLogin.setOnClickListener(v -> handleLogin());
-        
+
         tvForgotPassword.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
             startActivity(intent);
@@ -85,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btn_login);
         tvError = findViewById(R.id.tv_error);
         tvForgotPassword = findViewById(R.id.tv_forgot_password);
-        
+
         tvGreeting = findViewById(R.id.tv_greeting);
         tvDisplayUsername = findViewById(R.id.tv_display_username);
         tvSwitchAccount = findViewById(R.id.tv_switch_account);
@@ -121,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         savedUsername = prefs.getString("Username", "");
         String fullName = prefs.getString("FullName", "");
-        
+
         if (!savedUsername.isEmpty()) {
             layoutUsernameInput.setVisibility(View.GONE);
             layoutSavedUser.setVisibility(View.VISIBLE);
@@ -139,7 +139,7 @@ public class LoginActivity extends AppCompatActivity {
     private void switchToNewAccount() {
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         prefs.edit().clear().apply();
-        
+
         savedUsername = "";
         layoutUsernameInput.setVisibility(View.VISIBLE);
         layoutSavedUser.setVisibility(View.GONE);
@@ -149,10 +149,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void handleLogin() {
-        String username = (layoutUsernameInput.getVisibility() == View.VISIBLE) 
-                ? etUsername.getText().toString().trim() 
+        String username = (layoutUsernameInput.getVisibility() == View.VISIBLE)
+                ? etUsername.getText().toString().trim()
                 : savedUsername;
-        
+
         String password = etPassword.getText().toString().trim();
 
         if (username.isEmpty() || password.isEmpty()) {
@@ -185,9 +185,11 @@ public class LoginActivity extends AppCompatActivity {
                             String errorJson = response.errorBody().string();
                             try {
                                 JSONObject jsonObject = new JSONObject(errorJson);
-                                errorMsg = jsonObject.optString("message", 
-                                           jsonObject.optString("Message", 
-                                           jsonObject.optString("error", "")));
+
+                                errorMsg = jsonObject.optString("message",
+                                        jsonObject.optString("Message",
+                                                jsonObject.optString("error", "")));
+
                             } catch (Exception e) {
                                 errorMsg = errorJson;
                             }
@@ -216,10 +218,10 @@ public class LoginActivity extends AppCompatActivity {
 
         // 1. Trường hợp sai cả hai hoặc lỗi đăng nhập chung (Mã 401 không kèm thông tin chi tiết hoặc có cả 2 từ khóa)
         if ((hasUserKeyword && hasPassKeyword) ||
-            cleanMsg.contains("credentials") ||
-            (statusCode == 401 && !hasUserKeyword && !hasPassKeyword) ||
-            cleanMsg.isEmpty()) {
-            
+                cleanMsg.contains("credentials") ||
+                (statusCode == 401 && !hasUserKeyword && !hasPassKeyword) ||
+                cleanMsg.isEmpty()) {
+
             if (layoutSavedUser.getVisibility() == View.VISIBLE) {
                 showError("Mật khẩu không chính xác. Vui lòng nhập lại");
             } else {
@@ -271,12 +273,12 @@ public class LoginActivity extends AppCompatActivity {
     private void saveUserData(LoginResponse response) {
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         prefs.edit()
-            .putString("StudentID", response.getUser().getUsername())
-            .putString("Username", response.getUser().getUsername())
-            .putString("Email", response.getUser().getEmail())
-            .putString("AuthToken", response.getToken())
-            .putBoolean("isLoggedIn", true)
-            .apply();
+                .putString("StudentID", response.getUser().getUsername())
+                .putString("Username", response.getUser().getUsername())
+                .putString("Email", response.getUser().getEmail())
+                .putString("AuthToken", response.getToken())
+                .putBoolean("isLoggedIn", true)
+                .apply();
     }
 
     private void navigateToMain() {
