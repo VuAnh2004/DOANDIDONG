@@ -12,28 +12,30 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="24dp">
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginBottom="8dp"
-                app:cardCornerRadius="18dp"
-                app:cardElevation="3dp">
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="4dp"
+                app:cardPreventCornerOverlap="true">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -46,9 +48,14 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginEnd="8dp"
                             android:layout_weight="1"
-                            android:layout_marginEnd="6dp"
                             android:hint="Năm học"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:hintTextColor="#1E3A8A"
                             app:endIconMode="dropdown_menu">
 
                             <AutoCompleteTextView
@@ -56,8 +63,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="none"
+                                android:minHeight="48dp"
+                                android:paddingHorizontal="12dp"
                                 android:textSize="14sp"
-                                android:paddingVertical="12dp"/>
+                                android:fontFamily="sans-serif-medium" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -65,9 +74,14 @@
                             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
                             android:layout_weight="1"
-                            android:layout_marginStart="6dp"
                             android:hint="Học kỳ"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:hintTextColor="#1E3A8A"
                             app:endIconMode="dropdown_menu">
 
                             <AutoCompleteTextView
@@ -75,8 +89,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:inputType="none"
+                                android:minHeight="48dp"
+                                android:paddingHorizontal="12dp"
                                 android:textSize="14sp"
-                                android:paddingVertical="12dp"/>
+                                android:fontFamily="sans-serif-medium" />
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
@@ -85,8 +101,13 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="16dp"
                         android:hint="Môn học"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:hintTextColor="#1E3A8A"
                         app:endIconMode="dropdown_menu">
 
                         <AutoCompleteTextView
@@ -94,21 +115,24 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
+                            android:minHeight="48dp"
+                            android:paddingHorizontal="12dp"
                             android:textSize="14sp"
-                            android:paddingVertical="12dp"/>
+                            android:fontFamily="sans-serif-medium" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_search"
                         android:layout_width="match_parent"
-                        android:layout_height="54dp"
-                        android:layout_marginTop="18dp"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="24dp"
                         android:text="Tìm kiếm"
                         android:textAllCaps="false"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         app:backgroundTint="#1E3A8A"
-                        app:cornerRadius="12dp"/>
+                        app:cornerRadius="16dp"
+                        app:rippleColor="#40FFFFFF" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
@@ -117,27 +141,30 @@
                 android:layout_height="wrap_content"
                 android:background="#1E3A8A"
                 android:gravity="center"
-                android:paddingVertical="12dp"
+                android:paddingVertical="14dp"
                 android:text="KẾT QUẢ HỌC TẬP"
                 android:textColor="#FFFFFF"
                 android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:letterSpacing="0.05" />
 
             <LinearLayout
                 android:id="@+id/container_items"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp"/>
+                android:paddingHorizontal="16dp"
+                android:paddingTop="12dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <ProgressBar
         android:id="@+id/loading_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_gravity="center"
+        android:indeterminateTint="#1E3A8A"
         android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
