@@ -2,7 +2,6 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_thoikhoabieu_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,127 +20,133 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="8dp">
+            android:padding="12dp">
 
-            <!-- Card Chế độ xem & Thông tin Cấu hình -->
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Xem lịch học"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="#1F2937" />
-
-                    <!-- Dòng hiển thị Năm học | Học kỳ từ Cấu hình -->
-                    <TextView
-                        android:id="@+id/tv_semester_info"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Năm học: -- | Học kỳ: --"
-                        android:textSize="13sp"
-                        android:textColor="#6B7280"
-                        android:layout_marginTop="2dp" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="42dp"
-                        android:layout_marginTop="12dp"
-                        android:background="@drawable/tab_inactive_background"
-                        android:padding="2dp"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btn_view_week"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:text="Xem theo tuần"
-                            android:textAllCaps="false"
-                            android:textSize="13sp"
-                            android:backgroundTint="#1E40AF"
-                            android:textColor="#FFFFFF"
-                            style="@style/Widget.Material3.Button.UnelevatedButton"/>
-
-                        <Button
-                            android:id="@+id/btn_view_full"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:text="Xem cả kỳ"
-                            android:textAllCaps="false"
-                            android:textSize="13sp"
-                            android:textColor="#4B5563"
-                            style="@style/Widget.Material3.Button.TextButton"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Thông tin Tuần đang chọn -->
             <TextView
-                android:id="@+id/txt_week_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xem lịch học"
+                android:textSize="22sp"
+                android:textColor="#374151"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Tabs matching image 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/tab_inactive_background"
+                android:orientation="horizontal"
+                android:padding="2dp">
+
+                <Button
+                    android:id="@+id/btn_view_week"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Xem theo tuần"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:backgroundTint="#3B82F6"
+                    android:textColor="#FFFFFF"
+                    style="@style/Widget.Material3.Button.UnelevatedButton"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"/>
+
+                <Button
+                    android:id="@+id/btn_view_full"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Xem cả kỳ"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    android:textColor="#4B5563"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"/>
+            </LinearLayout>
+
+            <!-- Export Buttons matching image 1 -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="#E5E7EB"
-                android:padding="10dp"
-                android:text="Tuần học: --"
-                android:textStyle="bold"
-                android:textColor="#374151"
-                android:gravity="center_vertical" />
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:weightSum="2">
 
-            <!-- Container lịch học dọc (Thứ -> Môn) -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_export_1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="5dp"
+                    android:text="Xuất mẫu 1"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    app:icon="@android:drawable/ic_menu_save"
+                    app:backgroundTint="#2563EB"
+                    app:cornerRadius="2dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_export_2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="5dp"
+                    android:text="Xuất mẫu 2"
+                    android:textAllCaps="false"
+                    android:textSize="14sp"
+                    app:icon="@android:drawable/ic_menu_save"
+                    app:backgroundTint="#16A34A"
+                    app:cornerRadius="2dp" />
+            </LinearLayout>
+
+            <!-- Thick blue divider exactly like image 1 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="3dp"
+                android:background="#3B82F6"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Area for subject cards -->
             <LinearLayout
                 android:id="@+id/container_schedule"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginTop="4dp" />
+                android:orientation="vertical" />
 
-            <!-- Lưới chọn tuần (1-42) -->
+            <!-- Week Grid Header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:background="#E5E7EB"
+                android:padding="10dp"
+                android:text="Tuần hiển thị"
+                android:textStyle="bold"
+                android:textColor="#1F2937"
+                android:textSize="15sp" />
+
+            <!-- Grid 1-42 weeks exactly like image 1 -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="32dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                app:cardElevation="0dp"
+                app:cardCornerRadius="0dp"
+                app:strokeWidth="0.5dp"
+                app:strokeColor="#D1D5DB">
 
-                <LinearLayout
+                <GridLayout
+                    android:id="@+id/grid_weeks"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Chọn tuần học"
-                        android:textStyle="bold"
-                        android:textColor="#374151"
-                        android:layout_marginBottom="8dp"/>
-
-                    <GridLayout
-                        android:id="@+id/grid_weeks"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:columnCount="7"
-                        android:alignmentMode="alignMargins" />
-                </LinearLayout>
+                    android:columnCount="9"
+                    android:padding="6dp"
+                    android:background="#FFFFFF" />
             </com.google.android.material.card.MaterialCardView>
+
+            <View android:layout_width="match_parent" android:layout_height="60dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
