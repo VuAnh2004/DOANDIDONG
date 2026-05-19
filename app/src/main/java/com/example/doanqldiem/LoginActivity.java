@@ -185,9 +185,11 @@ public class LoginActivity extends AppCompatActivity {
                             String errorJson = response.errorBody().string();
                             try {
                                 JSONObject jsonObject = new JSONObject(errorJson);
+
                                 errorMsg = jsonObject.optString("message",
                                         jsonObject.optString("Message",
                                                 jsonObject.optString("error", "")));
+
                             } catch (Exception e) {
                                 errorMsg = errorJson;
                             }

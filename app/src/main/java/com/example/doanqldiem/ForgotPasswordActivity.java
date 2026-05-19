@@ -62,6 +62,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 btnSubmit.setEnabled(true);
 
                 if (response.isSuccessful()) {
+
                     Toast.makeText(ForgotPasswordActivity.this,
                             "Thành công! Vui lòng kiểm tra email để đặt lại mật khẩu.",
                             Toast.LENGTH_LONG).show();
