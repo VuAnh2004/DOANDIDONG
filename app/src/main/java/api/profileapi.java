@@ -49,14 +49,20 @@ public interface profileapi {
 
     @FormUrlEncoded
     @POST("api/Profile/remove-passkey")
-    Call<ResponseBody> removePasskey(
-            @Field("studentId") String studentId
-    );
+    Call<ResponseBody> removePasskey(@Field("studentId") String studentId);
 
     @GET("api/Profile/passkey-status")
     Call<ResponseBody> getPasskeyStatus(@Query("studentId") String studentId);
 
-    // ⭐ THÊM API ĐĂNG KÝ PASSKEY
+    // ⭐ KIỂM TRA PASSKEY CHO THIẾT BỊ
+    @FormUrlEncoded
+    @POST("api/Profile/check-passkey-device")
+    Call<ResponseBody> checkPasskeyForDevice(
+            @Field("studentId") String studentId,
+            @Field("deviceId") String deviceId
+    );
+
+    // ⭐ ĐĂNG KÝ PASSKEY
     @FormUrlEncoded
     @POST("api/Profile/register-passkey")
     Call<ResponseBody> registerPasskey(

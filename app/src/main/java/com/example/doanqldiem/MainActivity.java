@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
@@ -52,7 +53,7 @@ public class MainActivity extends BaseActivity {
     public void setupHeaderMenu() {
         // Không gọi super.setupHeaderMenu() ở đây để tránh xung đột menu cũ
         // Chúng ta sẽ tự quản lý các nút bấm trong MainActivity
-        
+
         // Logo trường (nếu có trong layout main)
         View logo = findViewById(R.id.logotruong);
         if (logo != null) logo.setOnClickListener(v -> { /* Đang ở Home rồi */ });
@@ -73,7 +74,7 @@ public class MainActivity extends BaseActivity {
             if (cardProfile != null) {
                 cardProfile.setOnClickListener(v -> overlayPopup.setVisibility(View.VISIBLE));
             }
-            
+
             // Hiển thị popup khi nhấn vào ảnh đại diện (ID mới: img_avatar_main)
             if (imgAvatarMain != null) {
                 imgAvatarMain.setOnClickListener(v -> overlayPopup.setVisibility(View.VISIBLE));
@@ -96,9 +97,20 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    // ==================== ĐĂNG XUẤT - GIỮ USERNAME ====================
+
     private void handleLogoutManual() {
+        // ⭐ CHỈ XÓA isLoggedIn, GIỮ LẠI Username, FullName, hasPasskey
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-        prefs.edit().clear().apply();
+        prefs.edit()
+                .remove("isLoggedIn")
+                .remove("AuthToken")
+                .remove("StudentID")
+                .remove("Email")
+                .apply();
+
+        Toast.makeText(this, "Đã đăng xuất", Toast.LENGTH_SHORT).show();
+
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
