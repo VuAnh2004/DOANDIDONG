@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.appbar.AppBarLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF"
+    android:fitsSystemWindows="false"
+    app:elevation="2dp">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetStart="0dp"
+        app:contentInsetStartWithNavigation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp">
+
+            <!-- Logo Trường - Bo tròn với CircleImageView -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/logotruong"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:src="@drawable/logotruong"
+                app:civ_border_width="1.5dp"
+                app:civ_border_color="#E2E8F0"
+                android:scaleType="centerCrop" />
+
+            <!-- Cụm chữ: Tên trường và Mô tả -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingStart="10dp"
+                android:paddingEnd="4dp">
+
+                <TextView
+                    android:id="@+id/txt_ten_truong"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="TRƯỜNG THPT ANH SƠN I"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:textColor="#1E3A8A"
+                    android:maxLines="1"
+                    android:ellipsize="end"/>
+
+                <TextView
+                    android:id="@+id/txt_sub_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hệ thống thông minh"
+                    android:textSize="11sp"
+                    android:textColor="#666666" />
+            </LinearLayout>
+
+            <!-- Nút Thông báo - Dùng Vector Icon -->
+            <ImageButton
+                android:id="@+id/btn_bell"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_notifications_none_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#1E3A8A"
+                android:layout_marginEnd="4dp"
+                android:contentDescription="Notification" />
+
+            <!-- Nút Cài đặt - Dùng Vector Icon -->
+            <ImageButton
+                android:id="@+id/btn_setting"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_settings_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#1E3A8A"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Settings" />
+
+            <!-- Ảnh User tròn -->
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/btn_user"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:src="@drawable/anhuser"
+                app:civ_border_width="1.5dp"
+                app:civ_border_color="#F1F5F9"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+
+        </LinearLayout>
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+</com.google.android.material.appbar.AppBarLayout>
