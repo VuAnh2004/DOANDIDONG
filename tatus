@@ -1,0 +1,432 @@
+[1mdiff --git a/app/build.gradle.kts b/app/build.gradle.kts[m
+[1mindex fd6510b..b45a91a 100644[m
+[1m--- a/app/build.gradle.kts[m
+[1m+++ b/app/build.gradle.kts[m
+[36m@@ -78,4 +78,4 @@[m [mdependencies {[m
+     testImplementation(libs.junit)[m
+     androidTestImplementation(libs.ext.junit)[m
+     androidTestImplementation(libs.espresso.core)[m
+[31m-}[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/app/src/main/java/com/example/doanqldiem/BaseActivity.java b/app/src/main/java/com/example/doanqldiem/BaseActivity.java[m
+[1mindex 24a1c6a..addb26b 100644[m
+[1m--- a/app/src/main/java/com/example/doanqldiem/BaseActivity.java[m
+[1m+++ b/app/src/main/java/com/example/doanqldiem/BaseActivity.java[m
+[36m@@ -4,15 +4,8 @@[m [mimport android.annotation.SuppressLint;[m
+ import android.content.Intent;[m
+ import android.content.SharedPreferences;[m
+ import android.os.Bundle;[m
+[31m-<<<<<<< HEAD[m
+[31m-import android.os.Handler;[m
+[31m-import android.os.Looper;[m
+[31m-import android.view.View;[m
+[31m-import android.widget.PopupMenu;[m
+[31m-=======[m
+ import android.view.View;[m
+ import androidx.annotation.Nullable;[m
+[31m->>>>>>> main[m
+ import androidx.appcompat.app.AppCompatActivity;[m
+ import androidx.appcompat.view.ContextThemeWrapper;[m
+ import androidx.appcompat.widget.PopupMenu;[m
+[36m@@ -33,22 +26,11 @@[m [mpublic class BaseActivity extends AppCompatActivity {[m
+     @Override[m
+     protected void onResume() {[m
+         super.onResume();[m
+[31m-<<<<<<< HEAD[m
+[31m-        resetIdleTimer();[m
+[31m-    }[m
+[31m-[m
+[31m-    @Override[m
+[31m-    protected void onPause() {[m
+[31m-        super.onPause();[m
+[31m-        stopIdleTimer();[m
+[31m-    }[m
+[31m-=======[m
+         setupHeaderMenu();[m
+     }[m
+ [m
+     public void setupHeaderMenu() {[m
+         String currentActivity = getClass().getSimpleName();[m
+[31m->>>>>>> main[m
+ [m
+         // Chỉ tự động gắn PopupMenu cho các màn hình có icon avatar tiêu chuẩn (btn_user)[m
+         // và KHÔNG PHẢI MainActivity (vì MainActivity dùng popup tùy chỉnh)[m
+[36m@@ -59,13 +41,6 @@[m [mpublic class BaseActivity extends AppCompatActivity {[m
+             }[m
+         }[m
+ [m
+[31m-<<<<<<< HEAD[m
+[31m-    @Override[m
+[31m-    public void onUserInteraction() {[m
+[31m-        super.onUserInteraction();[m
+[31m-        resetIdleTimer();[m
+[31m-    }[m
+[31m-=======[m
+         // Logo trường -> Trang chủ[m
+         View logoTruong = findViewById(R.id.logotruong);[m
+         if (logoTruong != null) {[m
+[36m@@ -77,7 +52,6 @@[m [mpublic class BaseActivity extends AppCompatActivity {[m
+                 }[m
+             });[m
+         }[m
+[31m->>>>>>> main[m
+ [m
+         // Icon thông báo -> Danh sách thông báo[m
+         View btnBell = findViewById(R.id.btn_bell);[m
+[36m@@ -137,52 +111,7 @@[m [mpublic class BaseActivity extends AppCompatActivity {[m
+         popup.show();[m
+     }[m
+ [m
+[31m-<<<<<<< HEAD[m
+[31m-    /**[m
+[31m-     * Thiết lập Toolbar chung cho các Activity sử dụng layout toolbar_header[m
+[31m-     */[m
+[31m-    protected void setupCommonToolbar() {[m
+[31m-        View logotruong = findViewById(R.id.logotruong);[m
+[31m-        View btnBell = findViewById(R.id.btn_bell);[m
+[31m-        View btnSetting = findViewById(R.id.btn_setting);[m
+[31m-        View btnUser = findViewById(R.id.btn_user);[m
+[31m-[m
+[31m-        if (logotruong != null) logotruong.setOnClickListener(v -> finish());[m
+[31m-        [m
+[31m-        if (btnBell != null) btnBell.setOnClickListener(v -> [m
+[31m-            startActivity(new Intent(this, thongbaoActivity.class)));[m
+[31m-            [m
+[31m-        if (btnSetting != null) btnSetting.setOnClickListener(v -> [m
+[31m-            startActivity(new Intent(this, cauhinhActivity.class)));[m
+[31m-[m
+[31m-        if (btnUser != null) {[m
+[31m-            btnUser.setOnClickListener(this::showProfileMenu);[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    private void showProfileMenu(View anchor) {[m
+[31m-        PopupMenu popup = new PopupMenu(this, anchor);[m
+[31m-        popup.getMenuInflater().inflate(R.menu.profile_menu, popup.getMenu());[m
+[31m-[m
+[31m-        popup.setOnMenuItemClickListener(item -> {[m
+[31m-            int id = item.getItemId();[m
+[31m-            if (id == R.id.menu_profile) {[m
+[31m-                startActivity(new Intent(this, hosonguoihocActivity.class));[m
+[31m-                return true;[m
+[31m-            } else if (id == R.id.menu_logout) {[m
+[31m-                logout(null);[m
+[31m-                return true;[m
+[31m-            }[m
+[31m-            return false;[m
+[31m-        });[m
+[31m-[m
+[31m-        popup.show();[m
+[31m-    }[m
+[31m-[m
+[31m-    protected void logout(String reason) {[m
+[31m-=======[m
+     protected void performLogout() {[m
+[31m->>>>>>> main[m
+         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);[m
+         prefs.edit().clear().apply();[m
+         Intent intent = new Intent(this, LoginActivity.class);[m
+[1mdiff --git a/app/src/main/java/com/example/doanqldiem/cauhinhActivity.java b/app/src/main/java/com/example/doanqldiem/cauhinhActivity.java[m
+[1mindex 8cfb88c..e560ddd 100644[m
+[1m--- a/app/src/main/java/com/example/doanqldiem/cauhinhActivity.java[m
+[1m+++ b/app/src/main/java/com/example/doanqldiem/cauhinhActivity.java[m
+[36m@@ -12,10 +12,6 @@[m [mimport android.widget.Toast;[m
+ [m
+ import androidx.activity.EdgeToEdge;[m
+ import androidx.annotation.NonNull;[m
+[31m-<<<<<<< HEAD[m
+[31m-import androidx.appcompat.app.AppCompatActivity;[m
+[31m-=======[m
+[31m->>>>>>> main[m
+ import androidx.localbroadcastmanager.content.LocalBroadcastManager;[m
+ [m
+ import api.RetrofitClient;[m
+[36m@@ -68,38 +64,7 @@[m [mpublic class cauhinhActivity extends BaseActivity {[m
+         TextView btnExit = findViewById(R.id.btnExitFA);[m
+         if (btnExit != null) btnExit.setOnClickListener(v -> finish());[m
+ [m
+[31m-<<<<<<< HEAD[m
+[31m-        ImageView btnSetting = findViewById(R.id.btn_setting);[m
+[31m-        if (btnSetting != null) {[m
+[31m-            btnSetting.setOnClickListener(v -> {[m
+[31m-                // Đang ở cài đặt rồi[m
+[31m-                Toast.makeText(this, "Bạn đang ở trang cài đặt", Toast.LENGTH_SHORT).show();[m
+[31m-            });[m
+[31m-        }[m
+[31m-[m
+[31m-        // Click Icon thông báo[m
+[31m-        ImageView thongbao = findViewById(R.id.btn_bell);[m
+[31m-        if (thongbao != null) {[m
+[31m-            thongbao.setOnClickListener(v -> {[m
+[31m-                Intent intent = new Intent(cauhinhActivity.this, thongbaoActivity.class);[m
+[31m-                startActivity(intent);[m
+[31m-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);[m
+[31m-            });[m
+[31m-        }[m
+[31m-[m
+[31m-        // Logo trường click về home[m
+[31m-        ImageView logoTruong = findViewById(R.id.logotruong);[m
+[31m-        if (logoTruong != null) {[m
+[31m-            logoTruong.setOnClickListener(v -> {[m
+[31m-                Intent intent = new Intent(cauhinhActivity.this, MainActivity.class);[m
+[31m-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);[m
+[31m-                startActivity(intent);[m
+[31m-                finish();[m
+[31m-            });[m
+[31m-        }[m
+[31m-=======[m
+         // Các nút Toolbar đã được xử lý ở BaseActivity[m
+[31m->>>>>>> main[m
+     }[m
+ [m
+     private void initViews() {[m
+[1mdiff --git a/app/src/main/java/com/example/doanqldiem/thoikhoabieuActivity.java b/app/src/main/java/com/example/doanqldiem/thoikhoabieuActivity.java[m
+[1mindex 357968e..a825d75 100644[m
+[1m--- a/app/src/main/java/com/example/doanqldiem/thoikhoabieuActivity.java[m
+[1m+++ b/app/src/main/java/com/example/doanqldiem/thoikhoabieuActivity.java[m
+[36m@@ -107,10 +107,6 @@[m [mpublic class thoikhoabieuActivity extends BaseActivity {[m
+         super.onCreate(savedInstanceState);[m
+         setContentView(R.layout.thoikhoabieu);[m
+ [m
+[31m-<<<<<<< HEAD[m
+[31m-        setupCommonToolbar();[m
+[31m-=======[m
+[31m->>>>>>> main[m
+         initUserInfo();[m
+         initViews();[m
+         setupInsets();[m
+[1mdiff --git a/app/src/main/java/com/example/doanqldiem/thongbaoActivity.java b/app/src/main/java/com/example/doanqldiem/thongbaoActivity.java[m
+[1mindex d33b7b3..a21f66c 100644[m
+[1m--- a/app/src/main/java/com/example/doanqldiem/thongbaoActivity.java[m
+[1m+++ b/app/src/main/java/com/example/doanqldiem/thongbaoActivity.java[m
+[36m@@ -42,11 +42,7 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+     private RecyclerView recyclerView;[m
+     private ThongBaoAdapter adapter;[m
+     private ProgressBar progressBar;[m
+[31m-<<<<<<< HEAD[m
+[31m-    private final String userName = "24290001";[m
+[31m-=======[m
+     private String userName;[m
+[31m->>>>>>> main[m
+     private SharedPreferences readPrefs;[m
+     private static final String READ_NOTIFS_KEY = "read_notifications";[m
+ [m
+[36m@@ -56,8 +52,6 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+         super.onCreate(savedInstanceState);[m
+         setContentView(R.layout.thongbao);[m
+ [m
+[31m-<<<<<<< HEAD[m
+[31m-=======[m
+         SharedPreferences userPrefs = getSharedPreferences("USER", MODE_PRIVATE);[m
+         userName = userPrefs.getString("Username", "");[m
+ [m
+[36m@@ -67,13 +61,12 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+             return;[m
+         }[m
+ [m
+[31m->>>>>>> main[m
+         readPrefs = getSharedPreferences("NotificationPrefs", MODE_PRIVATE);[m
+ [m
+         initViews();[m
+         setupInsets();[m
+         setupToolbar();[m
+[31m-[m
+[32m+[m[41m        [m
+         autoSyncAndLoad();[m
+     }[m
+ [m
+[36m@@ -86,9 +79,7 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+     }[m
+ [m
+     private void setupInsets() {[m
+[31m-        View main = findViewById(R.id.main_diem_layout); // Note: Assuming the ID in thongbao.xml is same or use root[m
+[31m-        if (main == null) main = findViewById(android.R.id.content);[m
+[31m-[m
+[32m+[m[32m        View main = findViewById(android.R.id.content);[m
+         ViewCompat.setOnApplyWindowInsetsListener(main, (v, insets) -> {[m
+             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());[m
+             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);[m
+[36m@@ -97,22 +88,11 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+     }[m
+ [m
+     private void setupToolbar() {[m
+[31m-<<<<<<< HEAD[m
+[31m-        TextView btnClose = findViewById(R.id.btn_close_thongbao);[m
+[31m-        if (btnClose != null) btnClose.setOnClickListener(v -> finish());[m
+[31m-[m
+[31m-        ImageView logo = findViewById(R.id.logotruong);[m
+[31m-        if (logo != null) logo.setOnClickListener(v -> finish());[m
+[31m-[m
+[31m-        ImageView btnSetting = findViewById(R.id.btn_setting);[m
+[31m-        if (btnSetting != null) btnSetting.setOnClickListener(v -> finish());[m
+[31m-=======[m
+         // Xử lý nút dấu "✕" để đóng giao diện thông báo[m
+         View btnClose = findViewById(R.id.btn_close_thongbao);[m
+         if (btnClose != null) {[m
+             btnClose.setOnClickListener(v -> finish());[m
+         }[m
+[31m->>>>>>> main[m
+     }[m
+ [m
+     private void autoSyncAndLoad() {[m
+[36m@@ -159,7 +139,6 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+ [m
+     private class ThongBaoAdapter extends RecyclerView.Adapter<ThongBaoAdapter.ViewHolder> {[m
+         private List<ThongBaoModel> list;[m
+[31m-[m
+         public ThongBaoAdapter(List<ThongBaoModel> list) { this.list = list; }[m
+ [m
+         public void updateData(List<ThongBaoModel> newList) {[m
+[36m@@ -182,7 +161,6 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+             holder.txtContent.setText(item.getContent());[m
+             holder.txtTime.setText(getTimeAgo(item.getSenDate()));[m
+ [m
+[31m-            // Logic đánh dấu đã đọc[m
+             Set<String> readIds = readPrefs.getStringSet(READ_NOTIFS_KEY, new HashSet<>());[m
+             if (readIds.contains(String.valueOf(item.getID()))) {[m
+                 holder.unreadDot.setVisibility(View.GONE);[m
+[36m@@ -195,7 +173,6 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+             holder.itemView.setOnClickListener(v -> {[m
+                 markAsRead(item.getID());[m
+                 notifyItemChanged(position);[m
+[31m-                // Hiển thị nội dung chi tiết nếu cần[m
+                 Toast.makeText(thongbaoActivity.this, item.getTitle(), Toast.LENGTH_SHORT).show();[m
+             });[m
+         }[m
+[36m@@ -222,9 +199,7 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+                 if (minutes < 60) return minutes + " phút trước";[m
+                 if (hours < 24) return hours + " giờ trước";[m
+                 return days + " ngày trước";[m
+[31m-            } catch (ParseException e) {[m
+[31m-                return dateStr;[m
+[31m-            }[m
+[32m+[m[32m            } catch (ParseException e) { return dateStr; }[m
+         }[m
+ [m
+         @Override[m
+[36m@@ -233,8 +208,6 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+         class ViewHolder extends RecyclerView.ViewHolder {[m
+             TextView txtTitle, txtSender, txtContent, txtTime;[m
+             View unreadDot;[m
+[31m-            ImageView imgAvatar;[m
+[31m-[m
+             public ViewHolder(@NonNull View itemView) {[m
+                 super(itemView);[m
+                 txtTitle = itemView.findViewById(R.id.txt_notif_title);[m
+[36m@@ -242,7 +215,6 @@[m [mpublic class thongbaoActivity extends BaseActivity {[m
+                 txtContent = itemView.findViewById(R.id.txt_notif_content);[m
+                 txtTime = itemView.findViewById(R.id.txt_notif_time);[m
+                 unreadDot = itemView.findViewById(R.id.view_unread_dot);[m
+[31m-                imgAvatar = itemView.findViewById(R.id.img_sender_avatar);[m
+             }[m
+         }[m
+     }[m
+[1mdiff --git a/app/src/main/res/drawable/bg_unread_dot.xml b/app/src/main/res/drawable/bg_unread_dot.xml[m
+[1mdeleted file mode 100644[m
+[1mindex e47e110..0000000[m
+[1m--- a/app/src/main/res/drawable/bg_unread_dot.xml[m
+[1m+++ /dev/null[m
+[36m@@ -1,5 +0,0 @@[m
+[31m-<?xml version="1.0" encoding="utf-8"?>[m
+[31m-<shape xmlns:android="http://schemas.android.com/apk/res/android"[m
+[31m-    android:shape="oval">[m
+[31m-    <solid android:color="#EF4444" />[m
+[31m-</shape>[m
+\ No newline at end of file[m
+[1mdiff --git a/app/src/main/res/drawable/ic_notification_default.xml b/app/src/main/res/drawable/ic_notification_default.xml[m
+[1mdeleted file mode 100644[m
+[1mindex ce9e170..0000000[m
+[1m--- a/app/src/main/res/drawable/ic_notification_default.xml[m
+[1m+++ /dev/null[m
+[36m@@ -1,9 +0,0 @@[m
+[31m-<vector xmlns:android="http://schemas.android.com/apk/res/android"[m
+[31m-    android:width="24dp"[m
+[31m-    android:height="24dp"[m
+[31m-    android:viewportWidth="24"[m
+[31m-    android:viewportHeight="24">[m
+[31m-    <path[m
+[31m-        android:fillColor="#94A3B8"[m
+[31m-        android:pathData="M12,22c1.1,0 2,-0.9 2,-2h-4c0,1.1 0.9,2 2,2zM18,16v-5c0,-3.07 -1.63,-5.64 -4.5,-6.32V4c0,-0.83 -0.67,-1.5 -1.5,-1.5s-1.5,0.67 -1.5,1.5v0.68C7.64,5.36 6,7.92 6,11v5l-2,2v1h16l-2,-2v-5z" />[m
+[31m-</vector>[m
+\ No newline at end of file[m
+[1mdiff --git a/app/src/main/res/drawable/ic_settings_24.xml b/app/src/main/res/drawable/ic_settings_24.xml[m
+[1mindex d631b29..a0889b2 100644[m
+[1m--- a/app/src/main/res/drawable/ic_settings_24.xml[m
+[1m+++ b/app/src/main/res/drawable/ic_settings_24.xml[m
+[36m@@ -6,8 +6,4 @@[m
+     <path[m
+         android:fillColor="#FF000000"[m
+         android:pathData="M19.14,12.94c0.04,-0.3 0.06,-0.61 0.06,-0.94c0,-0.32 -0.02,-0.64 -0.07,-0.94l2.03,-1.58c0.18,-0.14 0.23,-0.41 0.12,-0.61l-1.92,-3.32c-0.12,-0.22 -0.37,-0.29 -0.59,-0.22l-2.39,0.96c-0.5,-0.38 -1.03,-0.7 -1.62,-0.94L14.4,2.81c-0.04,-0.24 -0.24,-0.41 -0.48,-0.41h-3.84c-0.24,0 -0.43,0.17 -0.47,0.41L9.25,5.35C8.66,5.59 8.12,5.92 7.63,6.29L5.24,5.33c-0.22,-0.08 -0.47,0 -0.59,0.22L2.74,8.87C2.62,9.08 2.66,9.34 2.86,9.48l2.03,1.58C4.84,11.36 4.8,11.69 4.8,12s0.02,0.64 0.07,0.94l-2.03,1.58c-0.18,0.14 -0.23,0.41 -0.12,0.61l1.92,3.32c0.12,0.22 0.37,0.29 0.59,0.22l2.39,-0.96c0.5,0.38 1.03,0.7 1.62,0.94l0.36,2.54c0.05,0.24 0.24,0.41 0.48,0.41h3.84c0.24,0 0.44,-0.17 0.47,-0.41l0.36,-2.54c0.59,-0.24 1.13,-0.56 1.62,-0.94l2.39,0.96c0.22,0.08 0.47,0 0.59,-0.22l1.92,-3.32c0.12,-0.22 0.07,-0.47 -0.12,-0.61L19.14,12.94zM12,15.6c-1.98,0 -3.6,-1.62 -3.6,-3.6s1.62,-3.6 3.6,-3.6s3.6,1.62 3.6,3.6S13.98,15.6 12,15.6z"/>[m
+[31m-<<<<<<< HEAD[m
+ </vector>[m
+[31m-=======[m
+[31m-</vector>[m
+[31m->>>>>>> main[m
+[1mdiff --git a/app/src/main/res/layout/dialog_thongbao_detail.xml b/app/src/main/res/layout/dialog_thongbao_detail.xml[m
+[1mdeleted file mode 100644[m
+[1mindex 2a6b634..0000000[m
+[1m--- a/app/src/main/res/layout/dialog_thongbao_detail.xml[m
+[1m+++ /dev/null[m
+[36m@@ -1,115 +0,0 @@[m
+[31m-<?xml version="1.0" encoding="utf-8"?>[m
+[31m-<com.google.android.material.card.MaterialCardView[m
+[31m-    xmlns:android="http://schemas.android.com/apk/res/android"[m
+[31m-    xmlns:app="http://schemas.android.com/apk/res-auto"[m
+[31m-    android:layout_width="match_parent"[m
+[31m-    android:layout_height="wrap_content"[m
+[31m-    android:layout_margin="20dp"[m
+[31m-    app:cardCornerRadius="24dp"[m
+[31m-    app:cardElevation="8dp"[m
+[31m-    app:strokeWidth="0dp">[m
+[31m-[m
+[31m-    <LinearLayout[m
+[31m-        android:layout_width="match_parent"[m
+[31m-        android:layout_height="wrap_content"[m
+[31m-        android:orientation="vertical"[m
+[31m-        android:padding="24dp">[m
+[31m-[m
+[31m-        <RelativeLayout[m
+[31m-            android:layout_width="match_parent"[m
+[31m-            android:layout_height="wrap_content"[m
+[31m-            android:layout_marginBottom="16dp">[m
+[31m-[m
+[31m-            <TextView[m
+[31m-                android:id="@+id/detail_title"[m
+[31m-                android:layout_width="match_parent"[m
+[31m-                android:layout_height="wrap_content"[m
+[31m-                android:layout_toStartOf="@id/btn_close_dialog"[m
+[31m-                android:text="Tiêu đề thông báo"[m
+[31m-                android:textColor="#1E293B"[m
+[31m-                android:textSize="20sp"[m
+[31m-                android:textStyle="bold" />[m
+[31m-[m
+[31m-            <ImageButton[m
+[31m-                android:id="@+id/btn_close_dialog"[m
+[31m-                android:layout_width="32dp"[m
+[31m-                android:layout_height="32dp"[m
+[31m-                android:layout_alignParentEnd="true"[m
+[31m-                android:layout_alignParentTop="true"[m
+[31m-                android:background="?attr/selectableItemBackgroundBorderless"[m
+[31m-                android:src="@android:drawable/ic_menu_close_clear_cancel"[m
+[31m-                app:tint="#94A3B8" />[m
+[31m-        </RelativeLayout>[m
+[31m-[m
+[31m-        <View[m
+[31m-            android:layout_width="40dp"[m
+[31m-            android:layout_height="4dp"[m
+[31m-            android:background="#1E3A8A"[m
+[31m-            android:layout_marginBottom="16dp" />[m
+[31m-[m
+[31m-        <LinearLayout[m
+[31m-            android:layout_width="match_parent"[m
+[31m-            android:layout_height="wrap_content"[m
+[31m-            android:orientation="horizontal"[m
+[31m-            android:gravity="center_vertical"[m
+[31m-            android:layout_marginBottom="20dp">[m
+[31m-[m
+[31m-            <ImageView[m
+[31m-                android:layout_width="16dp"[m
+[31m-                android:layout_height="16dp"[m
+[31m-                android:src="@drawable/anhuser"[m
+[31m-                app:tint="#6
