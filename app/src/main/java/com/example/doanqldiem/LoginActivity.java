@@ -2,7 +2,11 @@ package com.example.doanqldiem;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.method.HideReturnsTransformationMethod;
@@ -55,44 +59,72 @@ public class LoginActivity extends AppCompatActivity {
     private boolean hasPasskey = false;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
+    private String currentUsername = "";
+    private Handler handler = new Handler(Looper.getMainLooper());
+    private Runnable hideErrorRunnable;
+    private boolean isFirstLaunch = true;
+
+    private boolean isBiometricSupported = false;
+    private String biometricError = "";
+
+    // ⭐ DEVICE ID
+    private String deviceId = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Kiểm tra đã đăng nhập chưa
-        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-        if (prefs.getBoolean("isLoggedIn", false)) {
-            navigateToMain();
-            return;
-        }
-
         setContentView(R.layout.activity_login);
+
+        // ⭐ LẤY DEVICE ID
+        deviceId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
 
         initViews();
         setupInputWatchers();
         setupBiometricPrompt();
+        checkBiometricSupport();
 
-        // Kiểm tra tài khoản đã lưu
         checkRememberedUser();
 
-        // Sự kiện đăng nhập
         btnLogin.setOnClickListener(v -> handleLogin());
 
-        // Quên mật khẩu
         tvForgotPassword.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
             startActivity(intent);
         });
 
-        // Chuyển tài khoản khác
         tvSwitchAccount.setOnClickListener(v -> switchToNewAccount());
 
-        // Hiển thị/Ẩn mật khẩu
         ivTogglePassword.setOnClickListener(v -> togglePasswordVisibility());
 
-        // Đăng nhập bằng Passkey (Vân tay/Face ID)
         btnFaceId.setOnClickListener(v -> handlePasskeyLogin());
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!isFirstLaunch) {
+            checkSessionAndAutoLogin();
+        }
+        isFirstLaunch = false;
+    }
+
+    private void checkSessionAndAutoLogin() {
+        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
+        long lastLoginTime = prefs.getLong("lastLoginTime", 0);
+        long currentTime = System.currentTimeMillis();
+        long sessionTimeout = 3 * 60 * 1000;
+
+        if (isLoggedIn && (currentTime - lastLoginTime < sessionTimeout)) {
+            prefs.edit().putLong("lastLoginTime", currentTime).apply();
+            navigateToMain();
+        } else if (isLoggedIn) {
+            prefs.edit()
+                    .putBoolean("isLoggedIn", false)
+                    .remove("lastLoginTime")
+                    .apply();
+            Toast.makeText(this, "⚠️ Phiên đăng nhập đã hết hạn", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void initViews() {
@@ -109,7 +141,6 @@ public class LoginActivity extends AppCompatActivity {
         ivTogglePassword = findViewById(R.id.iv_toggle_password);
         btnFaceId = findViewById(R.id.btn_faceid);
 
-        // LUÔN HIỂN THỊ NÚT VÂN TAY
         btnFaceId.setVisibility(View.VISIBLE);
     }
 
@@ -120,7 +151,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                tvError.setVisibility(View.GONE);
+                hideError();
             }
 
             @Override
@@ -128,6 +159,57 @@ public class LoginActivity extends AppCompatActivity {
         };
         etUsername.addTextChangedListener(watcher);
         etPassword.addTextChangedListener(watcher);
+    }
+
+    private void checkBiometricSupport() {
+        BiometricManager biometricManager = BiometricManager.from(this);
+        int canAuthenticate = biometricManager.canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG |
+                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        );
+
+        switch (canAuthenticate) {
+            case BiometricManager.BIOMETRIC_SUCCESS:
+                isBiometricSupported = true;
+                biometricError = "";
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                isBiometricSupported = false;
+                biometricError = "📱 Thiết bị không hỗ trợ vân tay/Face ID";
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                isBiometricSupported = false;
+                biometricError = "⏳ Tính năng sinh trắc học hiện không khả dụng";
+                break;
+            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                isBiometricSupported = false;
+                biometricError = "⚠️ Vui lòng đăng ký vân tay/Face ID trong cài đặt thiết bị";
+                break;
+            default:
+                isBiometricSupported = false;
+                biometricError = "❌ Thiết bị không hỗ trợ vân tay/FaceID";
+                break;
+        }
+
+        if (isEmulator()) {
+            isBiometricSupported = false;
+            biometricError = "📱 Máy ảo không hỗ trợ vân tay, vui lòng đăng nhập bằng mật khẩu";
+        }
+
+        if (!isBiometricSupported && !biometricError.isEmpty()) {
+            showTemporaryMessage(biometricError, getColor(android.R.color.darker_gray));
+        }
+    }
+
+    private boolean isEmulator() {
+        return Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || "google_sdk".equals(Build.PRODUCT);
     }
 
     private void setupBiometricPrompt() {
@@ -139,8 +221,9 @@ public class LoginActivity extends AppCompatActivity {
                     public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
                         runOnUiThread(() -> {
-                            Toast.makeText(LoginActivity.this, " Xác thực thành công!", Toast.LENGTH_SHORT).show();
-                            loginWithPasskey(savedUsername);
+                            Toast.makeText(LoginActivity.this, "✅ Xác thực thành công!", Toast.LENGTH_SHORT).show();
+                            // ⭐ GỌI LOGIN PASSKEY LÊN SERVER
+                            loginWithPasskey(currentUsername);
                         });
                     }
 
@@ -164,18 +247,18 @@ public class LoginActivity extends AppCompatActivity {
                 });
 
         promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("🔐 Đăng nhập bằng vân tay/Face ID")
-                .setSubtitle("Xác thực để đăng nhập nhanh")
-                .setDescription("Sử dụng vân tay hoặc Face ID của bạn")
+                .setTitle("🔐 Xác thực vân tay/Face ID")
+                .setSubtitle("Đăng nhập bằng sinh trắc học")
+                .setDescription("Sử dụng vân tay hoặc Face ID của bạn để đăng nhập")
                 .setNegativeButtonText("Hủy")
                 .build();
     }
 
     private String getGreetingMessage() {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        if (hour < 10) return "Chào buổi sáng,";
-        if (hour < 13) return "Chào buổi trưa,";
-        if (hour < 18) return "Chào buổi chiều,";
+        if (hour >= 0 && hour < 10) return "Chào buổi sáng,";
+        if (hour >= 10 && hour < 13) return "Chào buổi trưa,";
+        if (hour >= 13 && hour < 18) return "Chào buổi chiều,";
         return "Chào buổi tối,";
     }
 
@@ -185,53 +268,88 @@ public class LoginActivity extends AppCompatActivity {
         savedFullName = prefs.getString("FullName", "");
         hasPasskey = prefs.getBoolean("hasPasskey", false);
 
-        android.util.Log.d("LoginActivity", "savedUsername: " + savedUsername);
-        android.util.Log.d("LoginActivity", "savedFullName: " + savedFullName);
-        android.util.Log.d("LoginActivity", "hasPasskey: " + hasPasskey);
-
         if (!savedUsername.isEmpty()) {
-            // Hiển thị tài khoản đã lưu
             layoutUsernameInput.setVisibility(View.GONE);
             layoutSavedUser.setVisibility(View.VISIBLE);
             tvGreeting.setText(getGreetingMessage());
 
-            // Hiển thị tên đầy đủ, nếu không có thì hiển thị username
             String displayName = savedFullName.isEmpty() ? savedUsername : savedFullName;
             tvDisplayUsername.setText(displayName);
 
             tvSwitchAccount.setVisibility(View.VISIBLE);
             etPassword.requestFocus();
+            currentUsername = savedUsername;
 
-            // LUÔN HIỂN THỊ NÚT VÂN TAY - KHÔNG PHỤ THUỘC hasPasskey
+            if (hasPasskey && isBiometricSupported) {
+                showTemporaryMessage("🔐 Sử dụng vân tay/Face ID để đăng nhập nhanh hoặc nhập mật khẩu",
+                        getColor(android.R.color.holo_blue_dark));
+            } else {
+                showTemporaryMessage("👋 Nhập mật khẩu để đăng nhập",
+                        getColor(android.R.color.darker_gray));
+            }
+
             btnFaceId.setVisibility(View.VISIBLE);
-            tvError.setVisibility(View.GONE);
 
         } else {
-            // Chưa có tài khoản lưu
             layoutUsernameInput.setVisibility(View.VISIBLE);
             layoutSavedUser.setVisibility(View.GONE);
             tvSwitchAccount.setVisibility(View.GONE);
-            // LUÔN HIỂN THỊ NÚT VÂN TAY
             btnFaceId.setVisibility(View.VISIBLE);
-            tvError.setVisibility(View.GONE);
+            hideError();
         }
+    }
+
+    private void showTemporaryMessage(String message, int color) {
+        tvError.setText(message);
+        tvError.setTextColor(color);
+        tvError.setVisibility(View.VISIBLE);
+
+        if (hideErrorRunnable != null) {
+            handler.removeCallbacks(hideErrorRunnable);
+        }
+
+        hideErrorRunnable = () -> {
+            tvError.setVisibility(View.GONE);
+            hideErrorRunnable = null;
+        };
+        handler.postDelayed(hideErrorRunnable, 4000);
+    }
+
+    private void hideError() {
+        if (hideErrorRunnable != null) {
+            handler.removeCallbacks(hideErrorRunnable);
+            hideErrorRunnable = null;
+        }
+        tvError.setVisibility(View.GONE);
     }
 
     private void switchToNewAccount() {
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-        prefs.edit().clear().apply();
+        prefs.edit()
+                .remove("Username")
+                .remove("FullName")
+                .remove("hasPasskey")
+                .remove("StudentID")
+                .remove("Email")
+                .remove("AuthToken")
+                .remove("isLoggedIn")
+                .remove("lastLoginTime")
+                .apply();
 
         savedUsername = "";
         savedFullName = "";
         hasPasskey = false;
+        currentUsername = "";
+
         layoutUsernameInput.setVisibility(View.VISIBLE);
         layoutSavedUser.setVisibility(View.GONE);
         tvSwitchAccount.setVisibility(View.GONE);
-        // LUÔN HIỂN THỊ NÚT VÂN TAY
         btnFaceId.setVisibility(View.VISIBLE);
         etUsername.setText("");
         etPassword.setText("");
-        tvError.setVisibility(View.GONE);
+        hideError();
+
+        Toast.makeText(this, "Nhập tên đăng nhập và mật khẩu", Toast.LENGTH_SHORT).show();
     }
 
     private void togglePasswordVisibility() {
@@ -246,7 +364,7 @@ public class LoginActivity extends AppCompatActivity {
         etPassword.setSelection(etPassword.getText().length());
     }
 
-    // ==================== LOGIN METHODS ====================
+    // ==================== LOGIN WITH PASSWORD ====================
 
     private void handleLogin() {
         String username = (layoutUsernameInput.getVisibility() == View.VISIBLE)
@@ -255,12 +373,17 @@ public class LoginActivity extends AppCompatActivity {
 
         String password = etPassword.getText().toString().trim();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            showError("Vui lòng nhập đầy đủ thông tin");
+        if (username.isEmpty()) {
+            showError("Vui lòng nhập tên đăng nhập");
             return;
         }
 
-        tvError.setVisibility(View.GONE);
+        if (password.isEmpty()) {
+            showError("Vui lòng nhập mật khẩu");
+            return;
+        }
+
+        hideError();
         btnLogin.setEnabled(false);
 
         loginapi api = RetrofitClient.getClient().create(loginapi.class);
@@ -274,9 +397,14 @@ public class LoginActivity extends AppCompatActivity {
                     LoginResponse loginResponse = response.body();
                     if (loginResponse.isSuccess()) {
                         saveUserData(loginResponse);
-                        fetchProfileAndCheckPasskey(loginResponse.getUser().getUsername());
+                        // ⭐ KIỂM TRA PASSKEY SAU KHI LOGIN
+                        checkPasskeyAndNavigate(loginResponse.getUser().getUsername());
                     } else {
-                        processLoginError(loginResponse.getMessage(), response.code());
+                        String msg = loginResponse.getMessage();
+                        if (msg == null || msg.isEmpty()) {
+                            msg = "Đăng nhập thất bại";
+                        }
+                        showError(msg);
                     }
                 } else {
                     String errorMsg = "";
@@ -295,7 +423,11 @@ public class LoginActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    processLoginError(errorMsg, response.code());
+
+                    if (errorMsg.isEmpty()) {
+                        errorMsg = "Mật khẩu không chính xác.";
+                    }
+                    showError(errorMsg);
                 }
             }
 
@@ -307,82 +439,151 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // Đăng nhập bằng Passkey - XỬ LÝ CẢ 2 TRƯỜNG HỢP
+    // ==================== PASSKEY LOGIN ====================
+
     private void handlePasskeyLogin() {
-        // Kiểm tra thiết bị hỗ trợ sinh trắc học
-        BiometricManager biometricManager = BiometricManager.from(this);
-        int canAuthenticate = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
-
-        if (canAuthenticate != BiometricManager.BIOMETRIC_SUCCESS) {
-            // Thiết bị không hỗ trợ sinh trắc học
-            String errorMsg = "";
-            switch (canAuthenticate) {
-                case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-                    errorMsg = " Thiết bị không hỗ trợ vân tay/Face ID";
-                    break;
-                case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                    errorMsg = " Tính năng sinh trắc học hiện không khả dụng";
-                    break;
-                case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-                    errorMsg = "Vui lòng đăng ký vân tay/Face ID trong cài đặt thiết bị";
-                    break;
-                default:
-                    errorMsg = " Không xác định được trạng thái sinh trắc học";
-                    break;
-            }
-            showError(errorMsg);
-            return;
-        }
-
-        // Kiểm tra nếu chưa đăng ký Passkey trên server
-        if (!hasPasskey && !savedUsername.isEmpty()) {
-            // Chưa đăng ký -> Hiển thị thông báo và chuyển đến đăng ký
-            showError("🔐 Bạn chưa đăng ký vân tay đăng nhập. Hãy đăng ký để đăng nhập nhanh hơn!");
-
-            // Chuyển đến Profile để đăng ký Passkey
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.putExtra("openProfileFragment", true);
-            intent.putExtra("openSecurityTab", true);
-            intent.putExtra("studentId", savedUsername);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            finish();
-            return;
-        }
-
-        // Nếu chưa có tài khoản lưu (người dùng đang nhập username mới)
-        if (savedUsername.isEmpty()) {
-            String username = etUsername.getText().toString().trim();
+        String username;
+        if (layoutSavedUser.getVisibility() == View.VISIBLE) {
+            username = savedUsername;
+        } else {
+            username = etUsername.getText().toString().trim();
             if (username.isEmpty()) {
                 showError("Vui lòng nhập tên đăng nhập trước");
                 return;
             }
-            // Lưu tạm username để đăng nhập
-            savedUsername = username;
+        }
+        currentUsername = username;
+
+        if (!isBiometricSupported) {
+            if (biometricError.isEmpty()) {
+                biometricError = "❌ Thiết bị không hỗ trợ đăng nhập bằng vân tay/Face ID";
+            }
+            showError(biometricError);
+
+            if (biometricError.contains("đăng ký")) {
+                showBiometricEnrollmentDialog();
+            }
+            return;
         }
 
-        // Đã đăng ký Passkey -> Hiển thị dialog xác thực
-        biometricPrompt.authenticate(promptInfo);
+        // ⭐ KIỂM TRA USER TỒN TẠI
+        checkUserExists(username);
     }
 
-    private void loginWithPasskey(String username) {
-        // Gọi API login bằng Passkey
-        Toast.makeText(this, " Đăng nhập thành công với Passkey", Toast.LENGTH_SHORT).show();
-
-        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-        prefs.edit()
-                .putString("Username", username)
-                .putBoolean("isLoggedIn", true)
-                .apply();
-
-        navigateToMain();
+    private void showBiometricEnrollmentDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("⚠️ Chưa đăng ký vân tay/Face ID")
+                .setMessage("Vui lòng đăng ký vân tay hoặc Face ID trong cài đặt thiết bị của bạn.\n\n" +
+                        "Sau khi đăng ký, quay lại ứng dụng để sử dụng tính năng này.\n\n" +
+                        "Bạn có thể đăng nhập bằng mật khẩu ngay bây giờ.")
+                .setPositiveButton("Đăng nhập bằng mật khẩu", (dialog, which) -> {
+                    etPassword.requestFocus();
+                })
+                .setNegativeButton("Mở cài đặt", (dialog, which) -> {
+                    Intent intent = new Intent(android.provider.Settings.ACTION_SECURITY_SETTINGS);
+                    startActivity(intent);
+                })
+                .setNeutralButton("Đóng", null)
+                .show();
     }
 
-    // ==================== FETCH PROFILE & CHECK PASSKEY ====================
-
-    private void fetchProfileAndCheckPasskey(String studentId) {
+    private void checkUserExists(String username) {
         profileapi api = RetrofitClient.getClient().create(profileapi.class);
+        api.getProfile(username).enqueue(new Callback<ProfileResponse>() {
+            @Override
+            public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
+                if (response.isSuccessful() && response.body() != null && response.body().getProfile() != null) {
+                    runOnUiThread(() -> {
+                        biometricPrompt.authenticate(promptInfo);
+                    });
+                } else {
+                    runOnUiThread(() -> {
+                        showError("❌ Tài khoản không tồn tại");
+                    });
+                }
+            }
 
+            @Override
+            public void onFailure(Call<ProfileResponse> call, Throwable t) {
+                runOnUiThread(() -> {
+                    showError("❌ Lỗi kết nối, vui lòng thử lại");
+                });
+            }
+        });
+    }
+
+    // ⭐⭐ LOGIN BẰNG PASSKEY ⭐⭐
+    private void loginWithPasskey(String username) {
+        btnLogin.setEnabled(false);
+        showTemporaryMessage("⏳ Đang xác thực Passkey...", getColor(android.R.color.holo_blue_dark));
+
+        loginapi api = RetrofitClient.getClient().create(loginapi.class);
+        Call<LoginResponse> call = api.loginWithPasskey(username, deviceId);
+
+        call.enqueue(new Callback<LoginResponse>() {
+            @Override
+            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+                btnLogin.setEnabled(true);
+                hideError();
+
+                if (response.isSuccessful() && response.body() != null) {
+                    LoginResponse loginResponse = response.body();
+                    if (loginResponse.isSuccess()) {
+                        Toast.makeText(LoginActivity.this, "✅ Đăng nhập Passkey thành công!", Toast.LENGTH_SHORT).show();
+
+                        // ⭐ LƯU USER DATA + HAS PASSKEY = TRUE
+                        saveUserData(loginResponse);
+                        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+                        prefs.edit().putBoolean("hasPasskey", true).apply();
+
+                        // ⭐ LẤY FULLNAME TỪ API PROFILE
+                        fetchFullNameAndNavigate(loginResponse.getUser().getUsername());
+                    } else {
+                        String msg = loginResponse.getMessage();
+                        if (msg == null || msg.isEmpty()) {
+                            msg = "❌ Passkey không hợp lệ hoặc đã bị xóa.\nVui lòng đăng nhập bằng mật khẩu.";
+                        }
+                        showError(msg);
+                        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+                        prefs.edit().putBoolean("hasPasskey", false).apply();
+                        hasPasskey = false;
+                    }
+                } else {
+                    String errorMsg = "";
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorJson = response.errorBody().string();
+                            try {
+                                JSONObject jsonObject = new JSONObject(errorJson);
+                                errorMsg = jsonObject.optString("message", jsonObject.optString("Message", ""));
+                            } catch (Exception e) {
+                                errorMsg = errorJson;
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if (errorMsg.isEmpty()) {
+                        errorMsg = "❌ Đăng nhập Passkey thất bại.\nVui lòng đăng nhập bằng mật khẩu.";
+                    }
+                    showError(errorMsg);
+                    SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+                    prefs.edit().putBoolean("hasPasskey", false).apply();
+                    hasPasskey = false;
+                }
+            }
+
+            @Override
+            public void onFailure(Call<LoginResponse> call, Throwable t) {
+                btnLogin.setEnabled(true);
+                showError("❌ Lỗi kết nối: " + t.getMessage() + "\nVui lòng đăng nhập bằng mật khẩu.");
+            }
+        });
+    }
+
+    // ⭐ LẤY FULLNAME SAU KHI LOGIN PASSKEY THÀNH CÔNG
+    private void fetchFullNameAndNavigate(String studentId) {
+        profileapi api = RetrofitClient.getClient().create(profileapi.class);
         api.getProfile(studentId).enqueue(new Callback<ProfileResponse>() {
             @Override
             public void onResponse(Call<ProfileResponse> call, Response<ProfileResponse> response) {
@@ -391,60 +592,55 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
                     prefs.edit().putString("FullName", fullName).apply();
                 }
-                checkPasskeyAndNavigate(studentId);
+                navigateToMain();
             }
 
             @Override
             public void onFailure(Call<ProfileResponse> call, Throwable t) {
-                checkPasskeyAndNavigate(studentId);
-            }
-        });
-    }
-
-    private void checkPasskeyAndNavigate(String studentId) {
-        profileapi api = RetrofitClient.getClient().create(profileapi.class);
-        api.getPasskeyStatus(studentId).enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                boolean hasPasskey = false;
-                try {
-                    if (response.isSuccessful() && response.body() != null) {
-                        String json = response.body().string();
-                        JSONObject obj = new JSONObject(json);
-                        hasPasskey = obj.optBoolean("hasPasskey", false);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-                SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-                prefs.edit().putBoolean("hasPasskey", hasPasskey).apply();
-
-                if (hasPasskey) {
-                    navigateToMain();
-                } else {
-                    navigateToProfileFragment(studentId);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
                 navigateToMain();
             }
         });
     }
 
-    // ==================== NAVIGATION ====================
+    // ==================== KIỂM TRA PASSKEY SAU KHI LOGIN BẰNG MẬT KHẨU ====================
 
-    private void navigateToProfileFragment(String studentId) {
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        intent.putExtra("openProfileFragment", true);
-        intent.putExtra("openSecurityTab", true);
-        intent.putExtra("studentId", studentId);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-        finish();
+    private void checkPasskeyAndNavigate(String studentId) {
+        profileapi api = RetrofitClient.getClient().create(profileapi.class);
+        api.checkPasskeyForDevice(studentId, deviceId).enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                boolean hasPasskeyOnServer = false;
+                try {
+                    if (response.isSuccessful() && response.body() != null) {
+                        String json = response.body().string();
+                        JSONObject obj = new JSONObject(json);
+                        hasPasskeyOnServer = obj.optBoolean("hasPasskey", false);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                boolean finalHasPasskey = hasPasskeyOnServer;
+                runOnUiThread(() -> {
+                    SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
+                    prefs.edit().putBoolean("hasPasskey", finalHasPasskey).apply();
+                    hasPasskey = finalHasPasskey;
+
+                    // ⭐ LẤY FULLNAME
+                    fetchFullNameAndNavigate(studentId);
+                });
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                runOnUiThread(() -> {
+                    navigateToMain();
+                });
+            }
+        });
     }
+
+    // ==================== NAVIGATION ====================
 
     private void navigateToMain() {
         Intent intent = new Intent(this, MainActivity.class);
@@ -455,39 +651,19 @@ public class LoginActivity extends AppCompatActivity {
 
     // ==================== ERROR HANDLING ====================
 
-    private void processLoginError(String message, int statusCode) {
-        if (message == null) message = "";
-        String cleanMsg = message.trim().toLowerCase();
-
-        boolean hasUserKeyword = cleanMsg.contains("tên đăng nhập") || cleanMsg.contains("username") || cleanMsg.contains("tài khoản");
-        boolean hasPassKeyword = cleanMsg.contains("mật khẩu") || cleanMsg.contains("password");
-
-        if (layoutSavedUser.getVisibility() == View.VISIBLE) {
-            showError("Mật khẩu không chính xác. Vui lòng nhập lại");
-            return;
-        }
-
-        if ((hasUserKeyword && hasPassKeyword) || (statusCode == 401 && !hasUserKeyword && !hasPassKeyword) || cleanMsg.isEmpty()) {
-            showError("Sai mật khẩu và tên đăng nhập. Vui lòng kiểm tra lại");
-            return;
-        }
-
-        if (hasPassKeyword) {
-            showError("Mật khẩu không chính xác. Vui lòng nhập lại");
-            return;
-        }
-
-        if (hasUserKeyword) {
-            showError("Tên đăng nhập không chính xác hoặc không tồn tại");
-            return;
-        }
-
-        showError("Đăng nhập thất bại. Vui lòng thử lại.");
-    }
-
     private void showError(String message) {
         tvError.setText(message);
+        tvError.setTextColor(getColor(android.R.color.holo_red_dark));
         tvError.setVisibility(View.VISIBLE);
+
+        if (hideErrorRunnable != null) {
+            handler.removeCallbacks(hideErrorRunnable);
+        }
+        hideErrorRunnable = () -> {
+            tvError.setVisibility(View.GONE);
+            hideErrorRunnable = null;
+        };
+        handler.postDelayed(hideErrorRunnable, 6000);
     }
 
     // ==================== SAVE USER DATA ====================
@@ -500,6 +676,15 @@ public class LoginActivity extends AppCompatActivity {
                 .putString("Email", response.getUser().getEmail())
                 .putString("AuthToken", response.getToken())
                 .putBoolean("isLoggedIn", true)
+                .putLong("lastLoginTime", System.currentTimeMillis())
                 .apply();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (handler != null && hideErrorRunnable != null) {
+            handler.removeCallbacks(hideErrorRunnable);
+        }
     }
 }

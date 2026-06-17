@@ -218,11 +218,10 @@
                                 android:layout_height="24dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/ic_eye_off"
-                                app:tint="#9CA3AF"
                                 android:contentDescription="Hiển thị mật khẩu" />
                         </LinearLayout>
 
-                        <!-- Nút Đăng nhập -->
+                        <!-- Nút Đăng nhập + Vân tay -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -240,11 +239,13 @@
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
 
+                            <!-- ⭐ Nút Vân tay - Luôn hiển thị -->
                             <androidx.cardview.widget.CardView
                                 android:id="@+id/btn_faceid"
                                 android:layout_width="56dp"
                                 android:layout_height="56dp"
                                 android:layout_marginStart="12dp"
+                                android:visibility="visible"
                                 app:cardCornerRadius="28dp"
                                 app:cardElevation="2dp"
                                 app:cardBackgroundColor="#F3F4F6">
@@ -254,7 +255,6 @@
                                     android:layout_height="28dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_fingerprint"
-                                    app:tint="#6366F1"
                                     android:contentDescription="Vân tay" />
                             </androidx.cardview.widget.CardView>
                         </LinearLayout>

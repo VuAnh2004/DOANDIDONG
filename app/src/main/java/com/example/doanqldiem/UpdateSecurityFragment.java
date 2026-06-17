@@ -2,10 +2,7 @@ package com.example.doanqldiem;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +14,13 @@ import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.Fragment;
 
-import com.example.doanqldiem.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONObject;
 
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -46,32 +43,26 @@ public class UpdateSecurityFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_update_security, container, false);
 
-        // Khởi tạo API service
         apiService = RetrofitClient.getClient().create(profileapi.class);
-
-        // Khởi tạo SharedPreferences
         sharedPreferences = requireContext().getSharedPreferences("USER", Context.MODE_PRIVATE);
         studentId = sharedPreferences.getString("StudentID", "");
 
-        // Ánh xạ view
-        edtEmail = view.findViewById(R.id.edt_email);
-        edtOldPassword = view.findViewById(R.id.edt_old_password);
-        edtNewPassword = view.findViewById(R.id.edt_new_password);
+        edtEmail        = view.findViewById(R.id.edt_email);
+        edtOldPassword  = view.findViewById(R.id.edt_old_password);
+        edtNewPassword  = view.findViewById(R.id.edt_new_password);
         btnSaveSecurity = view.findViewById(R.id.btn_save_security);
-        switchPasskey = view.findViewById(R.id.switch_passkey);
+        switchPasskey   = view.findViewById(R.id.switch_passkey);
 
-        // Load dữ liệu
         loadUserData();
         loadPasskeyStatus();
 
-        // Thiết lập sự kiện
         btnSaveSecurity.setOnClickListener(v -> updateSecurity());
         switchPasskey.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isProcessing) return;
-
             if (isChecked) {
                 enablePasskey();
             } else {
@@ -82,17 +73,19 @@ public class UpdateSecurityFragment extends Fragment {
         return view;
     }
 
+    // ================================================================
+    // LOAD DỮ LIỆU
+    // ================================================================
+
     private void loadUserData() {
-        String email = sharedPreferences.getString("Email", "");
-        edtEmail.setText(email);
+        edtEmail.setText(sharedPreferences.getString("Email", ""));
     }
 
     private void loadPasskeyStatus() {
-        Call<ResponseBody> call = apiService.getPasskeyStatus(studentId);
-        call.enqueue(new Callback<ResponseBody>() {
+        apiService.getPasskeyStatus(studentId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
                     try {
                         String json = response.body().string();
                         JSONObject obj = new JSONObject(json);
@@ -110,105 +103,91 @@ public class UpdateSecurityFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // Không hiển thị lỗi khi load status
-            }
+            public void onFailure(Call<ResponseBody> call, Throwable t) {}
         });
     }
 
+    // ================================================================
+    // CẬP NHẬT BẢO MẬT (email + mật khẩu)
+    // ================================================================
+
     private void updateSecurity() {
-        String email = edtEmail.getText().toString().trim();
+        String email       = edtEmail.getText().toString().trim();
         String oldPassword = edtOldPassword.getText().toString().trim();
         String newPassword = edtNewPassword.getText().toString().trim();
 
-        // Validate
         if (email.isEmpty() && oldPassword.isEmpty() && newPassword.isEmpty()) {
             Toast.makeText(getContext(), "Vui lòng nhập thông tin cần cập nhật", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (!oldPassword.isEmpty() && newPassword.isEmpty()) {
             Toast.makeText(getContext(), "Vui lòng nhập mật khẩu mới", Toast.LENGTH_SHORT).show();
             return;
         }
-
         if (!oldPassword.isEmpty() && newPassword.length() < 6) {
             Toast.makeText(getContext(), "Mật khẩu mới phải có ít nhất 6 ký tự", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Gọi API update
-        Call<ResponseBody> call = apiService.updateSecurity(studentId, oldPassword, newPassword, email);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), "Cập nhật bảo mật thành công", Toast.LENGTH_SHORT).show();
-                    edtOldPassword.setText("");
-                    edtNewPassword.setText("");
-
-                    // Cập nhật SharedPreferences
-                    if (!email.isEmpty()) {
-                        sharedPreferences.edit().putString("Email", email).apply();
-                    }
-                } else {
-                    try {
-                        String error = response.errorBody().string();
-                        if (error.contains("Mật khẩu cũ không chính xác")) {
-                            Toast.makeText(getContext(), "Mật khẩu cũ không chính xác", Toast.LENGTH_SHORT).show();
-                        } else if (error.contains("Email đã tồn tại")) {
-                            Toast.makeText(getContext(), "Email đã tồn tại", Toast.LENGTH_SHORT).show();
+        apiService.updateSecurity(studentId, oldPassword, newPassword, email)
+                .enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if (response.isSuccessful()) {
+                            Toast.makeText(getContext(), "✅ Cập nhật bảo mật thành công", Toast.LENGTH_SHORT).show();
+                            edtOldPassword.setText("");
+                            edtNewPassword.setText("");
+                            if (!email.isEmpty()) {
+                                sharedPreferences.edit().putString("Email", email).apply();
+                            }
                         } else {
-                            Toast.makeText(getContext(), "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
+                            try {
+                                String error = response.errorBody().string();
+                                if (error.contains("Mật khẩu cũ không chính xác")) {
+                                    Toast.makeText(getContext(), "❌ Mật khẩu cũ không chính xác", Toast.LENGTH_SHORT).show();
+                                } else if (error.contains("Email đã tồn tại")) {
+                                    Toast.makeText(getContext(), "❌ Email đã tồn tại", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getContext(), "❌ Cập nhật thất bại", Toast.LENGTH_SHORT).show();
+                                }
+                            } catch (Exception e) {
+                                Toast.makeText(getContext(), "❌ Cập nhật thất bại", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                    } catch (Exception e) {
-                        Toast.makeText(getContext(), "Cập nhật thất bại", Toast.LENGTH_SHORT).show();
                     }
-                }
-            }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(getContext(), "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Toast.makeText(getContext(), "❌ Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-    // ====== PASSKEY - ĐĂNG KÝ ======
-    private void enablePasskey() {
-        // Kiểm tra thiết bị hỗ trợ sinh trắc học
-        BiometricManager biometricManager = BiometricManager.from(requireContext());
-        int canAuthenticate = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
+    // ================================================================
+    // ĐĂNG KÝ PASSKEY (bật toggle)
+    // ================================================================
 
-        switch (canAuthenticate) {
-            case BiometricManager.BIOMETRIC_SUCCESS:
-                // Thiết bị hỗ trợ, hiển thị dialog xác thực
-                showBiometricPromptForRegistration();
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-                Toast.makeText(getContext(), "❌ Thiết bị không hỗ trợ vân tay/Face ID", Toast.LENGTH_LONG).show();
-                isProcessing = true;
-                switchPasskey.setChecked(false);
-                isProcessing = false;
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                Toast.makeText(getContext(), "❌ Tính năng sinh trắc học hiện không khả dụng", Toast.LENGTH_LONG).show();
-                isProcessing = true;
-                switchPasskey.setChecked(false);
-                isProcessing = false;
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-                Toast.makeText(getContext(), "⚠️ Vui lòng đăng ký vân tay/Face ID trong cài đặt thiết bị", Toast.LENGTH_LONG).show();
-                isProcessing = true;
-                switchPasskey.setChecked(false);
-                isProcessing = false;
-                break;
-            default:
-                Toast.makeText(getContext(), "❌ Không xác định được trạng thái sinh trắc học", Toast.LENGTH_LONG).show();
-                isProcessing = true;
-                switchPasskey.setChecked(false);
-                isProcessing = false;
-                break;
+    private void enablePasskey() {
+        BiometricManager biometricManager = BiometricManager.from(requireContext());
+        int canAuthenticate = biometricManager.canAuthenticate(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG);
+
+        if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
+            showBiometricPromptForRegistration();
+        } else {
+            String msg;
+            switch (canAuthenticate) {
+                case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                    msg = "❌ Thiết bị không hỗ trợ vân tay/Face ID"; break;
+                case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                    msg = "❌ Tính năng sinh trắc học hiện không khả dụng"; break;
+                case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                    msg = "⚠️ Vui lòng đăng ký vân tay trong Cài đặt thiết bị trước"; break;
+                default:
+                    msg = "❌ Không xác định được trạng thái sinh trắc học"; break;
+            }
+            Toast.makeText(getContext(), msg, Toast.LENGTH_LONG).show();
+            setSwitch(false);
         }
     }
 
@@ -217,34 +196,36 @@ public class UpdateSecurityFragment extends Fragment {
 
         BiometricPrompt biometricPrompt = new BiometricPrompt(this, executor,
                 new BiometricPrompt.AuthenticationCallback() {
+
                     @Override
                     public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                         super.onAuthenticationSucceeded(result);
-                        // Xác thực thành công -> đăng ký Passkey lên server
-                        requireActivity().runOnUiThread(() -> {
-                            callRegisterPasskeyApi();
-                        });
+                        // ✅ Xác thực vân tay thành công → gọi API lên server
+                        requireActivity().runOnUiThread(() -> callRegisterPasskeyApi());
                     }
 
                     @Override
                     public void onAuthenticationFailed() {
                         super.onAuthenticationFailed();
                         requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "❌ Xác thực thất bại, vui lòng thử lại", Toast.LENGTH_SHORT).show();
-                            isProcessing = true;
-                            switchPasskey.setChecked(false);
-                            isProcessing = false;
+                            Toast.makeText(getContext(),
+                                    "❌ Xác thực thất bại, vui lòng thử lại",
+                                    Toast.LENGTH_SHORT).show();
+                            setSwitch(false);
                         });
                     }
 
                     @Override
-                    public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                    public void onAuthenticationError(int errorCode,
+                                                      @NonNull CharSequence errString) {
                         super.onAuthenticationError(errorCode, errString);
                         requireActivity().runOnUiThread(() -> {
-                            Toast.makeText(getContext(), "❌ Lỗi: " + errString, Toast.LENGTH_SHORT).show();
-                            isProcessing = true;
-                            switchPasskey.setChecked(false);
-                            isProcessing = false;
+                            if (errorCode != BiometricPrompt.ERROR_NEGATIVE_BUTTON) {
+                                Toast.makeText(getContext(),
+                                        "❌ Lỗi: " + errString,
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                            setSwitch(false);
                         });
                     }
                 });
@@ -259,61 +240,105 @@ public class UpdateSecurityFragment extends Fragment {
         biometricPrompt.authenticate(promptInfo);
     }
 
+    /**
+     * ✅ FIX CHÍNH: Gọi API thật lên server để lưu passkey vào DB
+     * Trước đây hàm này chỉ Toast báo thành công giả, không gọi API!
+     */
     private void callRegisterPasskeyApi() {
-        // Gọi API đăng ký Passkey
-        // Tạm thời mô phỏng thành công
-        Toast.makeText(getContext(), "✅ Đăng ký Passkey thành công!", Toast.LENGTH_LONG).show();
+        if (studentId.isEmpty()) {
+            Toast.makeText(getContext(), "❌ Không tìm thấy StudentID", Toast.LENGTH_SHORT).show();
+            setSwitch(false);
+            return;
+        }
 
-        // Lưu trạng thái đã đăng ký
-        sharedPreferences.edit().putBoolean("hasPasskey", true).apply();
-        isProcessing = true;
-        switchPasskey.setChecked(true);
-        isProcessing = false;
+        // Tạo credentialId và publicKey đơn giản (định danh thiết bị)
+        // Vì backend không dùng WebAuthn thật, chỉ cần lưu flag hasPasskey = true
+        String credentialId = "device_" + studentId + "_" + System.currentTimeMillis();
+        String publicKey    = "android_biometric_" + UUID.randomUUID().toString();
+
+        // Gọi API đăng ký passkey lên server
+        apiService.registerPasskey(studentId, credentialId, publicKey)
+                .enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if (response.isSuccessful()) {
+                            // ✅ Server lưu thành công
+                            Toast.makeText(getContext(),
+                                    "✅ Đăng ký vân tay thành công!",
+                                    Toast.LENGTH_LONG).show();
+                            sharedPreferences.edit().putBoolean("hasPasskey", true).apply();
+                            setSwitch(true);
+                        } else {
+                            // ❌ Server trả lỗi
+                            try {
+                                String errBody = response.errorBody() != null
+                                        ? response.errorBody().string() : "Không rõ lỗi";
+                                Toast.makeText(getContext(),
+                                        "❌ Đăng ký thất bại: " + errBody,
+                                        Toast.LENGTH_LONG).show();
+                            } catch (Exception e) {
+                                Toast.makeText(getContext(),
+                                        "❌ Đăng ký thất bại",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                            setSwitch(false);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Toast.makeText(getContext(),
+                                "❌ Lỗi kết nối: " + t.getMessage(),
+                                Toast.LENGTH_SHORT).show();
+                        setSwitch(false);
+                    }
+                });
     }
 
-    // ====== PASSKEY - HỦY ĐĂNG KÝ ======
+    // ================================================================
+    // HỦY PASSKEY (tắt toggle)
+    // ================================================================
+
     private void disablePasskey() {
-        // Hiển thị dialog xác nhận hủy Passkey
         new androidx.appcompat.app.AlertDialog.Builder(requireContext())
                 .setTitle("Xác nhận tắt Passkey")
                 .setMessage("Bạn có chắc muốn tắt đăng nhập bằng vân tay/Face ID?")
-                .setPositiveButton("Đồng ý", (dialog, which) -> {
-                    callRemovePasskeyApi();
-                })
-                .setNegativeButton("Hủy", (dialog, which) -> {
-                    isProcessing = true;
-                    switchPasskey.setChecked(true);
-                    isProcessing = false;
-                })
+                .setPositiveButton("Đồng ý", (dialog, which) -> callRemovePasskeyApi())
+                .setNegativeButton("Hủy", (dialog, which) -> setSwitch(true))
                 .show();
     }
 
     private void callRemovePasskeyApi() {
-        Call<ResponseBody> call = apiService.removePasskey(studentId);
-        call.enqueue(new Callback<ResponseBody>() {
+        apiService.removePasskey(studentId).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(getContext(), " Đã tắt Passkey", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "✅ Đã tắt Passkey", Toast.LENGTH_SHORT).show();
                     sharedPreferences.edit().putBoolean("hasPasskey", false).apply();
-                    isProcessing = true;
-                    switchPasskey.setChecked(false);
-                    isProcessing = false;
+                    setSwitch(false);
                 } else {
-                    Toast.makeText(getContext(), " Lỗi tắt Passkey", Toast.LENGTH_SHORT).show();
-                    isProcessing = true;
-                    switchPasskey.setChecked(true);
-                    isProcessing = false;
+                    Toast.makeText(getContext(), "❌ Lỗi tắt Passkey", Toast.LENGTH_SHORT).show();
+                    setSwitch(true);
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                Toast.makeText(getContext(), " Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                isProcessing = true;
-                switchPasskey.setChecked(true);
-                isProcessing = false;
+                Toast.makeText(getContext(),
+                        "❌ Lỗi kết nối: " + t.getMessage(),
+                        Toast.LENGTH_SHORT).show();
+                setSwitch(true);
             }
         });
+    }
+
+    // ================================================================
+    // HELPER: set switch không trigger listener
+    // ================================================================
+
+    private void setSwitch(boolean checked) {
+        isProcessing = true;
+        switchPasskey.setChecked(checked);
+        isProcessing = false;
     }
 }
