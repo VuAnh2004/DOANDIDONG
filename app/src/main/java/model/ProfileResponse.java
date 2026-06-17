@@ -25,7 +25,12 @@ public class ProfileResponse {
         private String Images;
         private String LopHoc;
         private String KhoaHoc;
+        private String Nation;
+        private String Religion;
+        private String Nationality;
+        private String StatusStudent;
 
+        // Getters
         public int getID() { return ID; }
         public String getStudentID() { return StudentID; }
         public String getFullName() { return FullName; }
@@ -39,11 +44,16 @@ public class ProfileResponse {
         public String getImages() { return Images; }
         public String getLopHoc() { return LopHoc; }
         public String getKhoaHoc() { return KhoaHoc; }
+        public String getNation() { return Nation; }
+        public String getReligion() { return Religion; }
+        public String getNationality() { return Nationality; }
+        public String getStatusStudent() { return StatusStudent; }
     }
 
     public static class AccountData {
         private String Email;
         private String UserName;
+
         public String getEmail() { return Email; }
         public String getUserName() { return UserName; }
     }
@@ -53,6 +63,7 @@ public class ProfileResponse {
         private String DocumentType;
         private String Attachment;
         private String Notes;
+
         public int getID() { return ID; }
         public String getDocumentType() { return DocumentType; }
         public String getAttachment() { return Attachment; }

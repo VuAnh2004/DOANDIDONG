@@ -1,68 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_marginBottom="16dp"
-    android:background="@drawable/tab_inactive_background"
-    android:padding="1dp">
+    android:layout_marginBottom="12dp">
 
-    <!-- Header Thứ: Thứ 2 (20/02) -->
+    <!-- Header ngày -->
     <TextView
         android:id="@+id/tv_day_header"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#E5E7EB"
-        android:padding="10dp"
-        android:text="Thứ 2 (20/02)"
-        android:textColor="#1A1A1A"
-        android:textSize="16sp"
-        android:textStyle="bold" />
+        android:layout_height="32dp"
+        android:gravity="center_vertical"
+        android:paddingStart="8dp"
+        android:text="Thứ 2"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:textColor="#0F172A"
+        android:background="@drawable/bg_day_header" />
 
-    <TableLayout
+    <!-- Khung chứa các tiết -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:stretchColumns="1">
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="#FFFFFF"
+        android:layout_marginTop="2dp">
 
-        <!-- BUỔI SÁNG -->
-        <TableRow android:layout_width="match_parent" android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="45dp"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="Sáng"
-                android:textStyle="bold"
-                android:textColor="#1A1A1A"
-                android:background="#FFFFFF"
-                android:padding="4dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="4dp">
 
+            <!-- BUỔI SÁNG (Tiết 1-5) -->
             <LinearLayout
-                android:id="@+id/layout_morning_periods"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="#000000" /> <!-- Màu đường kẻ -->
-        </TableRow>
+                android:orientation="vertical">
 
-        <!-- BUỔI CHIỀU -->
-        <TableRow android:layout_width="match_parent" android:layout_height="wrap_content">
-            <TextView
-                android:layout_width="45dp"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:text="Chiều"
-                android:textStyle="bold"
-                android:textColor="#1A1A1A"
-                android:background="#FFFFFF"
-                android:padding="4dp" />
+                <!-- Label Sáng -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="☀️ Sáng"
+                    android:textSize="11sp"
+                    android:textColor="#64748B"
+                    android:textStyle="bold"
+                    android:paddingStart="4dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="2dp" />
 
+                <LinearLayout
+                    android:id="@+id/layout_morning_periods"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+            <!-- Divider -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E2E8F0"
+                android:layout_marginVertical="6dp" />
+
+            <!-- BUỔI CHIỀU (Tiết 6-10) -->
             <LinearLayout
-                android:id="@+id/layout_afternoon_periods"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="#000000" />
-        </TableRow>
+                android:orientation="vertical">
 
-    </TableLayout>
+                <!-- Label Chiều -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🌤️ Chiều"
+                    android:textSize="11sp"
+                    android:textColor="#64748B"
+                    android:textStyle="bold"
+                    android:paddingStart="4dp"
+                    android:paddingBottom="2dp" />
+
+                <LinearLayout
+                    android:id="@+id/layout_afternoon_periods"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
 </LinearLayout>

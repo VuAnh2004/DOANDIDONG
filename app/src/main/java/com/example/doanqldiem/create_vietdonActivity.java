@@ -7,14 +7,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
-import android.widget.ImageView;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -34,14 +33,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class create_vietdonActivity extends AppCompatActivity {
+/**
+ * Kế thừa BaseActivity để tự động có Menu đổ xuống ở Header
+ */
+public class create_vietdonActivity extends BaseActivity {
 
     private TextInputEditText edtStartDate, edtEndDate, edtReason, edtRequestDate;
     private TextView txtFileName;
-
     private Uri selectedFileUri;
-
-    private String studentId; // Đã bỏ gán cứng
+    private String studentId;
     private final Calendar calendar = Calendar.getInstance();
 
     @Override
@@ -49,7 +49,6 @@ public class create_vietdonActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_vietdon);
 
-        // Lấy StudentID từ SharedPreferences
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         studentId = prefs.getString("StudentID", "");
 
@@ -60,7 +59,7 @@ public class create_vietdonActivity extends AppCompatActivity {
         }
 
         initViews();
-        setupToolbar();
+        setupToolbarActions();
         setupDatePickers();
         setCurrentDate();
 
@@ -68,7 +67,6 @@ public class create_vietdonActivity extends AppCompatActivity {
         findViewById(R.id.btn_submit_leave).setOnClickListener(v -> submitLeaveRequest());
     }
 
-    // ================= INIT =================
     private void initViews() {
         edtRequestDate = findViewById(R.id.edt_request_date);
         edtStartDate = findViewById(R.id.edt_start_date);
@@ -80,18 +78,24 @@ public class create_vietdonActivity extends AppCompatActivity {
         if (edtSid != null) edtSid.setText(studentId);
     }
 
-    // ================= TOOLBAR =================
-    private void setupToolbar() {
-        ImageView logo = findViewById(R.id.logotruong);
+    private void setupToolbarActions() {
+        // Nút Quay lại
+        View logo = findViewById(R.id.logotruong);
         if (logo != null) logo.setOnClickListener(v -> finish());
 
-        ImageView btnSetting = findViewById(R.id.btn_setting);
-        if (btnSetting != null) btnSetting.setOnClickListener(v -> {
-            startActivity(new Intent(this, cauhinhActivity.class));
-        });
+        // Nút Cài đặt
+        View btnSetting = findViewById(R.id.btn_setting);
+        if (btnSetting != null) {
+            btnSetting.setOnClickListener(v -> startActivity(new Intent(this, cauhinhActivity.class)));
+        }
+        
+        // Nút Thông báo
+        View btnBell = findViewById(R.id.btn_bell);
+        if (btnBell != null) {
+            btnBell.setOnClickListener(v -> startActivity(new Intent(this, thongbaoActivity.class)));
+        }
     }
 
-    // ================= DATE =================
     private void setCurrentDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         edtRequestDate.setText(sdf.format(calendar.getTime()));
@@ -107,22 +111,16 @@ public class create_vietdonActivity extends AppCompatActivity {
             calendar.set(year, month, day);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             target.setText(sdf.format(calendar.getTime()));
-
-        }, calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)).show();
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
-    // ================= FILE =================
     private final ActivityResultLauncher<Intent> filePickerLauncher =
-            registerForActivityResult(
-                    new ActivityResultContracts.StartActivityForResult(),
-                    result -> {
-                        if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                            selectedFileUri = result.getData().getData();
-                            txtFileName.setText(getFileName(selectedFileUri));
-                        }
-                    });
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    selectedFileUri = result.getData().getData();
+                    txtFileName.setText(getFileName(selectedFileUri));
+                }
+            });
 
     private void openFilePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -148,7 +146,6 @@ public class create_vietdonActivity extends AppCompatActivity {
         return result;
     }
 
-    // ================= SUBMIT =================
     private void submitLeaveRequest() {
         String reason = edtReason.getText().toString().trim();
         String start = edtStartDate.getText().toString().trim();
@@ -185,12 +182,12 @@ public class create_vietdonActivity extends AppCompatActivity {
                             Toast.makeText(create_vietdonActivity.this, "Gửi đơn thành công!", Toast.LENGTH_SHORT).show();
                             finish();
                         } else {
-                            Toast.makeText(create_vietdonActivity.this, "Lỗi server: " + response.code(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(create_vietdonActivity.this, "Lỗi server", Toast.LENGTH_LONG).show();
                         }
                     }
                     @Override
                     public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                        Toast.makeText(create_vietdonActivity.this, "Lỗi: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(create_vietdonActivity.this, "Lỗi kết nối", Toast.LENGTH_LONG).show();
                     }
                 });
     }

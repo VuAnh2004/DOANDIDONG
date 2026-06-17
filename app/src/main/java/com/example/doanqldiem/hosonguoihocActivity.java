@@ -14,8 +14,11 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
+
 import api.RetrofitClient;
 import api.hosonguoihocapi;
+import de.hdodenhof.circleimageview.CircleImageView;
 import model.hosonguoihocResponse;
 import model.hosonguoihocmodel;
 import retrofit2.Call;
@@ -29,6 +32,7 @@ public class hosonguoihocActivity extends AppCompatActivity {
     private TextView txtNgaySinh, txtGioiTinh, txtDanToc, txtTonGiao, txtLop;
     private TextView txtCha, txtMe, txtStatus, txtSDT, txtFullAddress;
     private TextView txtHosoHoa; // Cho mục 8
+    private CircleImageView imgAvatar; // Thêm avatar
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,23 +57,24 @@ public class hosonguoihocActivity extends AppCompatActivity {
     }
 
     private void initViews() {
+        imgAvatar = findViewById(R.id.img_avatar); // Ánh xạ avatar
         txtFullName = findViewById(R.id.txt_full_name);
         txtStudentID = findViewById(R.id.txt_student_id);
-        
+
         // 1. Thông tin chung
         txtNgaySinh = findViewById(R.id.txt_ngay_sinh);
         txtGioiTinh = findViewById(R.id.txt_gioi_tinh);
         txtDanToc = findViewById(R.id.txt_dan_toc);
         txtTonGiao = findViewById(R.id.txt_ton_giao);
         txtLop = findViewById(R.id.txt_lop_hoc);
-        
+
         // 2. Thân nhân
         txtCha = findViewById(R.id.txt_cha);
         txtMe = findViewById(R.id.txt_me);
-        
+
         // 3. Chính sách
         txtStatus = findViewById(R.id.txt_status);
-        
+
         // 7. Liên hệ
         txtSDT = findViewById(R.id.txt_sdt);
         txtFullAddress = findViewById(R.id.txt_full_address);
@@ -102,9 +107,13 @@ public class hosonguoihocActivity extends AppCompatActivity {
     }
 
     private void updateUI(hosonguoihocmodel model) {
+        // Cập nhật thông tin cơ bản
         if (txtFullName != null) txtFullName.setText(model.getFullName());
         if (txtStudentID != null) txtStudentID.setText(model.getStudentID());
-        
+
+        // ⭐ Cập nhật avatar dựa theo giới tính
+        updateAvatar(model.getGender());
+
         // Mục 1
         if (txtNgaySinh != null) txtNgaySinh.setText(String.format("Ngày sinh: %s", model.getBirth()));
         if (txtGioiTinh != null) txtGioiTinh.setText(String.format("Giới tính: %s", model.getGender()));
@@ -132,7 +141,7 @@ public class hosonguoihocActivity extends AppCompatActivity {
 
         // Mục 7: Xử lý Address
         if (txtSDT != null) txtSDT.setText(String.format("Số điện thoại: %s", model.getNumberPhone()));
-        
+
         // Fix Address: Nếu FullAddress chỉ có dấu phẩy thì dùng Address
         String addr = model.getAddress();
         if (model.getFullAddress() != null && model.getFullAddress().replaceAll("[,\\s]", "").length() > 0) {
@@ -144,12 +153,52 @@ public class hosonguoihocActivity extends AppCompatActivity {
         if (model.getDocuments() != null && !model.getDocuments().isEmpty() && txtHosoHoa != null) {
             StringBuilder docs = new StringBuilder("Danh sách hồ sơ:\n");
             for (hosonguoihocmodel.Document d : model.getDocuments()) {
-                String status = (d.getAttachment() != null && !d.getAttachment().trim().isEmpty()) 
-                                ? " ✅ (Đã có bản quét)" : " ❌ (Chưa nộp)";
+                String status = (d.getAttachment() != null && !d.getAttachment().trim().isEmpty())
+                        ? " ✅ (Đã có bản quét)" : " ❌ (Chưa nộp)";
                 docs.append("- ").append(d.getDocumentType()).append(status).append("\n");
             }
             txtHosoHoa.setText(docs.toString());
             txtHosoHoa.setTextColor(getResources().getColor(android.R.color.black));
+        }
+    }
+
+    /**
+     * Cập nhật avatar dựa theo giới tính
+     * @param gender Giới tính (Nam/Nữ hoặc Male/Female)
+     */
+    private void updateAvatar(String gender) {
+        if (imgAvatar == null) return;
+
+        // Kiểm tra giới tính (không phân biệt chữ hoa/thường)
+        if (gender != null) {
+            String genderLower = gender.toLowerCase().trim();
+
+            // Nếu là Nữ
+            if (genderLower.contains("nữ") || genderLower.contains("nữ") ||
+                    genderLower.equals("female") || genderLower.equals("f")) {
+                // Set ảnh nữ
+                imgAvatar.setImageResource(R.drawable.hosonguoidungnu);
+                // Đổi màu viền cho nữ (hồng)
+                imgAvatar.setBorderColor(getResources().getColor(R.color.pink));
+            }
+            // Nếu là Nam
+            else if (genderLower.contains("nam") ||
+                    genderLower.equals("male") || genderLower.equals("m")) {
+                // Set ảnh nam
+                imgAvatar.setImageResource(R.drawable.anhhoso);
+                // Đổi màu viền cho nam (xanh)
+                imgAvatar.setBorderColor(getResources().getColor(R.color.blue));
+            }
+            // Trường hợp khác (không xác định)
+            else {
+                // Mặc định ảnh nam
+                imgAvatar.setImageResource(R.drawable.anhhoso);
+                imgAvatar.setBorderColor(getResources().getColor(R.color.gray));
+            }
+        } else {
+            // Nếu gender null, mặc định ảnh nam
+            imgAvatar.setImageResource(R.drawable.anhhoso);
+            imgAvatar.setBorderColor(getResources().getColor(R.color.gray));
         }
     }
 

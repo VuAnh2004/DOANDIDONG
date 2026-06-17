@@ -17,9 +17,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
     private static Retrofit retrofit = null;
-    
+
     // 1. ĐẢM BẢO CÓ DẤU / Ở CUỐI URL
-    private static final String BASE_URL = "https://unmeasurable-nonsubconsciously-ignacia.ngrok-free.dev/";
+    public static final String BASE_URL = "https://unmeasurable-nonsubconsciously-ignacia.ngrok-free.dev/";
 
     private static final CookieJar cookieJar = new CookieJar() {
         private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();

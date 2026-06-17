@@ -14,13 +14,13 @@ import androidx.core.view.WindowInsetsCompat;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
- * Kế thừa từ BaseActivity để thừa hưởng tính năng tự động đăng xuất sau 2 phút
+ * Màn hình chính của ứng dụng.
  */
 public class MainActivity extends BaseActivity {
 
     private TextView txtUserName, txtPopupName, txtPopupEmail;
-    private View overlayPopup;
-    private CircleImageView btnMenu;
+    private View overlayPopup, cardProfile;
+    private CircleImageView imgAvatarMain;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,24 +45,50 @@ public class MainActivity extends BaseActivity {
         setupFeatureClicks();
     }
 
+    /**
+     * Ghi đè để không cho BaseActivity tự động gắn PopupMenu cũ vào avatar màn hình chính
+     */
+    @Override
+    public void setupHeaderMenu() {
+        // Không gọi super.setupHeaderMenu() ở đây để tránh xung đột menu cũ
+        // Chúng ta sẽ tự quản lý các nút bấm trong MainActivity
+        
+        // Logo trường (nếu có trong layout main)
+        View logo = findViewById(R.id.logotruong);
+        if (logo != null) logo.setOnClickListener(v -> { /* Đang ở Home rồi */ });
+    }
+
     private void initViews() {
         txtUserName = findViewById(R.id.txt_user_name_main);
         txtPopupName = findViewById(R.id.popup_user_name);
         txtPopupEmail = findViewById(R.id.popup_user_email);
         overlayPopup = findViewById(R.id.overlay_popup);
-        btnMenu = findViewById(R.id.btn_menu);
+        cardProfile = findViewById(R.id.card_profile);
+        imgAvatarMain = findViewById(R.id.img_avatar_main);
     }
 
     private void setupProfilePopup() {
-        if (btnMenu != null && overlayPopup != null) {
-            btnMenu.setOnClickListener(v -> overlayPopup.setVisibility(View.VISIBLE));
+        if (overlayPopup != null) {
+            // Hiển thị popup khi nhấn vào thẻ thông tin
+            if (cardProfile != null) {
+                cardProfile.setOnClickListener(v -> overlayPopup.setVisibility(View.VISIBLE));
+            }
+            
+            // Hiển thị popup khi nhấn vào ảnh đại diện (ID mới: img_avatar_main)
+            if (imgAvatarMain != null) {
+                imgAvatarMain.setOnClickListener(v -> overlayPopup.setVisibility(View.VISIBLE));
+            }
+
+            // Đóng popup khi nhấn ra ngoài
             overlayPopup.setOnClickListener(v -> overlayPopup.setVisibility(View.GONE));
 
+            // Nút Trang chủ trong popup
             View btnPopupHome = findViewById(R.id.popup_home);
             if (btnPopupHome != null) {
                 btnPopupHome.setOnClickListener(v -> overlayPopup.setVisibility(View.GONE));
             }
 
+            // Nút Đăng xuất trong popup
             View btnLogout = findViewById(R.id.popup_logout);
             if (btnLogout != null) {
                 btnLogout.setOnClickListener(v -> handleLogoutManual());
@@ -70,18 +96,9 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-    /**
-     * Đăng xuất thủ công từ Popup
-     */
     private void handleLogoutManual() {
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-        prefs.edit()
-            .remove("AuthToken")
-            .remove("UserID")
-            .putBoolean("isLoggedIn", false)
-            .remove("LastPauseTime") // Xóa luôn thời gian chờ
-            .apply();
-
+        prefs.edit().clear().apply();
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
@@ -89,38 +106,16 @@ public class MainActivity extends BaseActivity {
     }
 
     private void setupFeatureClicks() {
-        findViewById(R.id.btn_setting).setOnClickListener(v -> 
-            startActivity(new Intent(this, cauhinhActivity.class)));
-            
-        findViewById(R.id.btn_diem).setOnClickListener(v -> 
-            startActivity(new Intent(this, diemActivity.class)));
-            
-        findViewById(R.id.btn_vietdon).setOnClickListener(v -> 
-            startActivity(new Intent(this, vietdonActivity.class)));
-            
-        findViewById(R.id.btn_muonphong).setOnClickListener(v -> 
-            startActivity(new Intent(this, muonphongActivity.class)));
-            
-        findViewById(R.id.btn_phananh).setOnClickListener(v -> 
-            startActivity(new Intent(this, phananhActivity.class)));
-            
-        findViewById(R.id.btn_capnhathoso).setOnClickListener(v -> 
-            startActivity(new Intent(this, capnhathosoActivity.class)));
-            
-        findViewById(R.id.btn_bell).setOnClickListener(v -> 
-            startActivity(new Intent(this, thongbaoActivity.class)));
-            
-        findViewById(R.id.btn_thoikhoabieu).setOnClickListener(v -> 
-            startActivity(new Intent(this, thoikhoabieuActivity.class)));
-            
-        findViewById(R.id.btn_naptien).setOnClickListener(v -> 
-            startActivity(new Intent(this, hocphiActivity.class)));
-        
-        View hosonguoihoc = findViewById(R.id.hosonguoihoc);
-        if (hosonguoihoc != null) {
-            hosonguoihoc.setOnClickListener(v -> 
-                startActivity(new Intent(this, hosonguoihocActivity.class)));
-        }
+        findViewById(R.id.btn_hoso).setOnClickListener(v -> startActivity(new Intent(this, hosonguoihocActivity.class)));
+        findViewById(R.id.btn_setting).setOnClickListener(v -> startActivity(new Intent(this, cauhinhActivity.class)));
+        findViewById(R.id.btn_diem).setOnClickListener(v -> startActivity(new Intent(this, diemActivity.class)));
+        findViewById(R.id.btn_vietdon).setOnClickListener(v -> startActivity(new Intent(this, vietdonActivity.class)));
+        findViewById(R.id.btn_muonphong).setOnClickListener(v -> startActivity(new Intent(this, muonphongActivity.class)));
+        findViewById(R.id.btn_phananh).setOnClickListener(v -> startActivity(new Intent(this, phananhActivity.class)));
+        findViewById(R.id.btn_capnhathoso).setOnClickListener(v -> startActivity(new Intent(this, capnhathosoActivity.class)));
+        findViewById(R.id.btn_bell).setOnClickListener(v -> startActivity(new Intent(this, thongbaoActivity.class)));
+        findViewById(R.id.btn_thoikhoabieu).setOnClickListener(v -> startActivity(new Intent(this, thoikhoabieuActivity.class)));
+        findViewById(R.id.btn_naptien).setOnClickListener(v -> startActivity(new Intent(this, hocphiActivity.class)));
     }
 
     private void displayUserInfo() {

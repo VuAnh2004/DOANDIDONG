@@ -4,11 +4,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -38,15 +37,17 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class hocphiActivity extends AppCompatActivity {
+public class hocphiActivity extends BaseActivity {
 
     private TextView txtBalance;
     private EditText edtAmount;
     private RecyclerView rvNghiaVu;
     private NghiaVuAdapter adapter;
     private ProgressBar progressBar;
-    private String studentId; // Đã bỏ gán cứng
+    private String studentId;
     private final DecimalFormat formatter = new DecimalFormat("#,### ₫");
+    private boolean isBalanceVisible = true;
+    private double currentBalanceValue = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +55,6 @@ public class hocphiActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.hocphi);
 
-        // Lấy StudentID từ SharedPreferences
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         studentId = prefs.getString("StudentID", "");
 
@@ -66,29 +66,55 @@ public class hocphiActivity extends AppCompatActivity {
 
         initViews();
         setupInsets();
-        setupToolbar();
-        
+        setupQuickAmountButtons();
+
         loadDashboard();
         loadNghiaVu();
 
         findViewById(R.id.btn_deposit).setOnClickListener(v -> handleDeposit());
-        
-        ImageView thongbao = findViewById(R.id.btn_bell);
-        if (thongbao != null) {
-            thongbao.setOnClickListener(v -> {
-                Intent intent = new Intent(hocphiActivity.this, thongbaoActivity.class);
-                startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
+        ImageButton btnToggle = findViewById(R.id.btn_toggle_visibility);
+        if (btnToggle != null) {
+            btnToggle.setOnClickListener(v -> toggleBalanceVisibility());
+        }
+
+        View cardNavUnpaid = findViewById(R.id.card_nav_unpaid);
+        if (cardNavUnpaid != null) {
+            cardNavUnpaid.setOnClickListener(v -> {
+                if (rvNghiaVu.getVisibility() == View.VISIBLE) {
+                    rvNghiaVu.setVisibility(View.GONE);
+                } else {
+                    rvNghiaVu.setVisibility(View.VISIBLE);
+                }
             });
         }
-        
-        ImageView imgCauHinh = findViewById(R.id.btn_setting);
-        if (imgCauHinh != null) {
-            imgCauHinh.setOnClickListener(v -> {
-                Intent intent = new Intent(hocphiActivity.this, cauhinhActivity.class);
-                startActivity(intent);
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            });
+    }
+
+    private void toggleBalanceVisibility() {
+        isBalanceVisible = !isBalanceVisible;
+        ImageButton btnToggle = findViewById(R.id.btn_toggle_visibility);
+        if (isBalanceVisible) {
+            txtBalance.setText(formatter.format(currentBalanceValue));
+            btnToggle.setImageResource(R.drawable.ic_eye);
+        } else {
+            txtBalance.setText("********");
+            btnToggle.setImageResource(R.drawable.ic_eye_off);
+        }
+    }
+
+    private void setupQuickAmountButtons() {
+        int[] ids = {R.id.btn_100k, R.id.btn_200k, R.id.btn_500k, R.id.btn_1m};
+        String[] amounts = {"100000", "200000", "500000", "1000000"};
+
+        for (int i = 0; i < ids.length; i++) {
+            final String amount = amounts[i];
+            TextView btn = findViewById(ids[i]);
+            if (btn != null) {
+                btn.setOnClickListener(v -> {
+                    edtAmount.setText(amount);
+                    // handleDeposit() call removed to require explicit click on "NẠP TIỀN"
+                });
+            }
         }
     }
 
@@ -112,23 +138,11 @@ public class hocphiActivity extends AppCompatActivity {
     }
 
     private void setupInsets() {
-        View mainView = findViewById(R.id.main);
-        if (mainView == null) mainView = findViewById(android.R.id.content);
+        View mainView = findViewById(android.R.id.content);
         ViewCompat.setOnApplyWindowInsetsListener(mainView, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
-        });
-    }
-
-    private void setupToolbar() {
-        ImageView logo = findViewById(R.id.logotruong);
-        if (logo != null) logo.setOnClickListener(v -> finish());
-        
-        ImageView btnSetting = findViewById(R.id.btn_setting);
-        if (btnSetting != null) btnSetting.setOnClickListener(v -> {
-             Intent intent = new Intent(hocphiActivity.this, cauhinhActivity.class);
-             startActivity(intent);
         });
     }
 
@@ -139,7 +153,14 @@ public class hocphiActivity extends AppCompatActivity {
             return;
         }
 
-        double amount = Double.parseDouble(amountStr);
+        double amount;
+        try {
+            amount = Double.parseDouble(amountStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (amount < 5000) {
             Toast.makeText(this, "Số tiền tối thiểu là 5.000đ", Toast.LENGTH_SHORT).show();
             return;
@@ -160,7 +181,7 @@ public class hocphiActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<hocphiapi.PaymentUrlResponse> call, @NonNull Response<hocphiapi.PaymentUrlResponse> response) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                
+
                 if (response.isSuccessful() && response.body() != null) {
                     String url = response.body().paymentUrl;
                     if (url != null && !url.isEmpty()) {
@@ -171,9 +192,7 @@ public class hocphiActivity extends AppCompatActivity {
                         customTabsIntent.launchUrl(hocphiActivity.this, Uri.parse(url));
                     }
                 } else {
-                    String error = "Lỗi tạo link";
-                    try { if (response.errorBody() != null) error = response.errorBody().string(); } catch (Exception e) {}
-                    Toast.makeText(hocphiActivity.this, "Lỗi server: " + error, Toast.LENGTH_LONG).show();
+                    Toast.makeText(hocphiActivity.this, "Lỗi tạo link thanh toán", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -191,7 +210,10 @@ public class hocphiActivity extends AppCompatActivity {
             @Override
             public void onResponse(@NonNull Call<HocPhiModel> call, @NonNull Response<HocPhiModel> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    txtBalance.setText(formatter.format(response.body().getCurrentBalance()));
+                    currentBalanceValue = response.body().getCurrentBalance();
+                    if (isBalanceVisible) {
+                        txtBalance.setText(formatter.format(currentBalanceValue));
+                    }
                 }
             }
             @Override
@@ -228,28 +250,28 @@ public class hocphiActivity extends AppCompatActivity {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_2, parent, false);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_nghia_vu, parent, false);
             return new ViewHolder(v);
         }
 
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             NghiaVuModel.NghiaVuItem item = list.get(position);
-            holder.t1.setText(item.getNoiDung());
-            holder.t2.setText("Nợ: " + formatter.format(item.getConNo()) + " • " + item.getHocKy());
-            holder.t1.setTextColor(0xFF1E293B);
-            holder.t2.setTextColor(0xFFEF4444);
+            holder.txtTitle.setText(item.getNoiDung());
+            holder.txtSubtitle.setText(item.getHocKy());
+            holder.txtAmount.setText(formatter.format(item.getConNo()));
         }
 
         @Override
         public int getItemCount() { return list.size(); }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            TextView t1, t2;
+            TextView txtTitle, txtSubtitle, txtAmount;
             public ViewHolder(@NonNull View itemView) {
                 super(itemView);
-                t1 = itemView.findViewById(android.R.id.text1);
-                t2 = itemView.findViewById(android.R.id.text2);
+                txtTitle = itemView.findViewById(R.id.txt_item_title);
+                txtSubtitle = itemView.findViewById(R.id.txt_item_subtitle);
+                txtAmount = itemView.findViewById(R.id.txt_item_amount);
             }
         }
     }

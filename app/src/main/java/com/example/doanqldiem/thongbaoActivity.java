@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -38,12 +37,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class thongbaoActivity extends AppCompatActivity {
+public class thongbaoActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private ThongBaoAdapter adapter;
     private ProgressBar progressBar;
-    private String userName; // Đã bỏ gán cứng
+    private String userName;
     private SharedPreferences readPrefs;
     private static final String READ_NOTIFS_KEY = "read_notifications";
 
@@ -53,7 +52,6 @@ public class thongbaoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.thongbao);
 
-        // Lấy Username từ SharedPreferences (đã lưu lúc đăng nhập)
         SharedPreferences userPrefs = getSharedPreferences("USER", MODE_PRIVATE);
         userName = userPrefs.getString("Username", "");
 
@@ -90,13 +88,11 @@ public class thongbaoActivity extends AppCompatActivity {
     }
 
     private void setupToolbar() {
-        ImageView logo = findViewById(R.id.logotruong);
-        if (logo != null) logo.setOnClickListener(v -> finish());
-        
-        ImageView btnSetting = findViewById(R.id.btn_setting);
-        if (btnSetting != null) btnSetting.setOnClickListener(v -> {
-            startActivity(new android.content.Intent(this, cauhinhActivity.class));
-        });
+        // Xử lý nút dấu "✕" để đóng giao diện thông báo
+        View btnClose = findViewById(R.id.btn_close_thongbao);
+        if (btnClose != null) {
+            btnClose.setOnClickListener(v -> finish());
+        }
     }
 
     private void autoSyncAndLoad() {

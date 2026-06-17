@@ -1,97 +1,119 @@
 package com.example.doanqldiem;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import android.view.View;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.ContextThemeWrapper;
+import androidx.appcompat.widget.PopupMenu;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
+/**
+ * Lớp cơ sở giúp tất cả Activity có cùng Header Menu.
+ */
 public class BaseActivity extends AppCompatActivity {
 
-    private static int runningActivities = 0;
-    protected static final long BACKGROUND_LOGOUT_TIME = 2 * 60 * 1000; // 2 phút khi thoát app
-    protected static final long IDLE_LOGOUT_TIME = 5 * 60 * 1000;       // 5 phút khi không thao tác
-
-    private Handler idleHandler = new Handler(Looper.getMainLooper());
-    private Runnable idleRunnable = () -> logout("Phiên làm việc hết hạn do không thao tác");
-
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (runningActivities == 0) {
-            checkBackgroundLogout();
-        }
-        runningActivities++;
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        setupHeaderMenu();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        resetIdleTimer(); // Bắt đầu đếm ngược khi quay lại màn hình
+        setupHeaderMenu();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        stopIdleTimer(); // Dừng đếm ngược khi màn hình không còn tương tác
-    }
+    public void setupHeaderMenu() {
+        String currentActivity = getClass().getSimpleName();
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        runningActivities--;
-        if (runningActivities == 0) {
-            SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-            if (prefs.getBoolean("isLoggedIn", false)) {
-                prefs.edit().putLong("LastPauseTime", System.currentTimeMillis()).apply();
+        // Chỉ tự động gắn PopupMenu cho các màn hình có icon avatar tiêu chuẩn (btn_user)
+        // và KHÔNG PHẢI MainActivity (vì MainActivity dùng popup tùy chỉnh)
+        if (!currentActivity.equals("MainActivity")) {
+            View btnUser = findViewById(R.id.btn_user);
+            if (btnUser != null) {
+                btnUser.setOnClickListener(this::showModernPopupMenu);
             }
         }
-    }
 
-    /**
-     * Lắng nghe mọi tương tác của người dùng (chạm, vuốt, nhấn nút)
-     */
-    @Override
-    public void onUserInteraction() {
-        super.onUserInteraction();
-        resetIdleTimer();
-    }
+        // Logo trường -> Trang chủ
+        View logoTruong = findViewById(R.id.logotruong);
+        if (logoTruong != null) {
+            logoTruong.setOnClickListener(v -> {
+                if (!currentActivity.equals("MainActivity")) {
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+            });
+        }
 
-    private void resetIdleTimer() {
-        stopIdleTimer();
-        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-        if (prefs.getBoolean("isLoggedIn", false)) {
-            idleHandler.postDelayed(idleRunnable, IDLE_LOGOUT_TIME);
+        // Icon thông báo -> Danh sách thông báo
+        View btnBell = findViewById(R.id.btn_bell);
+        if (btnBell != null) {
+            btnBell.setOnClickListener(v -> {
+                if (!currentActivity.equals("thongbaoActivity")) {
+                    Intent intent = new Intent(this, thongbaoActivity.class);
+                    startActivity(intent);
+                }
+            });
+        }
+
+        // Icon cài đặt -> Giao diện cấu hình
+        View btnSetting = findViewById(R.id.btn_setting);
+        if (btnSetting != null) {
+            btnSetting.setOnClickListener(v -> {
+                if (!currentActivity.equals("cauhinhActivity")) {
+                    Intent intent = new Intent(this, cauhinhActivity.class);
+                    startActivity(intent);
+                }
+            });
         }
     }
 
-    private void stopIdleTimer() {
-        idleHandler.removeCallbacks(idleRunnable);
-    }
+    @SuppressLint("RestrictedApi")
+    private void showModernPopupMenu(View view) {
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.PopupMenuSmallTheme);
+        PopupMenu popup = new PopupMenu(wrapper, view);
+        popup.getMenuInflater().inflate(R.menu.user_menu, popup.getMenu());
 
-    private void checkBackgroundLogout() {
-        SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-        long lastPauseTime = prefs.getLong("LastPauseTime", 0);
-        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
+        try {
+            Field field = popup.getClass().getDeclaredField("mPopup");
+            field.setAccessible(true);
+            Object menuPopupHelper = field.get(popup);
+            Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
+            Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
+            setForceIcons.invoke(menuPopupHelper, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        if (isLoggedIn && lastPauseTime > 0) {
-            long diff = System.currentTimeMillis() - lastPauseTime;
-            if (diff >= BACKGROUND_LOGOUT_TIME) {
-                logout(null);
+        popup.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.menu_home) {
+                if (!getClass().getSimpleName().equals("MainActivity")) {
+                    Intent intent = new Intent(this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
+                }
+                return true;
+            } else if (itemId == R.id.menu_logout) {
+                performLogout();
+                return true;
             }
-        }
-        prefs.edit().remove("LastPauseTime").apply();
+            return false;
+        });
+        popup.show();
     }
 
-    private void logout(String reason) {
+    protected void performLogout() {
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
-        prefs.edit()
-            .remove("AuthToken")
-            .putBoolean("isLoggedIn", false)
-            .remove("LastPauseTime")
-            .apply();
-
+        prefs.edit().clear().apply();
         Intent intent = new Intent(this, LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

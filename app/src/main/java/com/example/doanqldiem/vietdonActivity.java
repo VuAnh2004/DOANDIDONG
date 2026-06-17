@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,20 +25,21 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class vietdonActivity extends AppCompatActivity {
+/**
+ * Kế thừa BaseActivity để tự động có Menu đổ xuống ở Header
+ */
+public class vietdonActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private VietDonAdapter adapter;
-    private String studentId; // Đã bỏ gán cứng
+    private String studentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // 1. Kích hoạt EdgeToEdge để sát Header
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.vietdon);
 
-        // Lấy StudentID từ SharedPreferences
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         studentId = prefs.getString("StudentID", "");
 
@@ -49,59 +49,51 @@ public class vietdonActivity extends AppCompatActivity {
             return;
         }
 
-        setupToolbar();
+        // Setup các nút chức năng khác trên Toolbar
+        setupToolbarActions();
         
         recyclerView = findViewById(R.id.recycler_leave_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new VietDonAdapter(new ArrayList<>());
         recyclerView.setAdapter(adapter);
 
-        // Chuyển sang trang tạo đơn mới khi nhấn nút
         findViewById(R.id.btn_new_leave).setOnClickListener(v -> {
             startActivity(new Intent(this, create_vietdonActivity.class));
         });
-        // 5. Nút Cấu hình
-        ImageView imgCauHinh = findViewById(R.id.btn_setting);
-        if (imgCauHinh != null) {
-            imgCauHinh.setOnClickListener(v -> {
+
+        loadData();
+    }
+
+    private void setupToolbarActions() {
+        // Nút Quay lại (Logo)
+        View logo = findViewById(R.id.logotruong);
+        if (logo != null) logo.setOnClickListener(v -> finish());
+
+        // Nút Cài đặt
+        View btnSetting = findViewById(R.id.btn_setting);
+        if (btnSetting != null) {
+            btnSetting.setOnClickListener(v -> {
                 startActivity(new Intent(this, cauhinhActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
 
-        // 6. Nút Back (Logo)
-        View logo = findViewById(R.id.logotruong);
-        if (logo != null) logo.setOnClickListener(v -> finish());
-        //  Click Icon thong bao
-        ImageView thongbao = findViewById(R.id.btn_bell);
-        if (thongbao != null) {
-            thongbao.setOnClickListener(v -> {
-                Intent intent = new Intent(vietdonActivity.this, thongbaoActivity.class);
-                startActivity(intent);
-                // Hiệu ứng chuyển cảnh mượt
+        // Nút Thông báo
+        View btnBell = findViewById(R.id.btn_bell);
+        if (btnBell != null) {
+            btnBell.setOnClickListener(v -> {
+                startActivity(new Intent(this, thongbaoActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             });
         }
-
-        loadData();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (studentId != null && !studentId.isEmpty()) {
-            loadData(); // Tải lại danh sách mỗi khi quay lại trang này
+            loadData();
         }
-    }
-
-    private void setupToolbar() {
-        ImageView logo = findViewById(R.id.logotruong);
-        if (logo != null) logo.setOnClickListener(v -> finish());
-
-        ImageView btnSetting = findViewById(R.id.btn_setting);
-        if (btnSetting != null) btnSetting.setOnClickListener(v -> {
-            startActivity(new Intent(this, cauhinhActivity.class));
-        });
     }
 
     private void loadData() {
@@ -143,10 +135,9 @@ public class vietdonActivity extends AppCompatActivity {
             holder.txtStatus.setText(item.getStatusText());
             holder.txtDuration.setText(String.format("Từ %s - Đến %s", item.getStartDate(), item.getEndDate()));
 
-            // Màu sắc trạng thái theo mã IsActive
-            if (item.getIsActive() == 2) holder.txtStatus.setTextColor(0xFFF59E0B); // Chờ duyệt
-            else if (item.getIsActive() == 1) holder.txtStatus.setTextColor(0xFF10B981); // Đã duyệt
-            else holder.txtStatus.setTextColor(0xFFEF4444); // Từ chối
+            if (item.getIsActive() == 2) holder.txtStatus.setTextColor(0xFFF59E0B);
+            else if (item.getIsActive() == 1) holder.txtStatus.setTextColor(0xFF10B981);
+            else holder.txtStatus.setTextColor(0xFFEF4444);
         }
 
         @Override
