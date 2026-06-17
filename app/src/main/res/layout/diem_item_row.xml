@@ -1,150 +1,303 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
-    app:strokeWidth="0dp">
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@android:color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header -->
-        <LinearLayout
+        <!-- Header clickable -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_header_clickable"
             android:layout_width="match_parent"
-            android:layout_height="65dp"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="16dp"
-            android:background="#FFFFFF"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
             android:clickable="true"
             android:focusable="true"
-            android:foreground="?attr/selectableItemBackground">
+            android:background="?attr/selectableItemBackground">
 
+            <!-- STT -->
             <TextView
                 android:id="@+id/txt_stt"
-                android:layout_width="28dp"
-                android:layout_height="wrap_content"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:gravity="center"
                 android:text="1"
                 android:textColor="#94A3B8"
                 android:textSize="14sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <!-- Năm học -->
+            <TextView
+                android:id="@+id/txt_year_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="2025-2026"
+                android:textColor="#3B82F6"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@+id/txt_stt"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
             <!-- Học kỳ -->
             <TextView
-                android:id="@+id/txt_year_item"
-                android:layout_width="58dp"
+                android:id="@+id/txt_semester_item"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
                 android:text="HK1"
-                android:textColor="#1E293B"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textColor="#64748B"
+                android:textSize="12sp"
+                android:textStyle="normal"
+                app:layout_constraintStart_toEndOf="@+id/txt_year_item"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-            <!-- Tên môn -->
+            <!-- Tên môn học -->
             <TextView
                 android:id="@+id/txt_subject_name"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingStart="12dp"
-                android:text="2024-2025"
-                android:textColor="#1E293B"
-                android:textSize="16sp" />
-
-            <!-- Điểm TB -->
-            <TextView
-                android:id="@+id/txt_avg_year"
-                android:layout_width="62dp"
-                android:layout_height="34dp"
-                android:background="#10B981"
-                android:gravity="center"
-                android:text="9.3"
-                android:textColor="#FFFFFF"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="Tên môn học"
+                android:textColor="#1F2937"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                android:layout_marginHorizontal="8dp" />
+                app:layout_constraintStart_toEndOf="@+id/txt_semester_item"
+                app:layout_constraintEnd_toStartOf="@+id/txt_avg_year"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-            <!-- Status Icon (ImageView) -->
-            <ImageView
-                android:id="@+id/img_status_icon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
-                android:layout_marginStart="8dp"
-                android:src="@drawable/icontichxanh"
-                android:contentDescription="Trạng thái" />
-            <!-- Mũi tên expand -->
+            <!-- Điểm trung bình -->
+            <TextView
+                android:id="@+id/txt_avg_year"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:background="@drawable/bg_grade_badge"
+                android:gravity="center"
+                android:minWidth="50dp"
+                android:paddingHorizontal="8dp"
+                android:text="9.3"
+                android:textColor="@android:color/white"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="8dp"
+                app:layout_constraintEnd_toStartOf="@+id/btn_expand_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <!-- Mũi tên dropdown -->
             <ImageView
                 android:id="@+id/btn_expand_icon"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:src="@android:drawable/arrow_down_float"
-                app:tint="#1E40AF"
-                android:layout_marginStart="8dp" />
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_chevron_down"
+                app:tint="#64748B"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Chi tiết -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E2E8F0" />
+
+        <!-- Chi tiết mở rộng -->
         <LinearLayout
             android:id="@+id/layout_subject_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="#F8FAFC"
-            android:visibility="gone"
-            android:padding="2dp">
+            android:padding="16dp"
+            android:visibility="gone">
 
-            <TableLayout
+            <!-- Bảng điểm chi tiết -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CHI TIẾT ĐIỂM THÀNH PHẦN"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#64748B"
+                android:layout_marginBottom="12dp"
+                android:letterSpacing="0.08" />
+
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:stretchColumns="*">
+                app:cardCornerRadius="12dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@android:color/white">
 
-                <TableRow android:background="#1F2937" android:paddingVertical="10dp">
-                    <TextView style="@style/DiemTableHead" android:text="Học kỳ" />
-                    <TextView style="@style/DiemTableHead" android:text="Thành phần" />
-                    <TextView style="@style/DiemTableHead" android:text="15p" />
-                    <TextView style="@style/DiemTableHead" android:text="Giữa kỳ" />
-                    <TextView style="@style/DiemTableHead" android:text="Cuối kỳ" />
-                    <TextView style="@style/DiemTableHead" android:text="TB học kỳ" />
-                </TableRow>
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:stretchColumns="*">
 
-                <TableRow android:background="#FFFFFF" android:paddingVertical="12dp" android:gravity="center_vertical">
-                    <TextView
-                        android:id="@+id/txt_sem_name"
-                        style="@style/DiemTableBody"
-                        android:text="2025-2026" />
+                    <TableRow
+                        android:background="#3B82F6"
+                        android:paddingVertical="10dp">
 
-                    <TextView
-                        android:id="@+id/txt_score_oral"
-                        style="@style/DiemTableBody"
-                        android:text="10, 6, 7" />
+                        <TextView
+                            style="@style/DiemTableHead"
+                            android:text="Thành phần"
+                            android:textColor="@android:color/white" />
 
-                    <TextView
-                        android:id="@+id/txt_score_15m"
-                        style="@style/DiemTableBody"
-                        android:text="7, 9" />
+                        <TextView
+                            style="@style/DiemTableHead"
+                            android:text="Điểm"
+                            android:textColor="@android:color/white" />
 
-                    <TextView
-                        android:id="@+id/txt_score_mid"
-                        style="@style/DiemTableBody"
-                        android:text="9.0" />
+                        <TextView
+                            style="@style/DiemTableHead"
+                            android:text="Hệ số"
+                            android:textColor="@android:color/white" />
+                    </TableRow>
 
-                    <TextView
-                        android:id="@+id/txt_score_final"
-                        style="@style/DiemTableBody"
-                        android:text="10.0" />
+                    <TableRow
+                        android:background="#FFFFFF"
+                        android:paddingVertical="10dp">
 
-                    <TextView
-                        android:id="@+id/txt_score_sem_avg"
-                        style="@style/DiemTableBody"
-                        android:text="9.3"
-                        android:textStyle="bold"
-                        android:textColor="#1E293B" />
-                </TableRow>
-            </TableLayout>
+                        <TextView
+                            style="@style/DiemTableBody"
+                            android:text="Điểm miệng" />
+
+                        <TextView
+                            android:id="@+id/txt_score_oral"
+                            style="@style/DiemTableBody"
+                            android:text="---" />
+
+                        <TextView
+                            style="@style/DiemTableBody"
+                            android:text="x1" />
+                    </TableRow>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E2E8F0" />
+
+                    <TableRow
+                        android:background="#FFFFFF"
+                        android:paddingVertical="10dp">
+
+                        <TextView
+                            style="@style/DiemTableBody"
+                            android:text="Điểm 15 phút" />
+
+                        <TextView
+                            android:id="@+id/txt_score_15m"
+                            style="@style/DiemTableBody"
+                            android:text="---" />
+
+                        <TextView
+                            style="@style/DiemTableBody"
+                            android:text="x1" />
+                    </TableRow>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E2E8F0" />
+
+                    <TableRow
+                        android:background="#FFFFFF"
+                        android:paddingVertical="10dp">
+
+                        <TextView
+                            style="@style/DiemTableBody"
+                            android:text="Điểm giữa kỳ" />
+
+                        <TextView
+                            android:id="@+id/txt_score_mid"
+                            style="@style/DiemTableBody"
+                            android:text="---" />
+
+                        <TextView
+                            style="@style/DiemTableBody"
+                            android:text="x2" />
+                    </TableRow>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#E2E8F0" />
+
+                    <TableRow
+                        android:background="#F1F5F9"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            style="@style/DiemTableBody"
+                            android:text="Điểm cuối kỳ"
+                            android:textStyle="bold"
+                            android:textColor="#1F2937" />
+
+                        <TextView
+                            android:id="@+id/txt_score_final"
+                            style="@style/DiemTableBody"
+                            android:text="---"
+                            android:textStyle="bold"
+                            android:textColor="#1F2937" />
+
+                        <TextView
+                            style="@style/DiemTableBody"
+                            android:text="x3"
+                            android:textStyle="bold"
+                            android:textColor="#1F2937" />
+                    </TableRow>
+                </TableLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Điểm trung bình môn -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:background="@android:color/holo_blue_light"
+                android:padding="12dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Điểm trung bình môn:"
+                    android:textColor="#1E3A8A"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txt_score_sem_avg"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0.0"
+                    android:textColor="#1E3A8A"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_marginEnd="8dp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

@@ -2,7 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Quyền Internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Quyền đọc/ghi bộ nhớ (cho lưu thẻ) -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- Quyền sử dụng sinh trắc học (vân tay/Face ID) -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.USE_FINGERPRINT" />
 
     <application
         android:allowBackup="true"
@@ -13,36 +22,92 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DOANQLDIEM"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
+        tools:targetApi="31">
 
+        <!-- Login Activity -->
         <activity
             android:name=".LoginActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity" android:exported="false" />
-        <activity android:name=".hosonguoihocActivity"/>
-        <activity android:name=".cauhinhActivity"/>
-        <activity android:name=".diemActivity"/>
-        <activity android:name=".vietdonActivity"/>
-        <activity android:name=".create_vietdonActivity"/>
-        <activity android:name=".muonphongActivity"/>
-        <activity android:name=".create_muonphongActivity"/>
-        <activity android:name=".phananhActivity"/>
-        <activity android:name=".capnhathosoActivity"/>
-        <activity android:name=".thongbaoActivity"/>
-        <activity android:name=".thoikhoabieuActivity"/>
-        <activity android:name=".hocphiActivity"/>
-        <activity android:name=".ForgotPasswordActivity" android:exported="false"/>
-        <activity android:name=".ResetPasswordActivity" android:exported="false"/>
+        <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <activity
+            android:name=".hosonguoihocActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".cauhinhActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".diemActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".vietdonActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".create_vietdonActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".muonphongActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".create_muonphongActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".phananhActivity"
+            android:screenOrientation="portrait" />
+
+        <!-- ⭐ capnhathosoActivity (Thẻ học sinh) -->
+        <activity
+            android:name=".capnhathosoActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".thongbaoActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".thoikhoabieuActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".hocphiActivity"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".ResetPasswordActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- Thanh toán thành công -->
+        <activity
             android:name=".thanhtoanthanhcongActivity"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="portrait">
             <intent-filter android:label="Thanh toán thành công">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -50,6 +115,17 @@
                 <data android:scheme="myapp" android:host="payment-success" />
             </intent-filter>
         </activity>
+
+        <!-- ⭐ FILE PROVIDER - Để chia sẻ file ảnh thẻ học sinh ⭐ -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
     </application>
 

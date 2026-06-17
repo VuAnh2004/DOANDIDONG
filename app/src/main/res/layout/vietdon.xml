@@ -31,7 +31,7 @@
                 android:layout_marginBottom="16dp"
                 android:text="VIẾT ĐƠN NGHỈ HỌC MỚI"
                 android:textStyle="bold"
-                android:textSize="15sp"
+                android:textSize="12sp"
                 app:cornerRadius="12dp"
                 app:backgroundTint="#1E3A8A"
                 app:icon="@android:drawable/ic_input_add"

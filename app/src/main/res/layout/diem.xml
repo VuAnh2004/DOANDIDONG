@@ -1,19 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_diem_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8F9FA"
+    android:background="#F5F7FA"
     android:fitsSystemWindows="true">
 
+    <!-- Header Toolbar -->
     <include layout="@layout/toolbar_header" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,15 +23,14 @@
             android:orientation="vertical"
             android:paddingBottom="24dp">
 
+            <!-- Card tìm kiếm nâng cao -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="16dp"
+                android:layout_margin="16dp"
                 app:cardCornerRadius="20dp"
                 app:cardElevation="4dp"
-                app:cardPreventCornerOverlap="true">
+                app:cardBackgroundColor="@android:color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -37,77 +38,61 @@
                     android:orientation="vertical"
                     android:padding="20dp">
 
-                    <LinearLayout
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="🔍 Tìm kiếm và Lọc"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="#1F2937"
+                        android:layout_marginBottom="16dp" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_year"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="2">
+                        android:hint="📅 Năm học"
+                        app:boxStrokeColor="@color/primary_blue"
+                        app:hintTextColor="@color/primary_blue"
+                        app:endIconMode="dropdown_menu">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/layout_year"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                            android:layout_width="0dp"
+                        <AutoCompleteTextView
+                            android:id="@+id/spinner_year"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginEnd="8dp"
-                            android:layout_weight="1"
-                            android:hint="Năm học"
-                            app:boxCornerRadiusTopStart="12dp"
-                            app:boxCornerRadiusTopEnd="12dp"
-                            app:boxCornerRadiusBottomStart="12dp"
-                            app:boxCornerRadiusBottomEnd="12dp"
-                            app:hintTextColor="#1E3A8A"
-                            app:endIconMode="dropdown_menu">
+                            android:inputType="none"
+                            android:textSize="15sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                            <AutoCompleteTextView
-                                android:id="@+id/spinner_year"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="none"
-                                android:minHeight="48dp"
-                                android:paddingHorizontal="12dp"
-                                android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium" />
-                        </com.google.android.material.textfield.TextInputLayout>
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_semester"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:hint="📚 Học kỳ"
+                        app:boxStrokeColor="@color/primary_blue"
+                        app:hintTextColor="@color/primary_blue"
+                        app:endIconMode="dropdown_menu">
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/layout_semester"
-                            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-                            android:layout_width="0dp"
+                        <AutoCompleteTextView
+                            android:id="@+id/spinner_semester"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginStart="8dp"
-                            android:layout_weight="1"
-                            android:hint="Học kỳ"
-                            app:boxCornerRadiusTopStart="12dp"
-                            app:boxCornerRadiusTopEnd="12dp"
-                            app:boxCornerRadiusBottomStart="12dp"
-                            app:boxCornerRadiusBottomEnd="12dp"
-                            app:hintTextColor="#1E3A8A"
-                            app:endIconMode="dropdown_menu">
-
-                            <AutoCompleteTextView
-                                android:id="@+id/spinner_semester"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:inputType="none"
-                                android:minHeight="48dp"
-                                android:paddingHorizontal="12dp"
-                                android:textSize="14sp"
-                                android:fontFamily="sans-serif-medium" />
-                        </com.google.android.material.textfield.TextInputLayout>
-                    </LinearLayout>
+                            android:inputType="none"
+                            android:textSize="15sp" />
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/layout_subject"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
-                        android:hint="Môn học"
-                        app:boxCornerRadiusTopStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:hintTextColor="#1E3A8A"
+                        android:layout_marginTop="12dp"
+                        android:hint="📖 Môn học"
+                        app:boxStrokeColor="@color/primary_blue"
+                        app:hintTextColor="@color/primary_blue"
                         app:endIconMode="dropdown_menu">
 
                         <AutoCompleteTextView
@@ -115,56 +100,82 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="none"
-                            android:minHeight="48dp"
-                            android:paddingHorizontal="12dp"
-                            android:textSize="14sp"
-                            android:fontFamily="sans-serif-medium" />
+                            android:textSize="15sp" />
                     </com.google.android.material.textfield.TextInputLayout>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btn_search"
-                        android:layout_width="match_parent"
-                        android:layout_height="56dp"
-                        android:layout_marginTop="24dp"
-                        android:text="Tìm kiếm"
-                        android:textAllCaps="false"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:backgroundTint="#1E3A8A"
-                        app:cornerRadius="16dp"
-                        app:rippleColor="#40FFFFFF" />
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#1E3A8A"
-                android:gravity="center"
-                android:paddingVertical="14dp"
-                android:text="KẾT QUẢ HỌC TẬP"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.05" />
-
+            <!-- Container danh sách kết quả -->
             <LinearLayout
                 android:id="@+id/container_items"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingHorizontal="16dp"
-                android:paddingTop="12dp" />
+                android:paddingHorizontal="16dp" />
 
+            <!-- Container tổng kết theo học kỳ -->
+            <LinearLayout
+                android:id="@+id/container_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginTop="8dp" />
+
+            <!-- Container tổng kết theo học kỳ -->
+            <LinearLayout
+                android:id="@+id/container_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginTop="8dp" />
+
+            <!-- ===== THÊM CONTAINER TỔNG KẾT CẢ NĂM ===== -->
+            <LinearLayout
+                android:id="@+id/container_year_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginTop="4dp" />
+            <!-- ========================================= -->
+
+            <!-- Empty state -->
+            <LinearLayout
+                android:id="@+id/empty_state"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:visibility="gone"
+                android:layout_marginTop="32dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Không có dữ liệu"
+                    android:textColor="#94A3B8"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hãy chọn năm học và học kỳ để xem kết quả"
+                    android:textColor="#CBD5E1"
+                    android:textSize="13sp"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
     <ProgressBar
         android:id="@+id/loading_progress"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:indeterminateTint="#1E3A8A"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:indeterminateTint="@color/primary_blue" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

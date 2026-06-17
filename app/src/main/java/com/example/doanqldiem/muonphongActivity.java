@@ -2,7 +2,6 @@ package com.example.doanqldiem;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,10 +13,6 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -31,12 +26,12 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class muonphongActivity extends AppCompatActivity {
+public class muonphongActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private BookingAdapter adapter;
     private ProgressBar progressBar;
-    private String studentId; // Đã bỏ gán cứng
+    private String studentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,58 +39,62 @@ public class muonphongActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.muonphong);
 
-        // Lấy StudentID từ SharedPreferences
+        // Lấy StudentID từ SharedPreferences - Đảm bảo key này khớp với LoginActivity
         SharedPreferences prefs = getSharedPreferences("USER", MODE_PRIVATE);
         studentId = prefs.getString("StudentID", "");
+        
+        // Nếu StudentID trống, thử lấy UserID làm dự phòng
+        if (studentId.isEmpty()) {
+            studentId = prefs.getString("UserID", "");
+        }
 
         if (studentId.isEmpty()) {
-            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Thông tin người dùng không hợp lệ. Vui lòng đăng nhập lại!", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
 
-        // 1. Fix lỗi lấn Header
-        View mainLayout = findViewById(android.R.id.content);
-        ViewCompat.setOnApplyWindowInsetsListener(mainLayout, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
-
-        progressBar = findViewById(R.id.loading_progress);
-        recyclerView = findViewById(R.id.recycler_bookings);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        adapter = new BookingAdapter(new ArrayList<>());
-        recyclerView.setAdapter(adapter);
-
+        initViews();
         setupClickListeners();
         loadHistory();
     }
 
+    private void initViews() {
+        progressBar = findViewById(R.id.loading_progress);
+        recyclerView = findViewById(R.id.recycler_bookings);
+        
+        if (recyclerView != null) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            adapter = new BookingAdapter(new ArrayList<>());
+            recyclerView.setAdapter(adapter);
+        }
+    }
+
     private void setupClickListeners() {
-        findViewById(R.id.btn_dang_ky).setOnClickListener(v -> {
-            startActivity(new Intent(this, create_muonphongActivity.class));
-        });
-
-        ImageView imgCauHinh = findViewById(R.id.btn_setting);
-        if (imgCauHinh != null) {
-            imgCauHinh.setOnClickListener(v -> {
-                startActivity(new Intent(this, cauhinhActivity.class));
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        View btnDangKy = findViewById(R.id.btn_dang_ky);
+        if (btnDangKy != null) {
+            btnDangKy.setOnClickListener(v -> {
+                startActivity(new Intent(this, create_muonphongActivity.class));
             });
         }
 
-        ImageView thongbao = findViewById(R.id.btn_bell);
-        if (thongbao != null) {
-            thongbao.setOnClickListener(v -> {
-                startActivity(new Intent(this, thongbaoActivity.class));
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            });
-        }
-
-        View logo = findViewById(R.id.logotruong);
+        // Toolbar Header listeners
+        ImageView logo = findViewById(R.id.logotruong);
         if (logo != null) logo.setOnClickListener(v -> finish());
+        
+        View btnSetting = findViewById(R.id.btn_setting);
+        if (btnSetting != null) {
+            btnSetting.setOnClickListener(v -> {
+                startActivity(new Intent(this, cauhinhActivity.class));
+            });
+        }
+
+        View btnBell = findViewById(R.id.btn_bell);
+        if (btnBell != null) {
+            btnBell.setOnClickListener(v -> {
+                startActivity(new Intent(this, thongbaoActivity.class));
+            });
+        }
     }
 
     @Override
@@ -108,6 +107,7 @@ public class muonphongActivity extends AppCompatActivity {
 
     private void loadHistory() {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
+        
         muonphongapi api = RetrofitClient.getClient().create(muonphongapi.class);
         api.getBookings(studentId).enqueue(new Callback<List<BookingModel>>() {
             @Override
@@ -115,19 +115,23 @@ public class muonphongActivity extends AppCompatActivity {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
                 if (response.isSuccessful() && response.body() != null) {
                     adapter.updateData(response.body());
+                } else if (response.code() == 404) {
+                    // Không có dữ liệu cũng không báo lỗi
+                    adapter.updateData(new ArrayList<>());
                 }
             }
 
             @Override
             public void onFailure(@NonNull Call<List<BookingModel>> call, @NonNull Throwable t) {
                 if (progressBar != null) progressBar.setVisibility(View.GONE);
-                Toast.makeText(muonphongActivity.this, "Lỗi tải lịch sử", Toast.LENGTH_SHORT).show();
+                Toast.makeText(muonphongActivity.this, "Không thể kết nối máy chủ", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private class BookingAdapter extends RecyclerView.Adapter<BookingAdapter.ViewHolder> {
         private List<BookingModel> list;
+        
         public BookingAdapter(List<BookingModel> list) { this.list = list; }
 
         public void updateData(List<BookingModel> newList) {
@@ -138,6 +142,7 @@ public class muonphongActivity extends AppCompatActivity {
         @NonNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            // Sử dụng item_muonphong.xml đã được thiết kế
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_muonphong, parent, false);
             return new ViewHolder(view);
         }
@@ -145,15 +150,25 @@ public class muonphongActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
             BookingModel m = list.get(position);
-            holder.txtRoomName.setText(m.getRoomName() != null ? m.getRoomName() : "N/A");
+            
+            holder.txtRoomName.setText(m.getRoomName() != null ? m.getRoomName() : "Phòng học");
             holder.txtStatus.setText(m.getStatusText());
-            holder.txtTimeRange.setText(m.getStartTime() + " -> " + m.getEndTime());
-            holder.txtPurpose.setText("Lý do: " + m.getPurpose());
-
-            if (m.getStatusText().contains("duyệt") || m.getStatusText().contains("trả")) {
-                holder.txtStatus.setTextColor(android.graphics.Color.parseColor("#10B981"));
-            } else {
-                holder.txtStatus.setTextColor(android.graphics.Color.parseColor("#F59E0B"));
+            holder.txtTimeRange.setText(m.getStartTime() + " - " + m.getEndTime());
+            holder.txtPurpose.setText(m.getPurpose());
+            
+            // Cập nhật giao diện trạng thái dựa trên màu sắc
+            String status = m.getStatus() != null ? m.getStatus() : "";
+            switch (status) {
+                case "Approved":
+                case "Returned":
+                    holder.txtStatus.setBackgroundResource(R.drawable.status_approved_bg);
+                    break;
+                case "Pending":
+                    holder.txtStatus.setBackgroundResource(R.drawable.status_pending_bg);
+                    break;
+                default:
+                    holder.txtStatus.setBackgroundResource(R.drawable.status_rejected_bg);
+                    break;
             }
         }
 

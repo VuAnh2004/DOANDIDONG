@@ -9,9 +9,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import api.RetrofitClient;
 import api.cauhinhapi;
@@ -22,11 +23,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import com.google.android.material.button.MaterialButton;
 
-public class cauhinhActivity extends AppCompatActivity {
+public class cauhinhActivity extends BaseActivity {
 
     private AutoCompleteTextView autoHocKy, autoNamHoc;
     private MaterialButton btnConfirm;
-    private String currentUsername = "admin";
+    private String currentUsername;
 
     // Khai báo SharedPreferences
     private static final String PREFS_NAME = "AppConfig";
@@ -38,6 +39,16 @@ public class cauhinhActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cauhinh);
+
+        // Lấy username từ SharedPreferences
+        SharedPreferences userPrefs = getSharedPreferences("USER", MODE_PRIVATE);
+        currentUsername = userPrefs.getString("Username", "");
+
+        if (currentUsername.isEmpty()) {
+            Toast.makeText(this, "Vui lòng đăng nhập lại!", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         initViews();
 
@@ -53,18 +64,7 @@ public class cauhinhActivity extends AppCompatActivity {
         TextView btnExit = findViewById(R.id.btnExitFA);
         if (btnExit != null) btnExit.setOnClickListener(v -> finish());
 
-        ImageView btnSetting = findViewById(R.id.btn_setting);
-        if (btnSetting != null) btnSetting.setOnClickListener(v -> finish());
-        //  Click Icon thong bao
-        ImageView thongbao = findViewById(R.id.btn_bell);
-        if (thongbao != null) {
-            thongbao.setOnClickListener(v -> {
-                Intent intent = new Intent(cauhinhActivity.this, thongbaoActivity.class);
-                startActivity(intent);
-                // Hiệu ứng chuyển cảnh mượt
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            });
-        }
+        // Các nút Toolbar đã được xử lý ở BaseActivity
     }
 
     private void initViews() {
@@ -78,8 +78,12 @@ public class cauhinhActivity extends AppCompatActivity {
         String year = prefs.getString(KEY_YEAR, "");
         String semester = prefs.getString(KEY_SEMESTER, "");
 
-        if (!year.isEmpty()) autoNamHoc.setText(year, false);
-        if (!semester.isEmpty()) autoHocKy.setText(semester, false);
+        if (!year.isEmpty()) {
+            autoNamHoc.setText(year, false);
+        }
+        if (!semester.isEmpty()) {
+            autoHocKy.setText(semester, false);
+        }
     }
 
     private void saveLocalConfig(String year, String semester) {
@@ -87,7 +91,7 @@ public class cauhinhActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(KEY_YEAR, year);
         editor.putString(KEY_SEMESTER, semester);
-        editor.apply(); // Lưu vào máy
+        editor.apply();
     }
 
     private void fetchInitialData() {
@@ -99,48 +103,110 @@ public class cauhinhActivity extends AppCompatActivity {
                     CauHinhResponse data = response.body();
 
                     if (data.getOptions() != null) {
-                        if (data.getOptions().getYears() != null) {
-                            autoNamHoc.setAdapter(new ArrayAdapter<>(cauhinhActivity.this,
-                                    android.R.layout.simple_list_item_1, data.getOptions().getYears()));
+                        // Set adapter cho năm học
+                        if (data.getOptions().getYears() != null && !data.getOptions().getYears().isEmpty()) {
+                            ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(cauhinhActivity.this,
+                                    android.R.layout.simple_dropdown_item_1line, data.getOptions().getYears());
+                            autoNamHoc.setAdapter(yearAdapter);
                         }
-                        if (data.getOptions().getSemesters() != null) {
-                            autoHocKy.setAdapter(new ArrayAdapter<>(cauhinhActivity.this,
-                                    android.R.layout.simple_list_item_1, data.getOptions().getSemesters()));
+
+                        // Set adapter cho học kỳ
+                        if (data.getOptions().getSemesters() != null && !data.getOptions().getSemesters().isEmpty()) {
+                            ArrayAdapter<String> semesterAdapter = new ArrayAdapter<>(cauhinhActivity.this,
+                                    android.R.layout.simple_dropdown_item_1line, data.getOptions().getSemesters());
+                            autoHocKy.setAdapter(semesterAdapter);
                         }
                     }
+                } else {
+                    // Nếu không có dữ liệu từ server, dùng dữ liệu mặc định
+                    setDefaultOptions();
                 }
             }
+
             @Override
-            public void onFailure(@NonNull Call<CauHinhResponse> call, @NonNull Throwable t) {}
+            public void onFailure(@NonNull Call<CauHinhResponse> call, @NonNull Throwable t) {
+                // Nếu lỗi mạng, dùng dữ liệu mặc định
+                setDefaultOptions();
+                Toast.makeText(cauhinhActivity.this, "Không thể kết nối server, dùng dữ liệu mặc định", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    private void handleConfiguration() {
-        String year = autoNamHoc.getText().toString();
-        String semester = autoHocKy.getText().toString();
+    private void setDefaultOptions() {
+        // Dữ liệu mặc định
+        String[] defaultYears = {"2023-2024", "2024-2025", "2025-2026"};
+        String[] defaultSemesters = {"Học kỳ 1", "Học kỳ 2"};
 
-        if (year.isEmpty() || semester.isEmpty()) {
-            Toast.makeText(this, "Vui lòng chọn đủ thông tin!", Toast.LENGTH_SHORT).show();
+        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, defaultYears);
+        autoNamHoc.setAdapter(yearAdapter);
+
+        ArrayAdapter<String> semesterAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, defaultSemesters);
+        autoHocKy.setAdapter(semesterAdapter);
+    }
+
+    private void handleConfiguration() {
+        String year = autoNamHoc.getText().toString().trim();
+        String semester = autoHocKy.getText().toString().trim();
+
+        if (year.isEmpty()) {
+            Toast.makeText(this, "Vui lòng chọn năm học!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // A. LƯU TẠI MÁY (CHUẨN HÓA)
+        if (semester.isEmpty()) {
+            Toast.makeText(this, "Vui lòng chọn học kỳ!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Chuyển đổi tên học kỳ sang mã code nếu cần
+        String semesterCode = semester.contains("2") ? "HK2" : "HK1";
+
+        // A. LƯU TẠI MÁY
         saveLocalConfig(year, semester);
 
-        // B. ĐỒNG BỘ LÊN SERVER
+        // B. GỬI BROADCAST THÔNG BÁO CHO CÁC ACTIVITY KHÁC
+        sendConfigChangedBroadcast(year, semester, semesterCode);
+
+        // C. ĐỒNG BỘ LÊN SERVER
         cauhinhapi api = RetrofitClient.getClient().create(cauhinhapi.class);
-        api.saveConfig(currentUsername, year, semester).enqueue(new Callback<ResponseBody>() {
+        api.saveConfig(currentUsername, year, semesterCode).enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                Toast.makeText(cauhinhActivity.this, "Cấu hình đã được lưu tại máy và máy chủ!", Toast.LENGTH_SHORT).show();
+                if (response.isSuccessful()) {
+                    Toast.makeText(cauhinhActivity.this, "Cấu hình đã được lưu thành công!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(cauhinhActivity.this, "Đã lưu tại máy (Server lỗi)", Toast.LENGTH_SHORT).show();
+                }
                 finish();
             }
+
             @Override
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                 // Dù server lỗi vẫn báo thành công vì đã lưu tại máy
-                Toast.makeText(cauhinhActivity.this, "Đã lưu tại máy (Máy chủ đang bận)", Toast.LENGTH_SHORT).show();
+                Toast.makeText(cauhinhActivity.this, "Đã lưu cấu hình tại máy", Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
+    }
+
+    /**
+     * Gửi broadcast thông báo cấu hình đã thay đổi
+     * Giúp các Activity khác (như thoikhoabieuActivity) reload dữ liệu
+     */
+    private void sendConfigChangedBroadcast(String year, String semester, String semesterCode) {
+        Intent intent = new Intent("CONFIG_CHANGED");
+        intent.putExtra("year", year);
+        intent.putExtra("semester", semester);
+        intent.putExtra("semester_code", semesterCode);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
+        // Log để debug
+        android.util.Log.d("CAUHINH", "===== BROADCAST SENT =====");
+        android.util.Log.d("CAUHINH", "Year: " + year);
+        android.util.Log.d("CAUHINH", "Semester: " + semester);
+        android.util.Log.d("CAUHINH", "Semester Code: " + semesterCode);
+        android.util.Log.d("CAUHINH", "=========================");
     }
 }

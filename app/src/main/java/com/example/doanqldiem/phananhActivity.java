@@ -16,7 +16,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
 
@@ -38,13 +37,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class phananhActivity extends AppCompatActivity {
+public class phananhActivity extends BaseActivity {
 
     private TextInputEditText edtStudentId, edtSubmitDate, edtContent;
     private TextView txtFileName;
     private ProgressBar progressBar;
     private final List<Uri> selectedFiles = new ArrayList<>();
-    private String studentId; // Đã bỏ gán cứng
+    private String studentId; 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

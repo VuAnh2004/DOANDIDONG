@@ -211,7 +211,7 @@
                 android:layout_marginTop="8dp"
                 android:text="GỬI ĐƠN NGHỈ HỌC"
                 android:textStyle="bold"
-                android:textSize="16sp"
+                android:textSize="12sp"
                 app:cornerRadius="12dp"
                 app:backgroundTint="#1E3A8A"
                 app:elevation="4dp" />

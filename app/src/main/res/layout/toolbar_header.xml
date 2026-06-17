@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:background="#FFFFFF"
     android:fitsSystemWindows="false"
-    app:elevation="0dp">
+    app:elevation="2dp">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:layout_width="match_parent"
@@ -24,13 +24,15 @@
             android:paddingHorizontal="12dp"
             android:paddingVertical="8dp">
 
-            <!-- Logo Trường -->
-            <ImageView
+            <!-- Logo Trường - Bo tròn với CircleImageView -->
+            <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/logotruong"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:src="@drawable/logotruong"
-                android:scaleType="fitCenter" />
+                app:civ_border_width="1.5dp"
+                app:civ_border_color="#E2E8F0"
+                android:scaleType="centerCrop" />
 
             <!-- Cụm chữ: Tên trường và Mô tả -->
             <LinearLayout
@@ -61,32 +63,41 @@
                     android:textColor="#666666" />
             </LinearLayout>
 
-            <!-- Icon Thông báo -->
-            <ImageView
+            <!-- Nút Thông báo - Dùng Vector Icon -->
+            <ImageButton
                 android:id="@+id/btn_bell"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/bell"
-                android:layout_marginEnd="12dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_notifications_none_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#1E3A8A"
+                android:layout_marginEnd="4dp"
                 android:contentDescription="Notification" />
 
-            <!-- Icon Cài đặt -->
-            <ImageView
+            <!-- Nút Cài đặt - Dùng Vector Icon -->
+            <ImageButton
                 android:id="@+id/btn_setting"
-                android:layout_width="26dp"
-                android:layout_height="26dp"
-                android:src="@drawable/setting"
-                android:layout_marginEnd="12dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:padding="8dp"
+                android:src="@drawable/ic_settings_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="#1E3A8A"
+                android:layout_marginEnd="8dp"
                 android:contentDescription="Settings" />
 
             <!-- Ảnh User tròn -->
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/btn_user"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/anhuser"
-                app:civ_border_width="1dp"
-                app:civ_border_color="#EEEEEE"/>
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:src="@drawable/ic_avatar_default"
+                app:civ_border_width="1.5dp"
+                app:civ_border_color="#F1F5F9"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
 
         </LinearLayout>
 

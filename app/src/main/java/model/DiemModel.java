@@ -21,6 +21,9 @@ public class DiemModel {
     @SerializedName("SemesterCode")
     private String SemesterCode;
 
+    @SerializedName("Year")
+    private String Year;
+
     @SerializedName("OralScores")
     private OralScores oralScores;
 
@@ -40,6 +43,7 @@ public class DiemModel {
     public String getSubjectName() { return SubjectName; }
     public String getSemesterName() { return SemesterName; }
     public String getSemesterCode() { return SemesterCode; }
+    public String getYear() { return Year; }
 
     public Double getMidtermScore() { return MidtermScore; }
     public Double getFinal_score() { return Final_score; }
@@ -48,7 +52,7 @@ public class DiemModel {
     public OralScores getOralScores() { return oralScores; }
     public Quizzes getQuizzes() { return quizzes; }
 
-    // ================== STRING METHODS (QUAN TRỌNG) ==================
+    // ================== STRING METHODS ==================
     public String getOralScoresString() {
         if (oralScores == null) return "---";
         List<String> s = new ArrayList<>();
@@ -64,6 +68,44 @@ public class DiemModel {
         if (quizzes.Quiz15Min1 != null) s.add(String.valueOf(quizzes.Quiz15Min1));
         if (quizzes.Quiz15Min2 != null) s.add(String.valueOf(quizzes.Quiz15Min2));
         return s.isEmpty() ? "---" : String.join(", ", s);
+    }
+
+    public int getTotalScoresCount() {
+        int count = 0;
+        if (oralScores != null) {
+            if (oralScores.OralScore1 != null) count++;
+            if (oralScores.OralScore2 != null) count++;
+            if (oralScores.OralScore3 != null) count++;
+        }
+        if (quizzes != null) {
+            if (quizzes.Quiz15Min1 != null) count++;
+            if (quizzes.Quiz15Min2 != null) count++;
+        }
+        if (MidtermScore != null) count++;
+        if (Final_score != null) count++;
+        return count;
+    }
+
+    public Double getHighestScore() {
+        Double max = null;
+        if (oralScores != null) {
+            max = updateMax(max, oralScores.OralScore1);
+            max = updateMax(max, oralScores.OralScore2);
+            max = updateMax(max, oralScores.OralScore3);
+        }
+        if (quizzes != null) {
+            max = updateMax(max, quizzes.Quiz15Min1);
+            max = updateMax(max, quizzes.Quiz15Min2);
+        }
+        max = updateMax(max, MidtermScore);
+        max = updateMax(max, Final_score);
+        return max;
+    }
+
+    private Double updateMax(Double currentMax, Double newValue) {
+        if (newValue == null) return currentMax;
+        if (currentMax == null) return newValue;
+        return Math.max(currentMax, newValue);
     }
 
     // ================== INNER CLASSES ==================
