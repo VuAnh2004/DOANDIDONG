@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_marginBottom="16dp"
+    android:background="@drawable/tab_inactive_background"
+    android:padding="1dp">
+
+    <!-- Header Thứ: Thứ 2 (20/02) -->
+    <TextView
+        android:id="@+id/tv_day_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#E5E7EB"
+        android:padding="10dp"
+        android:text="Thứ 2 (20/02)"
+        android:textColor="#1A1A1A"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:stretchColumns="1">
+
+        <!-- BUỔI SÁNG -->
+        <TableRow android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="Sáng"
+                android:textStyle="bold"
+                android:textColor="#1A1A1A"
+                android:background="#FFFFFF"
+                android:padding="4dp" />
+
+            <LinearLayout
+                android:id="@+id/layout_morning_periods"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#000000" /> <!-- Màu đường kẻ -->
+        </TableRow>
+
+        <!-- BUỔI CHIỀU -->
+        <TableRow android:layout_width="match_parent" android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="45dp"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="Chiều"
+                android:textStyle="bold"
+                android:textColor="#1A1A1A"
+                android:background="#FFFFFF"
+                android:padding="4dp" />
+
+            <LinearLayout
+                android:id="@+id/layout_afternoon_periods"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#000000" />
+        </TableRow>
+
+    </TableLayout>
+</LinearLayout>

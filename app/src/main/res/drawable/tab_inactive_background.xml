@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+
+    <!-- Màu nền của tab không active (màu trắng viền xám) -->
+    <solid android:color="#FFFFFF" />
+
+    <!-- Viền xám nhạt -->
+    <stroke
+        android:width="2dp"
+        android:color="#B0BEC5" />
+
+    <!-- Kích thước -->
+    <size
+        android:width="36dp"
+        android:height="36dp" />
+
+</shape>
